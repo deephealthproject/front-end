@@ -1,0 +1,52 @@
+<div class="div-main">
+  <div class="div-left">
+    <ul #myUL style="padding-left: 10px;">
+      <li>
+        <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon><span class="left-mat-text">My Models</span>
+        <ul class="nested">
+          <li><span id="myList"></span></li>
+          <li>My DeepLab 2</li>
+          <li><span class="caret">My DeepLab 3</span>
+            <ul class="nested">
+              <li>DeepLab.ckpt</li>
+            </ul>
+          </li>
+          <li>My ResNet-101</li>
+        </ul>
+      <li>
+        <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon><span class="left-mat-text">My Datasets</span>
+        <ul class="nested">
+          <li>Brain 2017</li>
+          <li>Brain 2018</li>
+          <li>Lungs 2018</li>
+        </ul>
+      </li>
+    </ul>
+
+  </div>
+  <div #idRight class="div-right">
+    <div class="div-right-menu">
+      <mat-icon class="div-right-menu-icon" svgIcon="folder"></mat-icon>
+      <div class="div-right-menu-text">
+        <p>Projects</p>
+      </div>
+    </div>
+    <div>
+      <button mat-flat-button (click)="createNewProject()">
+        <mat-icon class="div-right-icon" svgIcon="new-folder"></mat-icon>
+        <div class="div-right-text">
+          <p>Create new project</p>
+        </div>
+      </button>
+    </div>
+    <div *ngFor="let project of projects">
+      <div class="div-right-project" (click)="showProject(project.name)">
+        <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
+        <div class="div-right-text-project" >
+          <p>{{project.name}}</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

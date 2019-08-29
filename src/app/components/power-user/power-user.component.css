@@ -1,0 +1,150 @@
+.div-main {
+  height: calc(100% - 29px);
+  height: -o-calc(100% - 29px);
+  /* opera */
+  height: -webkit-calc(100% - 29px);
+  /* google, safari */
+  height: -moz-calc(100% - 29px);
+  /* firefox */
+  display: flex;
+}
+
+.div-left {
+  /*width: 19.29vw;*/
+  width: 18%;
+  display: inline-block;
+  border-right-style: solid;
+  border-width: 2px;
+  border-right-color: #1a759d;
+  height: 100%;
+  overflow: scroll;
+}
+
+.div-right {
+  width: calc(100% - 18.2%);
+  /*width: 97.4vw;*/
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  overflow: scroll;
+}
+
+.div-right-menu {
+  width: 100%;
+  border-bottom-style: solid;
+  border-bottom-width: 0.5px;
+  border-bottom-color: #1a759d;
+}
+
+.div-right-menu-icon {
+  transform: scale(2);
+  padding-left: 20px;
+  padding-right: 20px;
+  color: #1a759d;
+}
+
+.div-right-menu-text {
+  font-size: 20px;
+  display: inline-block;
+  color: #1a759d;
+}
+
+.div-right-icon {
+  transform: scale(1.5);
+  padding-left: 2px;
+  padding-right: 15px;
+  color: #1a759d;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.div-right-text {
+  font-size: 15px;
+  display: inline-block;
+  color: #1a759d;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.div-right-project {
+  font-size: 20px;
+  display: inline-block;
+  color: #1a759d;
+  background: #ecf3f4;
+  width: 100%;
+  cursor: pointer;
+}
+
+.div-right-icon-project {
+  transform: scale(1.5);
+  padding-left: 15px;
+  padding-right: 15px;
+  color: #1a759d;
+  vertical-align: middle;
+}
+
+.div-right-text-project {
+  font-size: 15px;
+  display: inline-block;
+  color: #1a759d;
+  vertical-align: middle;
+}
+
+.left-mat-icon {
+  vertical-align: middle;
+  color: #1a759d;
+  cursor: pointer;
+}
+
+.left-mat-text {
+  vertical-align: middle;
+  padding-left: 2px;
+  color: #1a759d;
+  cursor: pointer;
+}
+
+/* Remove default bullets */
+
+ul, #myUL {
+  list-style-type: none;
+}
+
+/* Remove margins and padding from the parent ul */
+
+#myUL {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the caret/arrow */
+
+.caret {
+  cursor: pointer;
+  user-select: none;
+  /* Prevent text selection */
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}

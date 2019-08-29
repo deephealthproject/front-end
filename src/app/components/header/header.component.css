@@ -1,0 +1,13 @@
+.mat-toolbar-row-custom-banner{
+    height: auto;
+    background-color: white;
+    background-image: linear-gradient(to right, white,#dbe7e9, #31b5ce , #126889);
+}
+
+.example-spacer {
+    flex: 1 1 auto;
+  }
+
+  .banner-right-text {
+    color: white;
+  }

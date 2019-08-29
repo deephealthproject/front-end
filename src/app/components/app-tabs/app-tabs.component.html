@@ -1,0 +1,13 @@
+<div class="div-top">
+    <div *ngFor="let tab of tabs" [ngSwitch]="tab.type">
+        <div class="div-open-tab" *ngSwitchCase="'User'" (click)="returnToUser()">
+            {{tab.name}}
+        </div>
+        <div class="div-open-tab" *ngSwitchCase="'Project'" (click)="returnToProject()">
+            {{tab.name}}
+        </div>
+        <div class="div-open-tab" *ngSwitchDefault>
+            {{tab.name}}
+        </div>
+    </div>
+</div>

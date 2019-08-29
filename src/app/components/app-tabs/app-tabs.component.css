@@ -1,0 +1,17 @@
+.div-top {
+    background: #1a759d;
+    height: 29px;
+    display: flex;
+}
+
+.div-open-tab {
+    background: #2db5d3;
+    width: max-content;
+    color: white;
+    padding: 5px;
+    cursor: pointer;
+    height: calc(100% - 10px);
+    display: inline-block;
+    border-right-color: #1A759D;
+    border-right-style: solid;
+}

@@ -1,0 +1,10 @@
+version: '3'
+services:
+
+  example-prod:
+    container_name: example-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'

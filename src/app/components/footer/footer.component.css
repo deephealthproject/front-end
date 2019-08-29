@@ -1,0 +1,38 @@
+
+.footer-toolbar{
+    background-color:#718187;
+    /* margin-top: 5px; */
+    height: -webkit-stretch;
+    /* position: fixed; */
+    width: 100%;
+    bottom: 0;
+    height: 67.33px;
+}
+
+.footer-toolbar .row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.logo-container img{
+    width: 80px;
+}
+
+img{
+    padding: 5px;
+}
+.logo-container{
+    float: left;
+    left: 45px;
+}
+
+.text-container{
+    color:white;
+    float: right;
+    padding: 0px 75px 0px 0;
+    font-family: 'arial', sans-serif;
+}
+

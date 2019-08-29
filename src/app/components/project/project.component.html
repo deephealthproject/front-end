@@ -1,0 +1,132 @@
+<div class="div-main">
+    <div class="div-left">
+        <div class="div-section">
+            <div class="div-section-title">
+                Task
+            </div>
+            <div class="div-section-box">
+                <mat-radio-group aria-label="tasks" value=false>
+                    <mat-radio-button class="div-section-box-button" color="primary" [checked]=false>Classification
+                    </mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">Segmentation</mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">Generative</mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">Detection</mat-radio-button>
+                </mat-radio-group>
+            </div>
+        </div>
+        <div class="div-section">
+            <div class="div-section-title">
+                Input type
+            </div>
+            <div class="div-section-box">
+                <mat-radio-group aria-label="input-types" value=false>
+                    <mat-radio-button class="div-section-box-button" color="primary">Text</mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">Image</mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">3D Volumes(Slices)
+                    </mat-radio-button>
+                    <mat-radio-button class="div-section-box-button" color="primary">Video</mat-radio-button>
+                </mat-radio-group>
+            </div>
+        </div>
+        <div class="div-section">
+            <div class="div-section-title">
+                Number of Classes
+            </div>
+        </div>
+    </div>
+
+    <div class="div-middle">
+        <div class="div-details">
+            <div class="div-details-title">
+                Details
+            </div>
+            <div class="div-details-box">
+                <div class="div-details-left-side">
+                    <div class="div-details-box-title">
+                        Input file
+                    </div>
+                    <div class="input-file">
+                        <form>
+                            <input #fileInput type="file" accept="image/*"
+                                (change)="BrowseProjectImage($event)">
+                        </form>
+                    </div>
+                    <div>
+                        <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto *ngIf="this._interactionService.projectImageURLSource">
+                    </div>
+                    <div>
+                        <button class="div-details-content-button" mat-flat-button 
+                            (click)="saveProjectImage()">Process Image</button>
+                    </div>
+                </div>
+
+                <div class="div-details-right-side">
+                    <div class="div-details-button">
+                        <div class="div-details-text-button">
+                            Re-Train the model
+                        </div>
+                        <div>
+                            <mat-slide-toggle color="primary"></mat-slide-toggle>
+                        </div>
+                    </div>
+                    <form>
+                        <div class="div-details-box-title">
+                            Pre-Training
+                        </div>
+                        <mat-form-field class="div-details-content">
+                            <mat-select [(value)]="selectedPreTraining">
+                                <mat-option value="option1">Option 1</mat-option>
+                                <mat-option value="option2">Option 2</mat-option>
+                                <mat-option value="option3">Option 3</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-details-box-title">
+                            Fine-Tuning
+                        </div>
+                        <mat-form-field class="div-details-content">
+                            <mat-select [(value)]="selectedFineTuning">
+                                <mat-option value="option1">Option 1</mat-option>
+                                <mat-option value="option2">Option 2</mat-option>
+                                <mat-option value="option3">Option 3</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-details-box-title">
+                            Input Size
+                        </div>
+                        <mat-form-field class="div-details-content">
+                            <mat-select [(value)]="selectedInputSize">
+                                <mat-option value="option1">Option 1</mat-option>
+                                <mat-option value="option2">Option 2</mat-option>
+                                <mat-option value="option3">Option 3</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-details-box-title">
+                            Loss
+                        </div>
+                        <mat-form-field class="div-details-content">
+                            <mat-select [(value)]="selectedLoss">
+                                <mat-option value="option1">Option 1</mat-option>
+                                <mat-option value="option2">Option 2</mat-option>
+                                <mat-option value="option3">Option 3</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="div-right">
+        <div>
+            <button #configurationButton mat-flat-button class="div-right-button">
+                Configuration
+            </button>
+            <button mat-flat-button class="div-right-button">
+                User Screen
+            </button>
+            <button mat-flat-button class="div-right-button">
+                Network Statistics
+            </button>
+        </div>
+    </div>
+</div>
