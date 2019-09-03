@@ -4,10 +4,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogConfig } from '@angular/material';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { InteractionService } from 'src/app/services/interaction.service';
+import { DataService } from 'src/app/services/data.service';
 
 export class Project {
   name: string
-  projects: Array<Project> = [];
+  id: number;
 }
 
 @Component({
@@ -17,11 +18,14 @@ export class Project {
   styleUrls: ['./power-user.component.css']
 })
 export class PowerUserComponent extends Project implements OnInit {
+  projects: Array<Project> = [];
   projectName: string;
+  projectId: number = -1;
 
   constructor(private _interactionService: InteractionService,
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer, public dialog: MatDialog) {
+    private domSanitizer: DomSanitizer, public dialog: MatDialog,
+    private _dataService: DataService) {
     super();
     this.matIconRegistry.addSvgIcon(
       'folder',
@@ -56,11 +60,13 @@ export class PowerUserComponent extends Project implements OnInit {
           }
           if (thatProjectExist == false) {
             this.projectName = result.inputValue;
+            this.projectId++;
             let newProject = new Project();
             console.log('Yes clicked');
             console.log("project " + this.projectName + " created");
             newProject.name = this.projectName;
-            this.projects.push(newProject);
+            newProject.id = this.projectId;
+            this.addProject(this.projectName, this.projectId);
           }
           else
             console.log('Project already exists');
@@ -78,11 +84,28 @@ export class PowerUserComponent extends Project implements OnInit {
     this._interactionService.showProjectTab(selectedProjectName);
   }
 
-  ngOnInit() {
-    
+  getProjects(): Array<Project> {
+    this._dataService.getProjects().subscribe(data => {
+      this.updateProjectsList(data);
+    })
+    return this.projects;
   }
 
+  addProject(projectName, projectId) {
+    this._dataService.addProject(projectName, projectId).subscribe(data => {
+      console.log(data.body);
+      this.projects = data.body;
+    })
+  }
+
+  updateProjectsList(data) {
+    this.projects = [];
+    for (var entry of data) {
+      this.projects.push(entry);
+    }
+  }
+
+  ngOnInit() {
+    this.projects = this.getProjects();
+  }
 }
-
-
-

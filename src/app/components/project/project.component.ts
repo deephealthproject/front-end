@@ -15,6 +15,15 @@ export class ProjectComponent implements OnInit {
   selectedLoss = 'option1';
   fileTempLocation: string;
 
+  classificationIsClicked = true;
+  userScreenIsClicked = false;
+  networkStatisticsIsClicked = false;
+
+  divMiddleShowStatus = true;
+  divLeftShowStatus = true;
+  divUserScreenShowStatus = false;
+  divNetworkStatisticsShowStatus = false;
+
   public message: string;
 
   constructor(public _interactionService: InteractionService, private dataService: DataService) { }
@@ -36,13 +45,43 @@ export class ProjectComponent implements OnInit {
     reader.onload = () => {
       this._interactionService.projectImageURLSource = reader.result;
     }
+    event.srcElement.value = null;
   }
 
-  saveProjectImage() {
+  processImage() {
     this.dataService.processImage(this.fileTempLocation).subscribe(data => {
       // TODO: de afisat continutul obiectului json primit
       console.log(data.body);
     });
+  }
 
+  openConfiguration() {
+    this.divLeftShowStatus=true;
+    this.divMiddleShowStatus=true;
+    this.divUserScreenShowStatus=false;
+    this.classificationIsClicked=true;
+    this.userScreenIsClicked=false;
+    this.networkStatisticsIsClicked=false;
+    this.divNetworkStatisticsShowStatus=false;
+  }
+
+  openUserScreen() {
+    this.divLeftShowStatus=false;
+    this.divMiddleShowStatus=false;
+    this.divNetworkStatisticsShowStatus=false;
+    this.divUserScreenShowStatus=true;
+    this.classificationIsClicked=false;
+    this.networkStatisticsIsClicked=false;
+    this.userScreenIsClicked=true;
+  }
+
+  openNetworkStatistics() {
+    this.divLeftShowStatus=false;
+    this.divMiddleShowStatus=false;
+    this.divUserScreenShowStatus=false;
+    this.classificationIsClicked=false;
+    this.userScreenIsClicked=false;
+    this.networkStatisticsIsClicked=true;
+    this.divNetworkStatisticsShowStatus=true;
   }
 }

@@ -1,5 +1,5 @@
 <div class="div-main">
-    <div class="div-left">
+    <div class="div-left" [hidden]="!divLeftShowStatus">
         <div class="div-section">
             <div class="div-section-title">
                 Task
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="div-middle">
+    <div class="div-middle" [hidden]=!divMiddleShowStatus>
         <div class="div-details">
             <div class="div-details-title">
                 Details
@@ -45,18 +45,21 @@
                     <div class="div-details-box-title">
                         Input file
                     </div>
-                    <div class="input-file">
-                        <form>
-                            <input #fileInput type="file" accept="image/*"
+                    <div>
+                        <label class="input-file-button mat-flat-button">
+                            <span>Choose Image</span>
+                            <input class="input-file-field" #fileInput type="file" accept="image/*"
                                 (change)="BrowseProjectImage($event)">
-                        </form>
+                        </label>
                     </div>
                     <div>
-                        <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto *ngIf="this._interactionService.projectImageURLSource">
+                        <p></p>
+                        <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto
+                            *ngIf="this._interactionService.projectImageURLSource">
                     </div>
                     <div>
-                        <button class="div-details-content-button" mat-flat-button 
-                            (click)="saveProjectImage()">Process Image</button>
+                        <button class="div-details-content-button" mat-flat-button (click)="processImage()">Process
+                            Image</button>
                     </div>
                 </div>
 
@@ -118,15 +121,26 @@
 
     <div class="div-right">
         <div>
-            <button #configurationButton mat-flat-button class="div-right-button">
+            <button mat-flat-button class="div-right-button" (click)="openConfiguration()"
+                [class.div-right-button-clicked]="classificationIsClicked">
                 Configuration
             </button>
-            <button mat-flat-button class="div-right-button">
+            <button mat-flat-button class="div-right-button" (click)="openUserScreen()"
+                [class.div-right-button-clicked]="userScreenIsClicked">
                 User Screen
             </button>
-            <button mat-flat-button class="div-right-button">
+            <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()"
+                [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 Network Statistics
             </button>
         </div>
+    </div>
+
+    <div class="div-user-screen" [hidden]="!divUserScreenShowStatus">
+        <p>user screen works</p>
+    </div>
+
+    <div class="div-network-statistics" [hidden]="!divNetworkStatisticsShowStatus">
+        <p>network works</p>
     </div>
 </div>
