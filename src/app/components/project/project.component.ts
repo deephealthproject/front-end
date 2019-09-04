@@ -15,7 +15,7 @@ export class ProjectComponent implements OnInit {
   selectedLoss = 'option1';
   fileTempLocation: string;
 
-  classificationIsClicked = true;
+  configurationIsClicked = true;
   userScreenIsClicked = false;
   networkStatisticsIsClicked = false;
 
@@ -29,7 +29,47 @@ export class ProjectComponent implements OnInit {
   constructor(public _interactionService: InteractionService, private dataService: DataService) { }
 
   ngOnInit() {
+    this._interactionService.projectDivMiddleShowStatus$.subscribe(
+      state => {
+        this.divMiddleShowStatus = state;
+      }
+    );
 
+    this._interactionService.projectDivLeftShowStatus$.subscribe(
+      state => {
+        this.divLeftShowStatus = state;
+      }
+    );
+
+    this._interactionService.projectDivNetworkStatisticsShowStatus$.subscribe(
+      state => {
+        this.divNetworkStatisticsShowStatus = state;
+      }
+    );
+
+    this._interactionService.projectDivUserScreenShowStatus$.subscribe(
+      state => {
+        this.divUserScreenShowStatus = state;
+      }
+    );
+
+    this._interactionService.projectConfigurationIsClicked$.subscribe(
+      state => {
+        this.configurationIsClicked = state;
+      }
+    );
+
+    this._interactionService.projectUserScreenIsClicked$.subscribe(
+      state => {
+        this.userScreenIsClicked = state;
+      }
+    );
+
+    this._interactionService.projectNetworkStatisticsIsClicked$.subscribe(
+      state => {
+        this.networkStatisticsIsClicked = state;
+      }
+    );
   }
 
   BrowseProjectImage(event: any) {
@@ -55,33 +95,36 @@ export class ProjectComponent implements OnInit {
     });
   }
 
-  openConfiguration() {
-    this.divLeftShowStatus=true;
-    this.divMiddleShowStatus=true;
-    this.divUserScreenShowStatus=false;
-    this.classificationIsClicked=true;
-    this.userScreenIsClicked=false;
-    this.networkStatisticsIsClicked=false;
-    this.divNetworkStatisticsShowStatus=false;
+  openUserScreen() {
+    this._interactionService.changeShowStateProjectDivLeft(false);
+    this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivUserScreen(true);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectUserScreenIsClicked(true);
   }
 
-  openUserScreen() {
-    this.divLeftShowStatus=false;
-    this.divMiddleShowStatus=false;
-    this.divNetworkStatisticsShowStatus=false;
-    this.divUserScreenShowStatus=true;
-    this.classificationIsClicked=false;
-    this.networkStatisticsIsClicked=false;
-    this.userScreenIsClicked=true;
+  openConfiguration() {
+    this._interactionService.changeShowStateProjectDivLeft(true);
+    this._interactionService.changeShowStateProjectDivMiddle(true);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivUserScreen(false);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(true);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectUserScreenIsClicked(false);
   }
 
   openNetworkStatistics() {
-    this.divLeftShowStatus=false;
-    this.divMiddleShowStatus=false;
-    this.divUserScreenShowStatus=false;
-    this.classificationIsClicked=false;
-    this.userScreenIsClicked=false;
-    this.networkStatisticsIsClicked=true;
-    this.divNetworkStatisticsShowStatus=true;
+    this._interactionService.changeShowStateProjectDivLeft(false);
+    this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivNetwork(true);
+    this._interactionService.changeShowStateProjectDivUserScreen(false);
+    
+    this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectNetworkIsClicked(true);
+    this._interactionService.changeStateProjectUserScreenIsClicked(false);
   }
 }

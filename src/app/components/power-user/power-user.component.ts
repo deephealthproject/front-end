@@ -24,7 +24,8 @@ export class PowerUserComponent extends Project implements OnInit {
 
   constructor(private _interactionService: InteractionService,
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer, public dialog: MatDialog,
+    private domSanitizer: DomSanitizer, 
+    public dialog: MatDialog,
     private _dataService: DataService) {
     super();
     this.matIconRegistry.addSvgIcon(
