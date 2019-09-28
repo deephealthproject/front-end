@@ -13,7 +13,7 @@ export class AppTabsComponent implements OnInit {
   tabs = this._interactionService.tabs;
 
   ngOnInit() {
-    let powerUserTab = this._interactionService.showUserTab("Power User");
+    this._interactionService.showUserTab("Power User");
   }
 
   returnToUser() {

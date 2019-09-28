@@ -2,6 +2,7 @@
     height: auto;
     background-color: white;
     background-image: linear-gradient(to right, white,#dbe7e9, #31b5ce , #126889);
+    padding-top: 8px;
 }
 
 .example-spacer {

@@ -1,3 +1,5 @@
+/* The default window */
+
 .div-main {
     height: calc(100% - 29px);
     height: -o-calc(100% - 29px);
@@ -8,6 +10,8 @@
     /* firefox */
 }
 
+/* the left side of the default window */
+
 .div-left {
     width: 18%;
     display: inline-block;
@@ -15,51 +19,43 @@
     overflow: auto;
 }
 
-.div-middle {
-    width: calc(100% - 18% - 18% - 4px);
+.div-left-section {
     display: inline-block;
-    height: 100%;
-    overflow: auto;
-    border-right-color: #1a759d;
-    border-right-width: 2px;
-    border-right-style: solid;
-    border-left-color: #1a759d;
-    border-left-width: 2px;
-    border-left-style: solid;
+    width: 100%;
 }
+
+.div-left-section-title {
+    width: 100%;
+    display: inline-block;
+    color: #084E6E;
+    text-align: center;
+    font-size: medium;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    background: #d7e6e8;
+}
+
+.div-left-section-box {
+    display: inline-block;
+    width: calc(100% - 10px);
+    padding-top: 5%;
+    padding-bottom: 5%;
+    padding-left: 10px;
+}
+
+.div-left-section-box-button {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+/* the right side of the default window, that stays open all the time */
 
 .div-right {
     width: 18%;
     display: inline-block;
     height: 100%;
     overflow: auto;
-}
-
-/*side divs*/
-
-.div-section {
-    display: inline-block;
-    width: 100%;
-}
-
-.div-section-title {
-    width: 100%;
-    display: inline-block;
-    font-size: 20px;
-    color: #084E6E;
-    background-color: #EEF4F5;
-    text-align: center;
-}
-
-.div-section-box {
-    display: inline-block;
-    width: 100%;
-}
-
-.div-section-box-button {
-    display: flex;
-    flex-direction: column;
-    padding: 2px;
 }
 
 .div-right-button {
@@ -82,46 +78,75 @@
     color: #084E83;
 }
 
-/*mid div*/
+/* the middle part of the default window */
 
-.div-details-right-side {
-    float: right;
+.div-middle {
+    width: calc(100% - 18% - 18% - 4px);
+    display: inline-block;
+    height: 100%;
+    overflow: auto;
+    border-right-color: #1a759d;
+    border-right-width: 2px;
+    border-right-style: solid;
+    border-left-color: #1a759d;
+    border-left-width: 2px;
+    border-left-style: solid;
+}
+
+.div-middle-box-bottom {
     width: calc(50% - 40px);
     padding: 20px;
 }
 
-.div-details-left-side {
-    float: left;
+.div-middle-box-top {
     width: calc(50% - 40px);
     padding: 20px;
 }
 
-.div-details-title {
+.div-middle-title {
     width: 100%;
-    font-size: 20px;
     color: #084E6E;
-    background-color: #EEF4F5;
     text-align: center;
+    font-size: medium;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    background: #d7e6e8;
 }
 
-.div-details-box {
+.div-middle-box {
     width: 100%;
     display: inline-block;
     font-size: 14px;
     color: #1a759d;
 }
 
-.div-details-box-title {
+.div-middle-box-title {
     width: 100%;
     display: inline-block;
     color: #1a759d;
     font-size: 12px;
 }
 
-.div-details-content {
+.div-middle-box-content {
     display: inline-block;
     padding-left: 3px;
     color: #1a759d;
+}
+
+.div-middle-slide-toggle-button {
+    width: 50%;
+    height: 50%;
+    width: 100%;
+    display: inline-block;
+    color: #1a759d;
+    font-size: 12px;
+}
+
+.div-middle-box-content-button {
+    display: inline-block;
+    background-color: #2DB5D3;
+    color: white;
+    display: flex;
 }
 
 .input-file {
@@ -134,24 +159,6 @@
     font-weight: bold;
 }
 
-.div-details-button {
-    width: 50%;
-    height: 50%;
-}
-
-.div-details-text-button {
-    width: 100%;
-    display: inline-block;
-    color: #1a759d;
-    font-size: 12px;
-}
-
-.div-details-content-button {
-    display: inline-block;
-    background-color: #2DB5D3;
-    color: white;
-    display: flex;
-}
 .input-file-field {
     display: none;
 }
@@ -161,8 +168,9 @@
     color: white;
 }
 
-[hidden] { display: none !important;}
-
+[hidden] {
+    display: none !important;
+}
 
 .div-user-screen {
     width: calc(100% - 18% - 2px);
@@ -172,6 +180,41 @@
     border-right-color: #1a759d;
     border-right-width: 2px;
     border-right-style: solid;
+}
+
+.div-user-screen-top-half {
+    width: 100%;
+    height: 50%;
+    display: inline-block;
+}
+
+.div-user-screen-bottom-half {
+    width: 100%;
+    height: 50%;
+    display: inline-block;
+}
+
+.div-user-screen-section-title {
+    width: 100%;
+    display: inline-block;
+    font-size: 20px;
+    color: #084E6E;
+    background-color: #A3D6E0;
+    text-align: center;
+}
+
+.div-user-screen-section-content {
+    display: flex;
+}
+
+.div-user-screen-image-input {
+    display: inline-block;
+}
+
+.div-user-screen-process-image-button {
+    background-color: #2DB5D3;
+    color: white;
+    float: right;
 }
 
 .div-network-statistics {

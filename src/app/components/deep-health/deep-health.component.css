@@ -1,6 +1,6 @@
 .deep-health-body {
-    height: calc(100% - 150.13px);
-    height: -o-calc(100% - 150.13px); /* opera */
-    height: -webkit-calc(100% - 150.13px); /* google, safari */
-    height: -moz-calc(100% - 150.13px); /* firefox */
+    height: calc(100% - 150.13px - 8px);
+    height: -o-calc(100% - 150.13px - 8px); /* opera */
+    height: -webkit-calc(100% - 150.13px - 8px); /* google, safari */
+    height: -moz-calc(100% - 150.13px - 8px); /* firefox */
 }

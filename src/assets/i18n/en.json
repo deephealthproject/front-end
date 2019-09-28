@@ -1,0 +1,44 @@
+{
+    "powerUser": {
+        "myModels": "My Models",
+        "projects": "Projects",
+        "createNewProject": "Create new project",
+        "projectName": "Project name"
+    },
+    "project": {
+        "task": "Task",
+        "classification": "Classification",
+        "segmentation": "Segmentation",
+        "generative": "Generative",
+        "detection": "Detection",
+        "inputType": "Input type",
+        "text": "Text",
+        "image": "Image",
+        "3DVolumes(Slices)": "3D Volumes(Slices)",
+        "video": "Video",
+        "numberOfClasses": "Number of Classes",
+        "details": "Details",
+        "inputFile": "Input file",
+        "chooseImage": "Choose Image",
+        "reTrainTheModel": "Re-Train the model",
+        "algorithm": "Algorithm",
+        "preTraining": "Pre-Training",
+        "fineTuning": "Fine-Tuning",
+        "inputSize": "Input Size",
+        "loss": "Loss",
+        "learningRate": "Learning rate",
+        "useDropout": "Use Dropout",
+        "configuration" : "Configuration",
+        "userScreen": "User Screen",
+        "networkStatistics": "Network Statistics",
+        "imageInput": "Image Input",
+        "processImage": "Process Image",
+        "networkDetails": "Network Details"
+    },
+    "header": {
+        "headerText": "Training models"
+    },
+    "footer": {
+        "footerText": "This project has received funding from the European Union’s Horizon 2020 research and innovation program under grant agreement No 82511"
+    }
+}

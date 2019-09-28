@@ -30,4 +30,29 @@ export class DataService {
     };
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
+
+  getDropDownDetails(taskName: string, selectorName: string): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/getDropDownDetails');
+    const payload = {
+      task: taskName,
+      selector: selectorName
+    }
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  getModels(): Observable<HttpResponse<any>> {
+    const url = "https://virtserver.swaggerhub.com/pritt/DeepHealthToolkitAPI/1.0.0/models";
+    return this.httpClient.get<any>(url);
+  }
+
+  getProperties(): Observable<HttpResponse<any>> {
+    const url = "https://virtserver.swaggerhub.com/pritt/DeepHealthToolkitAPI/1.0.0/properties";
+    return this.httpClient.get<any>(url);
+  }
+
+  getWeights(modelId): Observable<HttpResponse<any>> {
+    const baseUrl = "https://virtserver.swaggerhub.com/pritt/DeepHealthToolkitAPI/1.0.0/weights?model_id=";
+    const url = baseUrl.concat(modelId);
+    return this.httpClient.get<any>(url);
+  }
 }

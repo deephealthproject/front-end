@@ -10,6 +10,14 @@ import { ProjectComponent } from './components/project/project.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateService } from '@ngx-translate/core';
+
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 const routes: Routes = [
   { path: '', component: DeepHealthComponent },
@@ -30,16 +38,30 @@ const routes: Routes = [
     AppMaterialModule,
     BrowserAnimationsModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
+    })
   ],
   exports: [RouterModule,
     AppMaterialModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule
   ],
   entryComponents: [
     ConfirmDialogComponent
   ]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+  constructor(public translate: TranslateService) {
+    translate.setDefaultLang('en');
+    translate.use('en');
+  }
+}
