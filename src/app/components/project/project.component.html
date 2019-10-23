@@ -93,88 +93,111 @@
             </div>
 
             <div class="div-middle-box-bottom">
-                <div class="div-middle-slide-toggle-button">
-                    <span>{{'project.reTrainTheModel' | translate}}</span>
+                <div class="div-middle-box-bottom-left">
+                    <div class="div-middle-slide-toggle-button">
+                        <span>{{'project.reTrainTheModel' | translate}}</span>
+                        <div>
+                            <mat-slide-toggle color="primary" checked={{reTrainState}}
+                                (change)="changeStateReTrainToggle()">
+                            </mat-slide-toggle>
+                        </div>
+                    </div>
+                    <form>
+                        <div class="div-middle-box-title">
+                            {{'project.model' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                    {{option}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-middle-box-title">
+                            {{'project.preTraining' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <mat-select (selectionChange)="triggerSelectedPreTraining($event)" [(value)]=selectedOptionPreTraining>
+                                <mat-option *ngFor="let option of preTrainingDropdown" value={{option}}>
+                                    {{option}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-middle-box-title">
+                            {{'project.fineTuning' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <mat-select (selectionChange)="triggerSelectedFineTuning($event)" [(value)]=selectedOptionFineTuning>
+                                <mat-option *ngFor="let option of fineTuningDropdown" value={{option}}>
+                                    {{option}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <!-- <div class="div-middle-box-title">
+                            {{'project.inputSize' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <mat-select [(value)]=selectedOptionInputSize>
+                                <mat-option *ngFor="let option of inputSizeDropdown" value={{option}}>
+                                    {{option}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field> -->
+                        <div>
+                            <div #loss id="loss">
+                                <div class="div-middle-box-title">
+                                    {{'project.loss' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionLoss>
+                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div #learningRate id="learningRate">
+                                <div class="div-middle-box-title">
+                                    {{'project.learningRate' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <input matInput type="number" value={{learningRateValue}} step=0.00001
+                                        (change)="changeLearningRateValue($event)">
+                                </mat-form-field>
+                            </div>
+                            <div #useDropout id="useDropout">
+                                <div class="div-middle-box-content">
+                                    <mat-checkbox color="primary" [checked]=useDropoutCheckedState
+                                        (change)="changeUseDropoutCheckedState(checked)">
+                                        {{'project.useDropout' | translate}}
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="div-middle-box-bottom-right">
                     <div>
-                        <mat-slide-toggle color="primary" checked={{reTrainState}}
-                            (change)="changeStateReTrainToggle()">
-                        </mat-slide-toggle>
+                        <button mat-flat-button color="primary"
+                            (click)="inferenceModel(selectedWeight, selectedDataset)"
+                            [disabled]="disabledInferenceButton">
+                            {{'project.inference' | translate}}</button>
+                    </div>
+                    <div style="padding-top: 15px;" #dataAugmentationSection id=dataAugmentationSection>
+                        <div>{{'project.dataAugumentation' | translate}}</div>
+                        <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
+                            <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}</mat-checkbox>
+                        </div>
+                        <button mat-flat-button color="primary" (click)="trainModel(selectedModel, selectedDataset)"
+                            [disabled]="disabledTrainButton">
+                            {{'project.train' | translate}}</button>
+                        <!-- <button mat-flat-button color="warn" *ngIf="showStopButton"
+                        (click)="stopModel()">{{'project.stop' | translate}}</button> -->
+                        <div style="padding-top: 15px;" *ngIf="trainSpinner">
+                            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                        </div>
                     </div>
                 </div>
-                <form>
-                    <div class="div-middle-box-title">
-                        {{'project.algorithm' | translate}}
-                    </div>
-                    <mat-form-field class="div-middle-box-content">
-                        <mat-select [(value)]=selectedOptionAlgorithm>
-                            <mat-option *ngFor="let option of algorithmDropdown" value={{option}}>
-                                {{option}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <div class="div-middle-box-title">
-                        {{'project.preTraining' | translate}}
-                    </div>
-                    <mat-form-field class="div-middle-box-content">
-                        <mat-select [(value)]=selectedOptionPreTraining>
-                            <mat-option *ngFor="let option of preTrainingDropdown" value={{option}}>
-                                {{option}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <div class="div-middle-box-title">
-                        {{'project.fineTuning' | translate}}
-                    </div>
-                    <mat-form-field class="div-middle-box-content">
-                        <mat-select [(value)]=selectedOptionFineTuning>
-                            <mat-option *ngFor="let option of fineTuningDropdown" value={{option}}>
-                                {{option}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <div class="div-middle-box-title">
-                        {{'project.inputSize' | translate}}
-                    </div>
-                    <mat-form-field class="div-middle-box-content">
-                        <mat-select [(value)]=selectedOptionInputSize>
-                            <mat-option *ngFor="let option of inputSizeDropdown" value={{option}}>
-                                {{option}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <div>
-                        <div #loss id="loss">
-                            <div class="div-middle-box-title">
-                                {{'project.loss' | translate}}
-                            </div>
-                            <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionLoss>
-                                    <mat-option *ngFor="let option of lossDropdown" value={{option}}>
-                                        {{option}}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div #learningRate id="learningRate">
-                            <div class="div-middle-box-title">
-                                {{'project.learningRate' | translate}}
-                            </div>
-                            <mat-form-field class="div-middle-box-content">
-                                <input matInput type="number" value={{learningRateValue}} step=0.00001
-                                    (change)="changeLearningRateValue($event)">
-                            </mat-form-field>
-                        </div>
-                        <div #useDropout id="useDropout">
-                            <div class="div-middle-box-content">
-                                <mat-checkbox color="primary" [checked]=useDropoutCheckedState
-                                    (change)="changeUseDropoutCheckedState(checked)">
-                                    {{'project.useDropout' | translate}}
-                                </mat-checkbox>
-                            </div>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -193,6 +216,12 @@
                 [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 {{'project.networkStatistics' | translate}}
             </button>
+            <div class="div-user-screen-search">
+                <mat-icon class="left-mat-icon" svgIcon={{searchIcon}}></mat-icon>
+                <mat-form-field>
+                    <input matInput type="search" placeholder="search here">
+                </mat-form-field>
+            </div>
         </div>
     </div>
 

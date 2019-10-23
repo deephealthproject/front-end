@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { DataService } from './data.service';
+import { state } from '@angular/animations';
 
 export class TabObject {
   name: string;
@@ -66,8 +68,8 @@ export class InteractionService extends TabObject {
   checkedState3D$ = this._checkedState3DSource.asObservable();
 
   //project component -> currently selected value of selectors
-  private _selectedOptionAlgorithmSource = new Subject<string>();
-  selectedOptionAlgorithm$ = this._selectedOptionAlgorithmSource.asObservable();
+  private _selectedOptionModelSource = new Subject<string>();
+  selectedOptionModel$ = this._selectedOptionModelSource.asObservable();
   private _selectedOptionPreTrainingSource = new Subject<string>();
   selectedOptionPreTraining$ = this._selectedOptionPreTrainingSource.asObservable();
   private _selectedOptionFineTuningSource = new Subject<string>();
@@ -78,8 +80,8 @@ export class InteractionService extends TabObject {
   selectedOptionLoss$ = this._selectedOptionLossSource.asObservable();
 
   //project component -> div-details dropdown lists for selectors
-  private _dropdownAlgorithmSource = new Subject<Array<string>>();
-  dropdownAlgorithm$ = this._dropdownAlgorithmSource.asObservable();
+  private _dropdownModelSource = new Subject<Array<string>>();
+  dropdownModel$ = this._dropdownModelSource.asObservable();
   private _dropdownPreTrainingSource = new Subject<Array<string>>();
   dropdownPreTraining$ = this._dropdownPreTrainingSource.asObservable();
   private _dropdownFineTuningSource = new Subject<Array<string>>();
@@ -89,11 +91,24 @@ export class InteractionService extends TabObject {
   private _dropdownInputSizeSource = new Subject<Array<string>>();
   dropdownInputSize$ = this._dropdownInputSizeSource.asObservable();
 
-  //
+  //project component -> div-details re-Train toggle button, inference button
   private _reTrainButtonCheckedStateSource = new Subject<boolean>();
   reTrainButtonCheckedState$ = this._reTrainButtonCheckedStateSource.asObservable();
+  private _inferenceButtonStateSource = new Subject<boolean>();
+  inferenceButtonState$ = this._inferenceButtonStateSource.asObservable();
 
-  constructor() {
+  //
+  private _selectedModelIdSource = new Subject<boolean>();
+  selectedModelId$ = this._selectedModelIdSource.asObservable();
+
+  //
+  private _selectedDatasetIdSource = new Subject<boolean>();
+  selectedDataId$ = this._selectedDatasetIdSource.asObservable();
+
+  private _datasetResponseSource = new Subject<string>();
+  datasetResponse = this._datasetResponseSource.asObservable();
+
+  constructor(private _dataService: DataService) {
     super();
   }
 
@@ -111,10 +126,10 @@ export class InteractionService extends TabObject {
   }
 
   resetSelectedOptions() {
-    this._selectedOptionAlgorithmSource.next(null);
-    this._selectedOptionFineTuningSource.next(null);
-    this._selectedOptionInputSizeSource.next(null);
+    this._selectedOptionModelSource.next(null);
+    // this._selectedOptionInputSizeSource.next(null);
     this._selectedOptionPreTrainingSource.next(null);
+    this._selectedOptionFineTuningSource.next(null);
   }
 
   resetInputType(state: boolean) {
@@ -125,8 +140,7 @@ export class InteractionService extends TabObject {
   }
 
   resetDropdowns() {
-    this._dropdownAlgorithmSource.next(null);
-    this._dropdownFineTuningSource.next(null);
+    this._dropdownModelSource.next(null);
     this._dropdownInputSizeSource.next(null);
     this._dropdownPreTrainingSource.next(null);
   }
@@ -151,59 +165,74 @@ export class InteractionService extends TabObject {
     this.resetDropdowns();
 
     this.changeCheckedStateReTrainButton(false);
+    this.changeStateInferenceButton(false);
   }
 
-  changeCheckedStateReTrainButton(stare: boolean) {
-    this._reTrainButtonCheckedStateSource.next(stare);
-    if (stare == false) {
+  changeCheckedStateReTrainButton(state: boolean) {
+    this._reTrainButtonCheckedStateSource.next(state);
+    if (state == false) {
       let learningRate = document.getElementById("learningRate");
       learningRate.style.display = "none";
       let loss = document.getElementById("loss");
       loss.style.display = "none";
       let useDropout = document.getElementById("useDropout");
       useDropout.style.display = "none";
+      let dataAugmentationSection = document.getElementById("dataAugmentationSection");
+      dataAugmentationSection.style.display = "none";
     }
+  }
+  changeStateInferenceButton(state: boolean) {
+    this._inferenceButtonStateSource.next(state);
   }
 
   //deepHealth component -> which component is shown
-  changeShowStateProject(stare: boolean) {
-    this._projectStateSource.next(stare);
+  changeShowStateProject(state: boolean) {
+    this._projectStateSource.next(state);
   }
-  changeShowStatePowerUser(stare: boolean) {
-    this._powerUserStateSource.next(stare);
+  changeShowStatePowerUser(state: boolean) {
+    this._powerUserStateSource.next(state);
   }
 
   //project component -> which tab section is shown  
-  changeShowStateProjectDivLeft(stare: boolean) {
-    this._projectDivLeftShowStatusSource.next(stare);
+  changeShowStateProjectDivLeft(state: boolean) {
+    this._projectDivLeftShowStatusSource.next(state);
   }
-  changeShowStateProjectDivMiddle(stare: boolean) {
-    this._projectDivMiddleShowStatusSource.next(stare);
+  changeShowStateProjectDivMiddle(state: boolean) {
+    this._projectDivMiddleShowStatusSource.next(state);
   }
-  changeShowStateProjectDivUserScreen(stare: boolean) {
-    this._projectDivUserScreenShowStatusSource.next(stare);
+  changeShowStateProjectDivUserScreen(state: boolean) {
+    this._projectDivUserScreenShowStatusSource.next(state);
   }
-  changeShowStateProjectDivNetwork(stare: boolean) {
-    this._projectDivNetworkStatisticsShowStatusSource.next(stare);
+  changeShowStateProjectDivNetwork(state: boolean) {
+    this._projectDivNetworkStatisticsShowStatusSource.next(state);
   }
 
   //project component -> right div -> which tab is clicked
-  changeStateProjectConfigurationIsClicked(stare: boolean) {
-    this._projectConfigurationIsClickedSource.next(stare);
+  changeStateProjectConfigurationIsClicked(state: boolean) {
+    this._projectConfigurationIsClickedSource.next(state);
   }
-  changeStateProjectUserScreenIsClicked(stare: boolean) {
-    this._projectUserScreenIsClickedSource.next(stare);
+  changeStateProjectUserScreenIsClicked(state: boolean) {
+    this._projectUserScreenIsClickedSource.next(state);
   }
-  changeStateProjectNetworkIsClicked(stare: boolean) {
-    this._projectNetworkStatisticsIsClickedSource.next(stare);
+  changeStateProjectNetworkIsClicked(state: boolean) {
+    this._projectNetworkStatisticsIsClickedSource.next(state);
   }
 
   //project component -> image input
-  changeShowStateProjectDivDetailsLeftSide(stare: boolean) {
-    this._projectDivDetailsLeftSideShowStatusSource.next(stare);
+  changeShowStateProjectDivDetailsLeftSide(state: boolean) {
+    this._projectDivDetailsLeftSideShowStatusSource.next(state);
   }
-  changeStateDisableProcessImageButton(stare: boolean) {
-    this._projectDisabledProcessImageButtonSource.next(stare);
+  changeStateDisableProcessImageButton(state: boolean) {
+    this._projectDisabledProcessImageButtonSource.next(state);
+  }
+
+  //
+  changeSelectedModel(model) {
+    this._selectedModelIdSource.next(model);
+  }
+
+  changeSelectedDatasetId(datasetId) {
+    this._selectedDatasetIdSource.next(datasetId);
   }
 
   //app tabs -> which tab to show/close
@@ -230,6 +259,25 @@ export class InteractionService extends TabObject {
       console.log("The " + projectName + " tab is already open");
     }
   }
+  
+  initialiseFineTuning() {
+    this._dataService.getDatasets().subscribe(data => {
+      if (data.body != undefined || data != undefined) {
+        this.populateFineTuning(data);
+      }
+    })
+  }
+
+  populateFineTuning(contentData) {
+    var datasetsValuesNameList = [];
+    this._datasetResponseSource = contentData;
+
+    contentData.forEach(dataset => {
+      datasetsValuesNameList.push(dataset.name);
+    });
+    this._dropdownFineTuningSource = datasetsValuesNameList[contentData];
+   }
+
 
   closeProjectTab() {
     //tabs.length needs to be greater than 1 in order not to close the user tab in case you click it while you are in Power User

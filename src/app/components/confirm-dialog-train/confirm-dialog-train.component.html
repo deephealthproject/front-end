@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
+
+<mat-dialog-content>
+  <!-- <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}"> -->
+  <div>
+    {{dialogContent}} <span>{{trainingTime}}</span>
+  </div>
+  <div style="padding-top: 15px" [ngStyle]="{'color': modelColor}">{{messageModel}}</div>
+  <div style="padding-top: 15px" [ngStyle]="{'color': datasetColor}">{{messageDataset}}</div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{'confirm-dialog-train.CancelButton' | translate}}</button>
+  <button mat-raised-button (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
+</mat-dialog-actions>

@@ -1,6 +1,25 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { InteractionService } from 'src/app/services/interaction.service';
 import { DataService } from 'src/app/services/data.service';
+import { MatDialogConfig, MatDialog } from '@angular/material';
+import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
+import { TranslateService } from '@ngx-translate/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { PropertyInstance } from 'src/app/components/power-user/power-user.component';
+
+export class ProcessingObject {
+  processId;
+  process_type;
+  process_status: ProcessStatus;
+}
+
+enum ProcessStatus {
+  none,
+  running,
+  finished,
+  error
+}
 
 @Component({
   selector: 'app-project',
@@ -40,15 +59,15 @@ export class ProjectComponent implements OnInit {
   public message: string;
 
   //selectors option list
-  selectors: Array<string> = ["Algorithm", "Pre-Training", "Fine-Tuning", "Input-Size", "Loss"];
-  algorithmDropdown;
+  selectors: Array<string> = ["Model", "Pre-Training", "Fine-Tuning", "Input-Size", "Loss"];
+  modelDropdown;
   preTrainingDropdown;
   fineTuningDropdown;
   inputSizeDropdown;
   lossDropdown;
 
   //selectors currently selected option
-  selectedOptionAlgorithm = null;
+  selectedOptionModel = null;
   selectedOptionPreTraining = null;
   selectedOptionFineTuning = null;
   selectedOptionLoss = null;
@@ -62,39 +81,116 @@ export class ProjectComponent implements OnInit {
   learningRateValue;
   checked;
 
-  constructor(public _interactionService: InteractionService, private _dataService: DataService) { }
+  //data augmentation
+  flippingCheckedState;
+  rotationCheckedState;
+  colorJitterCheckedState;
+  gaussianNoiseCheckedState;
+  croppingCheckedState;
+  scalingCheckedState;
+  shiftingCheckedState;
+  shearingCheckedState;
+
+  dropDownDetailsResponseData = undefined;
+  datasetsResponseData = undefined;
+
+  dataAugmentation = [
+    { label: 'Flipping', selected: false },
+    { label: 'Rotation', selected: false },
+    { label: 'Color Jitter', selected: false },
+    { label: 'Gaussian Noise', selected: false },
+    { label: 'Cropping', selected: false },
+    { label: 'Scaling', selected: false },
+    { label: 'Shifting', selected: false },
+    { label: 'Shearing', selected: false }
+  ];
+
+  selectedModel;
+  selectedDataset;
+  selectedWeight;
+
+  trainProcessId;
+  inferenceProcessId;
+
+  searchIcon = "search";
+  trainProcessStarted = false;
+  disabledTrainButton = false;
+  disabledInferenceButton = false;
+  trainSpinner = false;
+  //showTrainButton = true;
+  //showStopButton = false;
+
+  constructor(public _interactionService: InteractionService, private _dataService: DataService, public dialog: MatDialog,
+    private matIconRegistry: MatIconRegistry,
+    private domSanitizer: DomSanitizer,
+    private translate: TranslateService) {
+    this.matIconRegistry.addSvgIcon(
+      'search',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-search-24px.svg')
+    );
+  }
 
   @ViewChild('loss') loss: ElementRef;
   @ViewChild('learningRate') learningRate: ElementRef;
   @ViewChild('useDropout') useDropout: ElementRef;
+  @ViewChild('dataAugmentationSection') dataAugmentationSection: ElementRef;
 
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
     this.initialiseDivRightClickedButtons();
+
     this.initialiseTasks();
     this.initialiseInputTypes();
     this.initialiseImageInput();
     this.initialiseDropdowns();
     this.initiliaseSelectedOptions();
-    this.initialiseReTrainButton();
-
-    this.learningRate.nativeElement.style.display = "none";
-    this.loss.nativeElement.style.display = "none";
-    this.useDropout.nativeElement.style.display = "none";
+    this.initialiseReTrainSection();
+    this.initialiseSelectedModel();
+    this.initialiseSelectedDataset();
+    this.initialiseFineTuning();
+    this.initialiseInferenceButton();
+    this.getProperties();
   }
 
-  initialiseReTrainButton() {
+  initialiseInferenceButton() {
+    this._interactionService.inferenceButtonState$.subscribe(
+      state => {
+        this.disabledInferenceButton = state;
+      }
+    );
+  }
+
+  initialiseSelectedModel() {
+    this._interactionService.selectedModelId$.subscribe(
+      model => {
+        this.selectedModel = model;
+      }
+    )
+  }
+
+  initialiseSelectedDataset() {
+    this._interactionService.selectedDataId$.subscribe(
+      dataset => {
+        this.selectedDataset = dataset;
+      }
+    )
+  }
+
+  initialiseReTrainSection() {
     this._interactionService.reTrainButtonCheckedState$.subscribe(
       state => {
         this.reTrainState = state;
       }
     );
+    this.dataAugmentationSection.nativeElement.style.display = "none";
+
+    this.dataAugmentation.forEach(item => item.selected = false);
   }
 
   initialiseDropdowns() {
-    this._interactionService.dropdownAlgorithm$.subscribe(
+    this._interactionService.dropdownModel$.subscribe(
       state => {
-        this.algorithmDropdown = state;
+        this.modelDropdown = state;
       }
     );
 
@@ -104,17 +200,35 @@ export class ProjectComponent implements OnInit {
       }
     );
 
-    this._interactionService.dropdownInputSize$.subscribe(
-      state => {
-        this.inputSizeDropdown = state;
-      }
-    );
+    // this._interactionService.dropdownInputSize$.subscribe(
+    //   state => {
+    //     this.inputSizeDropdown = state;
+    //   }
+    // );
 
     this._interactionService.dropdownPreTraining$.subscribe(
       state => {
         this.preTrainingDropdown = state;
       }
     );
+  }
+
+  initialiseFineTuning() {
+    this._dataService.getDatasets().subscribe(data => {
+      if (data.body != undefined || data != undefined) {
+        this.populateFineTuning(data);
+      }
+    })
+  }
+
+  populateFineTuning(contentData) {
+    var datasetsValuesNameList = [];
+    this.datasetsResponseData = contentData;
+
+    contentData.forEach(dataset => {
+      datasetsValuesNameList.push(dataset.name);
+    });
+    this.fineTuningDropdown = datasetsValuesNameList;
   }
 
   initialiseImageInput() {
@@ -158,9 +272,9 @@ export class ProjectComponent implements OnInit {
   }
 
   initiliaseSelectedOptions() {
-    this._interactionService.selectedOptionAlgorithm$.subscribe(
+    this._interactionService.selectedOptionModel$.subscribe(
       state => {
-        this.selectedOptionAlgorithm = state;
+        this.selectedOptionModel = state;
       }
     );
 
@@ -324,36 +438,76 @@ export class ProjectComponent implements OnInit {
   }
 
   selectTask(selectedTask: string) {
-    for (var selector of this.selectors) {
-      switch (selector) {
-        case "Algorithm":
-          this._dataService.getDropDownDetails(selectedTask, selector).subscribe(data => {
-            this.algorithmDropdown = data.body.values;
-            console.log(data.body);
-          })
-          break;
-
-        case "Pre-Training":
-          this._dataService.getDropDownDetails(selectedTask, selector).subscribe(data => {
-            this.preTrainingDropdown = data.body.values;
-            console.log(data.body);
-          })
-          break;
-
-        case "Fine-Tuning":
-          this._dataService.getDropDownDetails(selectedTask, selector).subscribe(data => {
-            this.fineTuningDropdown = data.body.values;
-            console.log(data.body);
-          })
-          break;
-        case "Input-Size":
-          this._dataService.getDropDownDetails(selectedTask, selector).subscribe(data => {
-            this.inputSizeDropdown = data.body.values;
-            console.log(data.body);
-          })
-          break;
+    this.resetDropDownDetails();
+    this._dataService.getDropDownDetails(selectedTask).subscribe(data => {
+      if (data.body != undefined || data != undefined) {
+        this.populateDropDownDetails(data);
+        console.log(data);
       }
-    }
+    })
+  }
+
+  populateDropDownDetails(contentData: any) {
+    console.log(contentData);
+    this.dropDownDetailsResponseData = contentData;
+    this.modelDropdown = [];
+    contentData.models.forEach(model => {
+      this.modelDropdown.push(model.name);
+    });
+  }
+
+  triggerSelectedModel(event) {
+    this.preTrainingDropdown = [];
+    var selectedAlgorithm = event.value;
+    this.dropDownDetailsResponseData.models.forEach(model => {
+      if (model.name == selectedAlgorithm) {
+        this.selectedModel = model;
+        model.pretraining.forEach(pretraining => {
+          this.preTrainingDropdown.push(pretraining.name);
+        });
+      }
+
+    });
+  }
+
+  triggerSelectedPreTraining(event) {
+    var selectedPreTraining = event.value;
+    this.dropDownDetailsResponseData.models.forEach(model => {
+      model.pretraining.forEach(pretraining => {
+        if (pretraining.name == selectedPreTraining) {
+          this.selectedWeight = pretraining;
+          console.log(this.selectedWeight.id);
+          pretraining.properties.forEach(property => {
+            switch (property.name) {
+              case "Learning rate":
+                this.learningRateValue = property.value;
+                break;
+              case "Loss function":
+                this.selectedOptionLoss = property.value;
+                break;
+              case "Use dropout":
+                this.useDropoutCheckedState = property.value;
+                this.changeUseDropoutCheckedState(property.value);
+                break;
+            }
+          })
+        }
+      });
+    });
+  }
+
+  triggerSelectedFineTuning(event) {
+    var selectedFineTuning = event.value;
+    this.datasetsResponseData.forEach(dataset => {
+      if (dataset.name == selectedFineTuning) {
+        this.selectedDataset = dataset;
+      }
+    });
+  }
+
+  resetDropDownDetails() {
+    this.modelDropdown = [];
+    this.preTrainingDropdown = [];
   }
 
   showImageInput() {
@@ -416,26 +570,37 @@ export class ProjectComponent implements OnInit {
 
   changeStateReTrainToggle() {
     if (this.reTrainState == true) {
+      this.disabledInferenceButton = false;
       this._interactionService.changeCheckedStateReTrainButton(false);
+      this.dataAugmentation.forEach(item => item.selected = false);
+      this.dataAugmentationSection.nativeElement.style.display = "none";
+      this.learningRate.nativeElement.style.display = "none";
+      this.loss.nativeElement.style.display = "none";
+      this.useDropout.nativeElement.style.display = "none";
     }
     else {
+      this.disabledInferenceButton = true;
       this._interactionService.changeCheckedStateReTrainButton(true);
-      this.getProperties();
+      this.dataAugmentation.forEach(item => item.selected = false);
+      this.dataAugmentationSection.nativeElement.style.display = "block";
+      this.learningRate.nativeElement.style.display = "block";
+      this.loss.nativeElement.style.display = "block";
+      this.useDropout.nativeElement.style.display = "block";
     }
   }
 
   searchProperty(data) {
     for (let entry of data) {
       switch (entry.name) {
-        case "Learning rate":
-          this.learningRate.nativeElement.style.display = "block";
+        case this.translate.instant('project.learningRate'):
+          this.learningRate.nativeElement.style.display = "none";
           this.learningRateValue = entry.default;
-        case "Loss function":
-          this.loss.nativeElement.style.display = "block";
+        case this.translate.instant('project.loss'):
+          this.loss.nativeElement.style.display = "none";
           this.lossDropdown = entry.values;
           this.selectedOptionLoss = entry.default;
-        case "Use dropout":
-          this.useDropout.nativeElement.style.display = "block";
+        case this.translate.instant('project.useDropout'):
+          this.useDropout.nativeElement.style.display = "none";
           this.useDropoutCheckedState = entry.default;
       }
     }
@@ -448,4 +613,118 @@ export class ProjectComponent implements OnInit {
     })
   }
 
+  trainModel(selectedModel, selectedDataset) {
+    if (selectedModel != null && selectedDataset != null) {
+      console.log("The model: " + selectedModel.id);
+      console.log("The dataset: " + selectedDataset.dataset);
+    }
+    this.trainProcessStarted = true;
+    this.trainSpinner = true;
+
+    let selectedProperties: PropertyInstance[] = [];
+    let learning = new PropertyInstance;
+    learning.name = "Learning rate";
+    learning.value = this.learningRateValue;
+    selectedProperties.push(learning);
+    let loss = new PropertyInstance;
+    loss.name = "Loss function";
+    loss.value = this.selectedOptionLoss;
+    selectedProperties.push(loss);
+    let dropout = new PropertyInstance;
+    dropout.name = "Use dropout";
+    dropout.value = this.useDropoutCheckedState;
+    selectedProperties.push(dropout);
+
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('project.trainNewModel'),
+      dialogContent: this.translate.instant('project.areYouSureTrain'),
+      trainingTime: this.translate.instant('project.estimatedTimeTrain'),
+      modelSelected: selectedModel,
+      datasetSelected: selectedDataset
+    }
+
+    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result && selectedModel != null && selectedDataset != null) {
+        this._dataService.trainModel(selectedModel.id, selectedDataset.dataset, selectedProperties).subscribe(data => {
+          if (data.body.result == "ok")
+            this.trainSpinner = false;
+          this.disabledTrainButton = true;
+          //this.trainProcessStarted = true;
+          //this.showTrainButton = false;
+          //this.showStopButton = true;
+          let process = new ProcessingObject;
+          process.processId = data.body.process_id;
+          process.process_status = ProcessStatus.none;
+          this.checkStatus(process);
+        })
+      }
+      else {
+        this.trainProcessStarted = false;
+        this.trainSpinner = false;
+        console.log('Canceled');
+      }
+    });
+  }
+
+  stopModel() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('project.stopTraining'),
+      dialogContent: this.translate.instant('project.areYouSureStop'),
+      trainingTime: ""
+    }
+
+    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result) {
+        //this.showTrainButton = true;
+        //this.showStopButton = false;
+        console.log("stop");
+        this.trainProcessStarted = false;
+      }
+      else {
+        console.log('Canceled');
+      }
+    });
+  }
+
+  inferenceModel(selectedWeight, selectedDataset) {
+    this.disabledInferenceButton = true;
+    if (selectedDataset != null && selectedWeight != null) {
+      this._dataService.inferenceModel(selectedWeight, selectedDataset).subscribe(data => {
+        console.log(data.body);
+        this.inferenceProcessId = data.body.process_id;
+        console.log(this.inferenceProcessId);
+      });
+    }
+  }
+
+  checkStatus(process) {
+    this._dataService.getStatus(process.process_id).subscribe(data => {
+      let status: any = data.status;
+      process.process_type = status.process_type;
+      process.process_status = status.process_status;
+      if (this.trainProcessStarted == true) {
+        if (process.process_status == "running") {
+          console.log(process.process_status);
+          setTimeout(() => {
+            this.checkStatus(process)
+          }, 2 * 1000);
+        }
+        if (process.process_status == "finished") {
+          this.trainProcessStarted = false;
+        }
+      }
+    })
+  }
 }

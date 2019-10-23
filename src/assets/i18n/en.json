@@ -1,9 +1,11 @@
 {
     "powerUser": {
         "myModels": "My Models",
+        "myDatasets": "My Datasets",
         "projects": "Projects",
         "createNewProject": "Create new project",
-        "projectName": "Project name"
+        "projectName": "Project name",
+        "messageCreateProject": "Please select a model and a dataset in order to create a new project!"
     },
     "project": {
         "task": "Task",
@@ -21,24 +23,53 @@
         "inputFile": "Input file",
         "chooseImage": "Choose Image",
         "reTrainTheModel": "Re-Train the model",
-        "algorithm": "Algorithm",
+        "model": "Model",
         "preTraining": "Pre-Training",
         "fineTuning": "Fine-Tuning",
-        "inputSize": "Input Size",
-        "loss": "Loss",
+        "inputSize": "Input-Size",
+        "loss": "Loss function",
         "learningRate": "Learning rate",
-        "useDropout": "Use Dropout",
-        "configuration" : "Configuration",
+        "useDropout": "Use dropout",
+        "configuration": "Configuration",
         "userScreen": "User Screen",
         "networkStatistics": "Network Statistics",
         "imageInput": "Image Input",
         "processImage": "Process Image",
-        "networkDetails": "Network Details"
+        "networkDetails": "Network Details",
+        "flipping": "Flipping",
+        "rotation": "Rotation",
+        "colorJitter": "Color Jitter",
+        "gaussianNoise": "Gaussian Noise",
+        "cropping": "Cropping",
+        "scaling": "Scaling",
+        "shifting": "Shifting",
+        "shearing": "Shearing",
+        "inference": "Inference",
+        "train": "Train",
+        "dataAugumentation": "Data Augumentation",
+        "stop": "Stop",
+        "trainNewModel": "Train a new model",
+        "areYouSureTrain": "Are you sure you want to train a new model? The training will take approximately: ",
+        "estimatedTimeTrain": "23 hours",
+        "stopTraining": "Stop the process",
+        "areYouSureStop": "Are you sure you want to stop the training process?"
     },
     "header": {
         "headerText": "Training models"
     },
     "footer": {
         "footerText": "This project has received funding from the European Union’s Horizon 2020 research and innovation program under grant agreement No 82511"
+    },
+    "confirm-dialog": {
+        "OKButton": "OK",
+        "CancelButton": "Cancel"
+    },
+    "confirm-dialog-train": {
+        "errorModel": "Please select a model.",
+        "errorDataset": "Please select fine-tuning dataset.",
+        "selectedModel": "Selected model: ",
+        "selectedDataset": "Selected dataset: ",
+        "OKButton": "OK",
+        "CancelButton": "Cancel"
     }
 }
