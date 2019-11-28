@@ -8,35 +8,35 @@ import { DataService } from 'src/app/services/data.service';
 import { TranslateService } from '@ngx-translate/core';
 
 export class Project {
-  name: string
   id: number;
-  // modelId: number;
-  // datasetId: number;
-  // weight: Weight;
+  name: string
+  modelweights_id: number;
 }
 
 export class Dataset {
-  id;
-  name;
-  dataset;
+  id: number;
+  name: string;
+  path: string;
+  ispretraining: boolean;
   color: string;
 }
 
 export class Model {
-  id;
-  name;
-  location;
-  task;
+  id: number;
+  name: string;
+  location: string;
+  task_id: number;
   weightsList: Array<Weight>;
   color: string;
 }
 
 export class Weight {
   id: number;
-  model_id: number;
-  name: string;
   location: string;
-  propertioes: Array<PropertyInstance>;
+  model_id: number;
+  pretraining_id: number;
+  properties: Array<PropertyInstance>;
+  //name: string;
   color: string;
 }
 
@@ -56,8 +56,9 @@ export class PowerUserComponent extends Project implements OnInit {
   projects: Array<Project> = [];
   projectName: string;
   projectId: number = -1;
+  task_id: number;
   selectedModel: Model;
-  selectedDataset: Dataset;
+  selectedFineTuning: Dataset;
   selectedWeight: Weight;
   errorMessage: string = "";
   models: Array<Model> = [];
@@ -67,7 +68,8 @@ export class PowerUserComponent extends Project implements OnInit {
   weights: Array<Weight> = [];
   weightsShowStatus: boolean = false;
   datasets: Array<Dataset>;
-  selectedDatasetColor;
+  selectedFineTuningColor;
+  modelweights_id: number = -1;
 
   constructor(private _interactionService: InteractionService,
     private matIconRegistry: MatIconRegistry,
@@ -97,11 +99,11 @@ export class PowerUserComponent extends Project implements OnInit {
 
   ngOnInit() {
     this.projects = this.getProjects();
-    this.models = this.getModels();
+    // this.models = this.getModels();
     this.modelsList.nativeElement.style.display = "none";
     this.weightsShowStatus = false;
     this.weights = [];
-    this.datasets = this.getDatasets();
+    // this.datasets = this.getDatasets();
     this.datasetsList.nativeElement.style.display = "none";
   }
 
@@ -134,11 +136,12 @@ export class PowerUserComponent extends Project implements OnInit {
             console.log("project " + this.projectName + " created");
             newProject.name = this.projectName;
             newProject.id = this.projectId;
+            newProject.modelweights_id = this.modelweights_id;
             // newProject.modelId = this.selectedModel.id;
-            // newProject.datasetId = this.selectedDataset.id;
+            // newProject.datasetId = this.selectedFineTuning.id;
             // newProject.weight = this.selectedWeight;
-            // this.addProject(this.projectName, this.projectId, this.selectedModel.id, this.selectedDataset.id, this.selectedWeight);
-            this.addProject(this.projectName, this.projectId);
+            // this.addProject(this.projectName, this.projectId, this.selectedModel.id, this.selectedFineTuning.id, this.selectedWeight);
+            this.addProject(this.projectName, this.projectId, this.modelweights_id, this.task_id);
           }
           else
             console.log('Project already exists');
@@ -154,37 +157,30 @@ export class PowerUserComponent extends Project implements OnInit {
     this._interactionService.changeShowStatePowerUser(false);
     this._interactionService.changeShowStateProject(true);
     this._interactionService.showProjectTab(selectedProject.name);
-    this._interactionService.initialiseFineTuning();
-    // //TODO: de sters
-    // if (selectedProject.name == "newProjectName") {
-    //   if (selectedProject.modelId == null || selectedProject.modelId == undefined) {
-    //     selectedProject.modelId = this.selectedModel.id;
-    //     console.log("currently selected model: " + selectedProject.modelId);
-    //   }
-    //   if (selectedProject.datasetId == null || selectedProject.datasetId == undefined) {
-    //     selectedProject.datasetId = this.selectedDataset.dataset;
-    //     console.log("currently selected dataset: " + selectedProject.datasetId);
-    //   }
-    // }
-    // //
-    // else {
-    //   this._interactionService.changeSelectedModel(selectedProject.modelId);
-    //   console.log("currently selected model: " + selectedProject.modelId);
-    //   this._interactionService.changeSelectedDatasetId(selectedProject.datasetId);
-    //   console.log("currently selected dataset: " + selectedProject.modelId);
-    // }
+    this._interactionService.changeCurrentProject(selectedProject);
+    //this._interactionService.resetProject();
 
+    this._interactionService.changeShowStateProjectDivLeft(true);
+    this._interactionService.changeShowStateProjectDivMiddle(true);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivUserScreen(false);
+    this._interactionService.changeShowStateProjectDivNotifications(false);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(true);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectUserScreenIsClicked(false);
+    this._interactionService.changeStateProjectNotificationsIsClicked(false);
   }
 
   getProjects(): Array<Project> {
-    this._dataService.getProjects().subscribe(data => {
+    this._dataService.projects().subscribe(data => {
       this.updateProjectsList(data);
     })
     return this.projects;
   }
 
-  addProject(projectName, projectId) {
-    this._dataService.addProject(projectName, projectId).subscribe(data => {
+  addProject(projectName, projectId, modelweights_id, task_id) {
+    this._dataService.project(projectName, projectId, modelweights_id, task_id).subscribe(data => {
       console.log(data.body);
       this.projects = data.body;
     })
@@ -204,12 +200,13 @@ export class PowerUserComponent extends Project implements OnInit {
     }
   }
 
-  getModels() {
-    this._dataService.getModels().subscribe(data => {
-      this.updateModelsList(data);
-    })
-    return this.models;
-  }
+  // getModels() {
+  //   let str: string = undefined;
+  //   this._dataService.getModels(str).subscribe(data => {
+  //     this.updateModelsList(data);
+  //   })
+  //   return this.models;
+  // }
 
   expandModels() {
     if (this.modelsList.nativeElement.style.display == "none") {
@@ -223,13 +220,17 @@ export class PowerUserComponent extends Project implements OnInit {
 
   updateWeightsList(model: Model, data) {
     model.weightsList = [];
+    console.log(model.weightsList);
     for (let entry of data) {
       model.weightsList.push(entry);
     }
+    console.log(model.weightsList);
   }
 
   getWeights(model: Model) {
-    this._dataService.getWeights(model.id).subscribe(data => {
+    let modelId = model.id;
+    console.log(modelId);
+    this._dataService.getWeights(modelId).subscribe(data => {
       this.updateWeightsList(model, data);
     })
   }
@@ -248,15 +249,12 @@ export class PowerUserComponent extends Project implements OnInit {
     this.selectedModel = model;
     this.updateBackgroundColorModel();
     this._interactionService.changeSelectedModel(model);
-    this.hideMessageCreateNewProject();
   }
 
   selectDataset(dataset) {
-    this.selectedDataset = dataset;
+    this.selectedFineTuning = dataset;
     this.updateBackgroundColorsDataset()
-    this._interactionService.changeSelectedDatasetId(dataset);
-    this.hideMessageCreateNewProject();
-
+    this._interactionService.changeSelectedFineTuningId(dataset);
   }
 
   selectWeight(weight) {
@@ -265,33 +263,29 @@ export class PowerUserComponent extends Project implements OnInit {
     //this._interactionService.changeSelectedWeight(weight);
   }
 
-  updateDatasetsList(data) {
-    this.datasets = [];
-    for (let entry of data) {
-      this.datasets.push(entry);
-    }
-  }
+  // updateDatasetsList(data) {
+  //   this.datasets = [];
+  //   for (let entry of data) {
+  //     this.datasets.push(entry);
+  //   }
+  // }
 
-  getDatasets() {
-    this._dataService.getDatasets().subscribe(data => {
-      this.updateDatasetsList(data);
-    })
-    return this.datasets;
-  }
-
-  hideMessageCreateNewProject() {
-    if (this.selectedModel && this.selectedDataset)
-      this.messageCreateProject.nativeElement.style.display = "none";
-  }
+  // getDatasets() {
+  //   let bool: boolean;
+  //   this._dataService.getDatasets("classification", bool).subscribe(data => {
+  //     this.updateDatasetsList(data);
+  //   })
+  //   return this.datasets;
+  // }
 
   updateBackgroundColorModel() {
     if (this.models) {
       for (let model of this.models) {
         if (this.selectedModel == model) {
-          model.color = "rgb(189,222,228)";
+          model.color = "rgb(134, 154, 170)";
         }
         else {
-          model.color = "white";
+          model.color = "#5B6D7C";
         }
       }
     }
@@ -303,10 +297,10 @@ export class PowerUserComponent extends Project implements OnInit {
         if (model.weightsList)
           for (let weight of model.weightsList) {
             if (this.selectedWeight == weight) {
-              weight.color = "rgb(189,222,228)";
+              weight.color = "rgb(134, 154, 170)";
             }
             else {
-              weight.color = "white";
+              weight.color = "#5B6D7C";
             }
           }
       }
@@ -316,9 +310,9 @@ export class PowerUserComponent extends Project implements OnInit {
   updateBackgroundColorsDataset() {
     if (this.datasets) {
       for (let dataset of this.datasets) {
-        dataset.color = "white";
-        if (this.selectedDataset == dataset) {
-          dataset.color = "rgb(189,222,228)";
+        dataset.color = "#5B6D7C";
+        if (this.selectedFineTuning == dataset) {
+          dataset.color = "rgb(134, 154, 170)";
         }
       }
     }

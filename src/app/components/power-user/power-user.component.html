@@ -1,41 +1,43 @@
 <div class="div-main">
   <div class="div-left">
-    <div class="div-left-section-title" (click)="expandModels()">
-      <mat-icon class="left-mat-icon" svgIcon={{myModelsIcon}}></mat-icon>
-      <span class="left-mat-text">{{'powerUser.myModels' | translate}}</span>
-    </div>
-    <div style="padding-left: 10px;" #modelsList id="modelsList">
-      <div *ngFor="let model of models">
-        <div [ngStyle]="{'background-color': model.color}"
-          (click)="getWeights(model); selectModel(model); selectWeight(null)">
-          <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
-          <div class="div-left-text-model">
-            <span>{{model.name}}</span>
+    <div class="div-left-content">
+      <div class="div-left-section-title" (click)="expandModels()">
+        <mat-icon class="left-mat-icon" svgIcon={{myModelsIcon}}></mat-icon>
+        <span class="left-mat-text">{{'powerUser.myModels' | translate}}</span>
+      </div>
+      <div style="padding-left: 10px;" #modelsList id="modelsList">
+        <div *ngFor="let model of models">
+          <div [ngStyle]="{'background-color': model.color}"
+            (click)="getWeights(model); selectModel(model); selectWeight(null)">
+            <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
+            <div class="div-left-text-model">
+              <span>{{model.name}}</span>
+            </div>
           </div>
-        </div>
 
-        <div style="padding-left: 10px;" #weightsListId>
-          <div *ngFor="let weight of model.weightsList" (click)="selectWeight(weight); selectModel(model)">
-            <div [ngStyle]="{'background-color': weight.color}">
-              <div class="div-left-text-model">
-                <span>{{weight.name}}</span>
+          <div style="padding-left: 10px;" #weightsListId>
+            <div *ngFor="let weight of model.weightsList" (click)="selectWeight(weight); selectModel(model)">
+              <div [ngStyle]="{'background-color': weight.color}">
+                <div class="div-left-text-model">
+                  <span>{{weight.id}}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="div-left-section-title" (click)="expandDatasets()">
-      <mat-icon class="left-mat-icon" svgIcon={{myDatasetsIcon}}></mat-icon>
-      <span class="left-mat-text">{{'powerUser.myDatasets' | translate}}</span>
-    </div>
-    <div style="padding-left: 10px;" #datasetsList id="datasetsList">
-      <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)"
-        [ngStyle]="{'background-color': dataset.color}">
-        <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
-        <div class="div-left-text-model">
-          <span>{{dataset.name}}</span>
+      <div class="div-left-section-title" (click)="expandDatasets()">
+        <mat-icon class="left-mat-icon" svgIcon={{myDatasetsIcon}}></mat-icon>
+        <span class="left-mat-text">{{'powerUser.myDatasets' | translate}}</span>
+      </div>
+      <div style="padding-left: 10px;" #datasetsList id="datasetsList">
+        <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)"
+          [ngStyle]="{'background-color': dataset.color}">
+          <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
+          <div class="div-left-text-model">
+            <span>{{dataset.name}}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -48,22 +50,24 @@
         <p>{{'powerUser.projects' | translate}}</p>
       </div>
     </div>
-    <div>
-      <button mat-flat-button (click)="createNewProject()">
-        <mat-icon class="div-right-icon" svgIcon="new-folder"></mat-icon>
-        <div class="div-right-text">
-          <p>{{'powerUser.createNewProject' | translate}}</p>
-        </div>
-      </button>
-      <!-- <div #messageCreateProject id="messageCreateProject" class="div-right-text" style="color: red">
+    <div class="div-border">
+      <div>
+        <button mat-flat-button (click)="createNewProject()">
+          <mat-icon class="div-right-icon" svgIcon="new-folder"></mat-icon>
+          <div class="div-right-text">
+            <p>{{'powerUser.createNewProject' | translate}}</p>
+          </div>
+        </button>
+        <!-- <div #messageCreateProject id="messageCreateProject" class="div-right-text" style="color: red">
         <p>{{'powerUser.messageCreateProject' | translate}}</p>
       </div> -->
-    </div>
-    <div *ngFor="let project of projects">
-      <div class="div-right-project" (click)="showProject(project)">
-        <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
-        <div class="div-right-text-project">
-          <p>{{project.name}}</p>
+      </div>
+      <div *ngFor="let project of projects">
+        <div class="div-right-project" (click)="showProject(project)">
+          <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
+          <div class="div-right-text-project">
+            <p>{{project.name}}</p>
+          </div>
         </div>
       </div>
     </div>

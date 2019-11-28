@@ -1,5 +1,5 @@
 <div class="div-top">
-    <div *ngFor="let tab of tabs" [ngSwitch]="tab.type">
+    <div class="div-tabs" *ngFor="let tab of tabs" [ngSwitch]="tab.type">
         <div class="div-open-tab" *ngSwitchCase="'User'" (click)="returnToUser()">
             {{tab.name}}
         </div>
@@ -9,5 +9,9 @@
         <div class="div-open-tab" *ngSwitchDefault>
             {{tab.name}}
         </div>
+    </div>
+    <div class="div-notifications" style="float: right" (click)="openNotifications()">
+        <span class="badge" *ngIf="unreadNotifications > 0">{{unreadNotifications}}</span>
+        <mat-icon svgIcon="notification">notifications</mat-icon>
     </div>
 </div>

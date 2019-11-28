@@ -4,8 +4,7 @@
         "myDatasets": "My Datasets",
         "projects": "Projects",
         "createNewProject": "Create new project",
-        "projectName": "Project name",
-        "messageCreateProject": "Please select a model and a dataset in order to create a new project!"
+        "projectName": "Project name"
     },
     "project": {
         "task": "Task",
@@ -24,15 +23,19 @@
         "chooseImage": "Choose Image",
         "reTrainTheModel": "Re-Train the model",
         "model": "Model",
+        "weight": "Weight",
         "preTraining": "Pre-Training",
         "fineTuning": "Fine-Tuning",
         "inputSize": "Input-Size",
         "loss": "Loss function",
         "learningRate": "Learning rate",
+        "epochs": "Epochs",
+        "optimizer": "Optimizer",
         "useDropout": "Use dropout",
         "configuration": "Configuration",
         "userScreen": "User Screen",
         "networkStatistics": "Network Statistics",
+        "notifications": "Notifications",
         "imageInput": "Image Input",
         "processImage": "Process Image",
         "networkDetails": "Network Details",
@@ -44,7 +47,6 @@
         "scaling": "Scaling",
         "shifting": "Shifting",
         "shearing": "Shearing",
-        "inference": "Inference",
         "train": "Train",
         "dataAugumentation": "Data Augumentation",
         "stop": "Stop",
@@ -52,7 +54,19 @@
         "areYouSureTrain": "Are you sure you want to train a new model? The training will take approximately: ",
         "estimatedTimeTrain": "23 hours",
         "stopTraining": "Stop the process",
-        "areYouSureStop": "Are you sure you want to stop the training process?"
+        "areYouSureStop": "Are you sure you want to stop the training process?",
+        "inference": "Inference",
+        "areYouSureInference": "Are you sure you want to start the inference using a pre-train model? The inference will take approximately: ",
+        "estimatedTimePreTrain": "23 hours",
+        "stopPreTraining": "Stop the process",
+        "areYouSureStopPreTraining": "Are you sure you want to stop the pre-training process?",
+        "projectId": "Project Id",
+        "projectType": "Project Type",
+        "projectStatus": "Project Status",
+        "startedTrainProcessMessage": "The train process is running!",
+        "startedInferenceProcessMessage": "The inference process is running!",
+        "finishedTrainProcessMessage": "The train process has finished!",
+        "finishedInferenceProcessMessage": "The inference process has finished!"
     },
     "header": {
         "headerText": "Training models"
@@ -66,9 +80,11 @@
     },
     "confirm-dialog-train": {
         "errorModel": "Please select a model.",
-        "errorDataset": "Please select fine-tuning dataset.",
         "selectedModel": "Selected model: ",
-        "selectedDataset": "Selected dataset: ",
+        "selectedFineTuning": "Selected fine-tuning dataset: ",
+        "errorFineTuning": "Please select fine-tuning dataset.",
+        "errorWeight": "Please select a weight.",
+        "selectedWeight": " Selected weight: ",
         "OKButton": "OK",
         "CancelButton": "Cancel"
     }

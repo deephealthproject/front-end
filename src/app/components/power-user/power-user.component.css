@@ -1,10 +1,10 @@
 .div-main {
-  height: calc(100% - 29px);
-  height: -o-calc(100% - 29px);
+  height: calc(100% - 39px);
+  height: -o-calc(100% - 39px);
   /* opera */
-  height: -webkit-calc(100% - 29px);
+  height: -webkit-calc(100% - 39px);
   /* google, safari */
-  height: -moz-calc(100% - 29px);
+  height: -moz-calc(100% - 39px);
   /* firefox */
   display: flex;
 }
@@ -15,9 +15,10 @@
   display: inline-block;
   border-right-style: solid;
   border-width: 2px;
-  border-right-color: #1a759d;
+  border-right-color: rgb(91, 109, 124);
   height: 100%;
-  overflow: scroll;
+  overflow: auto;
+  background-color: rgb(66, 84, 99)
 }
 
 .div-right {
@@ -26,7 +27,7 @@
   height: 100%;
   display: inline-block;
   vertical-align: top;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .div-right-menu {
@@ -34,6 +35,15 @@
   border-bottom-style: solid;
   border-bottom-width: 0.5px;
   border-bottom-color: #1a759d;
+}
+
+.div-border {
+  padding: 20px;
+  border-bottom-style: solid;
+  border-right-style: solid;
+  border-width: 0.5px;
+  border-color: #1a759d;
+  width: 30%;
 }
 
 .div-right-menu-icon {
@@ -46,7 +56,8 @@
 .div-right-menu-text {
   font-size: 20px;
   display: inline-block;
-  color: #1a759d;
+  color: #084A6C;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .div-right-icon {
@@ -61,16 +72,15 @@
 .div-right-text {
   font-size: 15px;
   display: inline-block;
-  color: #1a759d;
+  color: black;
   vertical-align: middle;
   cursor: pointer;
+  font-family: serif;
 }
 
 .div-right-project {
   font-size: 20px;
   display: inline-block;
-  color: #1a759d;
-  background: #ecf3f4;
   width: 100%;
   cursor: pointer;
 }
@@ -84,29 +94,47 @@
 }
 
 .div-right-text-project {
-  font-size: 15px;
+  font-size: 16px;
   display: inline-block;
-  color: #1a759d;
+  color: black;
   vertical-align: middle;
+  font-family: serif;
 }
 
 .left-mat-icon {
   vertical-align: middle;
   color: #1a759d;
   cursor: pointer;
+  padding-left: 5px;
 }
 
 .left-mat-text {
   vertical-align: middle;
-  padding-left: 2px;
-  color: #1a759d;
+  padding: 6px;
+  color: white;
   cursor: pointer;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 18px;
+  border-bottom: 1px black;
 }
 
 .div-left-text-model {
   font-size: 15px;
+  padding: 5px;
   display: inline-block;
-  color: #1a759d;
+  color: white;
   vertical-align: middle;
   cursor: pointer;
+  font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+}
+
+.div-left-section-title {
+  background-color: #65A4C4;
+  border-bottom: 1px solid #425463;
+  height: 30px;
+  padding-top: 7px;
+}
+
+.div-left-content {
+  padding: 5px;
 }

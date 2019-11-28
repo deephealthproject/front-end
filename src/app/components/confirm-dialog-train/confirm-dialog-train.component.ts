@@ -7,7 +7,9 @@ export interface TrainDialogData {
   dialogContent: string;
   trainingTime: string;
   modelSelected;
-  datasetSelected;
+  fineTuningSelected;
+  weightSelected;
+  process_type;
 }
 
 @Component({
@@ -20,11 +22,17 @@ export class ConfirmDialogTrainComponent implements OnInit {
   dialogContent: string;
   trainingTime: string;
   messageModel: string;
-  messageDataset: string;
+  messageFineTuning: string;
+  messageWeight: string;
   selectedModel;
-  selectedDataset;
+  selectedFineTuning;
+  selectedWeight;
   modelColor;
   datasetColor;
+  weightColor;
+  process_type: string;
+  showMessageModel: boolean;
+  showMessageWeight: boolean;
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData,
@@ -33,22 +41,40 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.dialogContent = data.dialogContent;
     this.trainingTime = data.trainingTime;
     this.selectedModel = data.modelSelected;
-    this.selectedDataset = data.datasetSelected;
+    this.selectedFineTuning = data.fineTuningSelected;
+    this.selectedWeight = data.weightSelected;
+    this.process_type = data.process_type;
 
     if (!this.selectedModel) {
       this.messageModel = this.translate.instant('confirm-dialog-train.errorModel');
       this.modelColor = "red";
     }
     else
-      this.messageModel = this.translate.instant('confirm-dialog-train.selectedModel') + this.selectedModel.name;
+      this.messageModel = this.translate.instant('confirm-dialog-train.selectedModel') + this.selectedModel;
 
-    if (!this.selectedDataset) {
-      this.messageDataset = this.translate.instant('confirm-dialog-train.errorDataset');
+    if (!this.selectedFineTuning) {
+      this.messageFineTuning = this.translate.instant('confirm-dialog-train.errorFineTuning');
       this.datasetColor = "red";
     }
     else
-      this.messageDataset = this.translate.instant('confirm-dialog-train.selectedDataset') + this.selectedDataset.name;
+      this.messageFineTuning = this.translate.instant('confirm-dialog-train.selectedFineTuning') + this.selectedFineTuning;
 
+    if (!this.selectedWeight) {
+      this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
+      this.weightColor = "red";
+    }
+    else
+      this.messageWeight = this.translate.instant('confirm-dialog-train.selectedWeight') + this.selectedWeight;
+
+    if (this.process_type == "inference") {
+      this.showMessageModel = false;
+      this.showMessageWeight = true;
+    }
+
+    if (this.process_type == "train") {
+      this.showMessageModel = true;
+      this.showMessageWeight = false;
+    }
   }
 
   ngOnInit() {

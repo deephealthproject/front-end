@@ -1,17 +1,38 @@
 .div-top {
-    background: #1a759d;
-    height: 29px;
-    display: flex;
+    background-color: rgb(69, 87, 102);
+    background-image: linear-gradient( rgb(158, 199, 212), rgb(101, 164, 185), #3C8DBC, rgb(46, 124, 170));
+    height: 39px;
 }
 
 .div-open-tab {
-    background: #2db5d3;
     width: max-content;
     color: white;
-    padding: 5px;
+    text-align: center;
     cursor: pointer;
-    height: calc(100% - 10px);
-    display: inline-block;
-    border-right-color: #1A759D;
+    padding-right: 5px;
+    border-color: rgb(45, 114, 155);
     border-right-style: solid;
+}
+
+.div-tabs {
+    width: max-content;
+    float: left;
+    padding: 10px;
+}
+
+.div-notifications {
+    color: white;
+    cursor: pointer;
+    padding-top: 8px;
+    padding-right: 4px;
+}
+
+.badge {
+    position: absolute;
+    font-size: 8px;
+    border-radius: 40%;
+    width: max-content;
+    background-color: #ff0000;
+    border: 2px solid #ff0000;
+    color: #298BAD;
 }

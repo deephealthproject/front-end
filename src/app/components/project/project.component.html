@@ -5,30 +5,13 @@
                 {{'project.task' | translate}}
             </div>
             <div class="div-left-section-box">
-                <form>
-                    <mat-radio-group aria-label="tasks">
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Classification"
-                            checked={{checkedStateClassificationTask}}
-                            (click)="changeCheckedTask('Classification'); selectTask('Classification'); resetSelectedOptions();">
-                            {{'project.classification' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Segmentation"
-                            checked={{checkedStateSegmentationTask}}
-                            (click)="changeCheckedTask('Segmentation'); selectTask('Segmentation'); resetSelectedOptions();">
-                            {{'project.segmentation' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Generative"
-                            checked={{checkedStateGenerativeTask}}
-                            (click)="changeCheckedTask('Generative'); selectTask('Generative'); resetSelectedOptions();">
-                            {{'project.generative' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Detection"
-                            checked={{checkedStateDetectionTask}}
-                            (click)="changeCheckedTask('Detection'); selectTask('Detection'); resetSelectedOptions();">
-                            {{'project.detection' | translate}}
-                        </mat-radio-button>
-                    </mat-radio-group>
-                </form>
+                <mat-radio-group label="tasks">
+                    <div class="tasks" *ngFor="let task of tasks">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.name"
+                            checked={{task.checked}} (click)="changeCheckedTask(task); resetSelectedOptions();">
+                            {{ task.name }}</mat-radio-button>
+                    </div>
+                </mat-radio-group>
             </div>
         </div>
         <div class="div-left-section">
@@ -114,10 +97,20 @@
                             </mat-select>
                         </mat-form-field>
                         <div class="div-middle-box-title">
+                            {{'project.weight' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <mat-select [(value)]=selectedOptionWeight>
+                                <mat-option *ngFor="let option of weightDropdown" value={{option}}>
+                                    {{option}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="div-middle-box-title">
                             {{'project.preTraining' | translate}}
                         </div>
                         <mat-form-field class="div-middle-box-content">
-                            <mat-select (selectionChange)="triggerSelectedPreTraining($event)" [(value)]=selectedOptionPreTraining>
+                            <mat-select [(value)]=selectedOptionPreTraining>
                                 <mat-option *ngFor="let option of preTrainingDropdown" value={{option}}>
                                     {{option}}
                                 </mat-option>
@@ -127,7 +120,7 @@
                             {{'project.fineTuning' | translate}}
                         </div>
                         <mat-form-field class="div-middle-box-content">
-                            <mat-select (selectionChange)="triggerSelectedFineTuning($event)" [(value)]=selectedOptionFineTuning>
+                            <mat-select [(value)]=selectedOptionFineTuning>
                                 <mat-option *ngFor="let option of fineTuningDropdown" value={{option}}>
                                     {{option}}
                                 </mat-option>
@@ -177,22 +170,31 @@
                     </form>
                 </div>
                 <div class="div-middle-box-bottom-right">
-                    <div>
-                        <button mat-flat-button color="primary"
-                            (click)="inferenceModel(selectedWeight, selectedDataset)"
+                    <div class="div-middle-inference-button">
+                        <button mat-flat-button color="primary" (click)="inferenceModel()"
                             [disabled]="disabledInferenceButton">
                             {{'project.inference' | translate}}</button>
+                        <!-- <div *ngIf="inferenceProcessStarted">
+                            <p>
+                                {{inferenceMessage}}
+                            </p>
+                        </div> -->
                     </div>
                     <div style="padding-top: 15px;" #dataAugmentationSection id=dataAugmentationSection>
                         <div>{{'project.dataAugumentation' | translate}}</div>
                         <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
-                            <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}</mat-checkbox>
+                            <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}
+                            </mat-checkbox>
                         </div>
-                        <button mat-flat-button color="primary" (click)="trainModel(selectedModel, selectedDataset)"
-                            [disabled]="disabledTrainButton">
+                        <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
                             {{'project.train' | translate}}</button>
                         <!-- <button mat-flat-button color="warn" *ngIf="showStopButton"
                         (click)="stopModel()">{{'project.stop' | translate}}</button> -->
+                        <!-- <div *ngIf="disabledTrainButton">
+                            <p>
+                                {{trainMessage}}
+                            </p>
+                        </div> -->
                         <div style="padding-top: 15px;" *ngIf="trainSpinner">
                             <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
                         </div>
@@ -216,6 +218,10 @@
                 [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 {{'project.networkStatistics' | translate}}
             </button>
+            <button mat-flat-button class="div-right-button" (click)="openNotifications()"
+                [class.div-right-button-clicked]="notificationsIsClicked">
+                {{'project.notifications' | translate}}
+            </button>
             <div class="div-user-screen-search">
                 <mat-icon class="left-mat-icon" svgIcon={{searchIcon}}></mat-icon>
                 <mat-form-field>
@@ -227,7 +233,7 @@
 
     <div class="div-user-screen" [hidden]="!divUserScreenShowStatus">
         <div class="div-user-screen-top-half">
-            <div class="div-user-screen-section-title">
+            <div class="div-middle-title">
                 {{'project.imageInput' | translate}}
             </div>
             <div class="div-user-screen-section-content">
@@ -244,7 +250,7 @@
             </div>
         </div>
         <div class="div-user-screen-bottom-half">
-            <div class="div-user-screen-section-title">
+            <div class="div-middle-title">
                 {{'project.networkDetails' | translate}}
             </div>
             <div class="div-user-screen-section-content">
@@ -254,5 +260,36 @@
 
     <div class="div-network-statistics" [hidden]="!divNetworkStatisticsShowStatus">
         <p>network works</p>
+    </div>
+
+    <div class="div-notifications" [hidden]="!divNotificationsShowStatus">
+        <div class="div-notifications-title">
+            <div class="div-notifications-title-section">
+                {{'project.projectId' | translate}}
+            </div>
+            <div class="div-notifications-title-section">
+                {{'project.projectType' | translate}}
+            </div>
+            <div style="border-color: #65A4C4;" class="div-notifications-title-section">
+                {{'project.projectStatus' | translate}}
+            </div>
+        </div>
+        <div class="div-notifications-process" *ngFor="let process of runningProcesses"
+            (click)="markNotificationAsRead(process)">
+            <div class="div-notifications-process-section">
+                <div class="div-notifications-icon" *ngIf="process.unread">
+                    <mat-icon svgIcon="markUnread"></mat-icon>
+                </div>
+                <div class="div-notifications-text">
+                    {{process.processId}}
+                </div>
+            </div>
+            <div class="div-notifications-process-section">
+                {{process.process_type}}
+            </div>
+            <div class="div-notifications-process-section">
+                {{process.process_status}}
+            </div>
+        </div>
     </div>
 </div>
