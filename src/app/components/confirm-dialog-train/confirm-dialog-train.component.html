@@ -6,7 +6,8 @@
     {{dialogContent}} <span>{{trainingTime}}</span>
   </div>
   <div *ngIf="showMessageModel" style="padding-top: 15px" [ngStyle]="{'color': modelColor}">{{messageModel}}</div>
-  <div style="padding-top: 15px" [ngStyle]="{'color': datasetColor}">{{messageFineTuning}}</div>
+  <div *ngIf="showMessagePreTraining" style="padding-top: 15px" [ngStyle]="{'color': colorPreTraining}">{{messagePreTraining}}</div>
+  <div *ngIf="showMessageFineTuning" style="padding-top: 15px" [ngStyle]="{'color': colorFineTuning}">{{messageFineTuning}}</div>
   <div *ngIf="showMessageWeight" style="padding-top: 15px" [ngStyle]="{'color': weightColor}">{{messageWeight}}</div>
 </mat-dialog-content>
 

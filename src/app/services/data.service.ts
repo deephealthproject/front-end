@@ -9,8 +9,6 @@ import { environment } from '../../environments/environment';
 
 export class DataService {
   apiUrl = environment.apiBaseUrl;
-  NEWswaggerApiUrl = "https://jenkins-master-deephealth-unix01.ing.unimore.it/backend";
-  swaggerApiUrl = "https://virtserver.swaggerhub.com/pritt/DeepHealthToolkitAPI/1.0.0"
 
   constructor(private httpClient: HttpClient) { }
 
@@ -20,108 +18,168 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  // properties(): Observable<HttpResponse<any>> {
-  //   const url = this.NEWswaggerApiUrl.concat("/properties");
-  //   return this.httpClient.get<any>(url);
-  // }
-
-  getTasks(): Observable<HttpResponse<any>> {
-    const url = this.NEWswaggerApiUrl.concat("/tasks");
+  allowedProperties(modelId, propertyId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat("/allowedProperties?model_id=");
+    url += modelId;
+    url += "&property_id=";
+    url += propertyId;
     return this.httpClient.get<any>(url);
   }
 
-  // getModels(taskName): Observable<HttpResponse<any>> {
-  //   let url = this.NEWswaggerApiUrl.concat('/models');
-  //   if (taskName != undefined) {
-  //     url += "?task=";
-  //     url += taskName;
+  properties(): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat("/properties");
+    return this.httpClient.get<any>(url);
+  }
+
+  propertiesById(propertyId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat("/properties/");
+    url += propertyId;
+    return this.httpClient.get<any>(url);
+  }
+
+  getTasks(): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat("/tasks");
+    return this.httpClient.get<any>(url);
+  }
+
+  getModels(taskId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/models');
+    if (taskId != undefined) {
+      url += "?task_id=";
+      url += taskId;
+    }
+    console.log(url);
+    return this.httpClient.get<any>(url);
+  }
+
+  //models for swagger-stub
+  // getModels(taskId): Observable<HttpResponse<any>> {
+  //   let url = this.apiUrl.concat('/models');
+  //   const payload = {
+  //     task_id: taskId
   //   }
-  //   return this.httpClient.get<any>(url);
+  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
   // }
 
   getWeights(modelId): Observable<HttpResponse<any>> {
     console.log(modelId);
     // const url = this.NEWswaggerApiUrl.concat("/weights?model_id=");
     // url.concat(modelId);
-    let url = this.NEWswaggerApiUrl.concat("/weights?model_id=");
+    let url = this.apiUrl.concat("/weights?model_id=");
     url += modelId;
     return this.httpClient.get<any>(url);
   }
 
-  trainModel(selectedModelId, selectedWeightId, selectedProperties, selectedPretrainingId, selectedFineTuningId): Observable<HttpResponse<any>> {
-    const url = this.NEWswaggerApiUrl.concat('/train');
+  //weigths for swagger-stub
+  // getWeights(modelId: number): Observable<HttpResponse<any>> {
+  //   let url = this.apiUrl.concat("/weights");
+  //   let payload = {
+  //     model_id: modelId
+  //   }
+  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  // }
+
+  trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, selectedPretrainingId, selectedProjectId): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/train');
     const payload = {
+      dataset_id: selectedDatasetId,
       model_id: selectedModelId,
-      weigths_id: selectedWeightId,
-      properties: selectedProperties,
       pretraining_id: selectedPretrainingId,
-      finetuning_id: selectedFineTuningId
+      project_id: selectedProjectId,
+      properties: selectedProperties,
+      weights_id: selectedWeightId
+      //finetuning_id: selectedFineTuningId
     }
     console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  inferenceModel(selectedWeightId, selectedFineTuningId): Observable<HttpResponse<any>> {
-    const url = this.swaggerApiUrl.concat('/inference');
+  trainingSettings(modelWeightsId, propertyId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/trainingSettings?modelweights_id=');
+    url += modelWeightsId;
+    url += '&property_id=';
+    url += propertyId;
+    return this.httpClient.get<any>(url);
+  }
+
+  inferenceModel(selectedModelWeightsId, selectedDatasetId, selectedProjectId): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/inference');
     const payload = {
-      weights_id: selectedWeightId,
-      finetuning_id: selectedFineTuningId
+      modelweights_id: selectedModelWeightsId,
+      dataset_id: selectedDatasetId,
+      project_id: selectedProjectId
     }
     console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
   status(processId): Observable<HttpResponse<any>> {
-    let url = this.swaggerApiUrl.concat('/status?process_id=');
+    let url = this.apiUrl.concat('/status?process_id=');
     url += processId;
     return this.httpClient.get<any>(url);
   }
 
+  //status for swagger-stub
+  // status(processId): Observable<HttpResponse<any>> {
+  //   let url = this.apiUrl.concat('/status');
+  //   const payload = {
+  //     process_id: processId
+  //   }
+  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  // }
+
   //get all the projects
   projects(): Observable<HttpResponse<any>> {
-    const url = this.NEWswaggerApiUrl.concat('/projects');
+    const url = this.apiUrl.concat('/projects');
     return this.httpClient.get<any>(url);
   }
 
   //create new project
-  project(projectName: string, projectId: number, modelweights_id: number, task_id: number): Observable<HttpResponse<any>> {
-    const url = this.NEWswaggerApiUrl.concat('/projects');
+  addProject(projectName: string, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/projects');
     const payload = {
       name: projectName,
-      id: projectId,
-      modelweights_id: modelweights_id,
-      task:  task_id
+      modelweights_id: modelWeights_id,
+      task_id: task_id
     };
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
   //update a project
-  updateProject(projectName: string, projectId: number, modelweights_id: number, task_id: number): Observable<HttpResponse<any>> {
-    const url = this.NEWswaggerApiUrl.concat('/projects');
+  updateProject(projectName: string, projectId: number, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/projects');
     const payload = {
       id: projectId,
       name: projectName,
-      task:  task_id,
-      modelweights_id: modelweights_id
+      task_id: task_id,
+      modelweights_id: modelWeights_id
     };
+    console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
   }
 
+  //dropdown for swagger-stub
   getDropDownDetails(projectId, dropdownName: string): Observable<HttpResponse<any>> {
-    let url = this.NEWswaggerApiUrl.concat('/dropDownDetails?project_id=');
-    url += projectId;
-    url += '&dropdown_name=';
-    url += dropdownName;
+    let url = this.apiUrl.concat('/dropDownDetails');
+    const payload = {
+      project_id: projectId,
+      dropdown_name: dropdownName
+    };
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  // getDropDownDetails(projectId, dropdownName: string): Observable<HttpResponse<any>> {
+  //   let url = this.apiUrl.concat('/dropDownDetails?project_id=');
+  //   url += projectId;
+  //   url += '&dropdown_name=';
+  //   url += dropdownName;
+  //   return this.httpClient.get<any>(url);
+  // }
+
+  getDatasets(): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat("/datasets");
     return this.httpClient.get<any>(url);
   }
 
-  // getDatasets(taskName, isPretraining): Observable<HttpResponse<any>> {
-  //   let url = this.NEWswaggerApiUrl.concat("/datasets?task=");
-  //   url += taskName;
-  //   if (isPretraining != undefined) {
-  //     url += "&pretraining=";
-  //     url += isPretraining;
-  //   }
-  //   return this.httpClient.get<any>(url);
-  // }
+
 }

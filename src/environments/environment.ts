@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:5000'
+  // apiBaseUrl: 'http://localhost:5000'
+  apiBaseUrl: 'https://jenkins-master-deephealth-unix01.ing.unimore.it/backend'
 };
 
 /*

@@ -15,6 +15,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogTrainComponent } from './components/confirm-dialog-train/confirm-dialog-train.component';
+import { CreateProjectDialogComponent } from './components/create-project-dialog/create-project-dialog.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -32,7 +33,8 @@ const routes: Routes = [
     PowerUserComponent,
     ProjectComponent,
     ConfirmDialogComponent,
-    ConfirmDialogTrainComponent
+    ConfirmDialogTrainComponent,
+    CreateProjectDialogComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -59,7 +61,8 @@ const routes: Routes = [
   ],
   entryComponents: [
     ConfirmDialogComponent,
-    ConfirmDialogTrainComponent
+    ConfirmDialogTrainComponent,
+    CreateProjectDialogComponent
   ]
 })
 export class AppRoutingModule {

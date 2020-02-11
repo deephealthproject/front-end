@@ -31,7 +31,7 @@
     display: inline-block;
     color: rgb(255, 255, 255);
     text-align: center;
-    font-size: medium;
+    font-size: 14px;
     padding-top: 7px;
     padding-bottom: 7px;
     background-color: #65A4C4;
@@ -100,7 +100,7 @@
     width: 100%;
     color: rgb(255, 255, 255);
     text-align: center;
-    font-size: medium;
+    font-size: 14px;
     padding-top: 7px;
     padding-bottom: 7px;
     background-color: #65A4C4;
@@ -124,7 +124,6 @@
 .div-middle-box-top {
     width: calc(50% - 40.5px);
     padding: 20px;
-    border-right: 0.5px solid #1A759D;
 }
 
 .div-middle-box-content {
@@ -279,8 +278,8 @@
     text-align: center;
     color: white;
     font-size: 14px;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    padding-top: 7px;
+    padding-bottom: 7px;
     border-right: 1px solid;
     border-color: #346386;
     height: 100%;

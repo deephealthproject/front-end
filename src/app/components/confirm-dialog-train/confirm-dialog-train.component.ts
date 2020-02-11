@@ -7,7 +7,8 @@ export interface TrainDialogData {
   dialogContent: string;
   trainingTime: string;
   modelSelected;
-  fineTuningSelected;
+  pretrainingSelected;
+  finetuningSelected;
   weightSelected;
   process_type;
 }
@@ -22,17 +23,22 @@ export class ConfirmDialogTrainComponent implements OnInit {
   dialogContent: string;
   trainingTime: string;
   messageModel: string;
-  messageFineTuning: string;
+  messagePreTraining: string;
   messageWeight: string;
+  messageFineTuning: string;
   selectedModel;
-  selectedFineTuning;
+  selectedPreTraining;
   selectedWeight;
+  selectedFineTuning;
   modelColor;
-  datasetColor;
+  colorPreTraining;
+  colorFineTuning;
   weightColor;
   process_type: string;
   showMessageModel: boolean;
   showMessageWeight: boolean;
+  showMessagePreTraining: boolean;
+  showMessageFineTuning: boolean;
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData,
@@ -41,7 +47,8 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.dialogContent = data.dialogContent;
     this.trainingTime = data.trainingTime;
     this.selectedModel = data.modelSelected;
-    this.selectedFineTuning = data.fineTuningSelected;
+    this.selectedPreTraining = data.pretrainingSelected;
+    this.selectedFineTuning = data.finetuningSelected;
     this.selectedWeight = data.weightSelected;
     this.process_type = data.process_type;
 
@@ -49,31 +56,52 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.messageModel = this.translate.instant('confirm-dialog-train.errorModel');
       this.modelColor = "red";
     }
-    else
+    else {
       this.messageModel = this.translate.instant('confirm-dialog-train.selectedModel') + this.selectedModel;
+      this.modelColor = "black";
+    }
+
+    if (!this.selectedPreTraining) {
+      this.messagePreTraining = this.translate.instant('confirm-dialog-train.errorPreTraining');
+      this.colorPreTraining = "red";
+    }
+    else {
+      this.messagePreTraining = this.translate.instant('confirm-dialog-train.selectedPreTraining') + this.selectedPreTraining;
+      this.colorPreTraining = "black";
+    }
+
 
     if (!this.selectedFineTuning) {
       this.messageFineTuning = this.translate.instant('confirm-dialog-train.errorFineTuning');
-      this.datasetColor = "red";
+      this.colorFineTuning = "red";
     }
-    else
+    else {
       this.messageFineTuning = this.translate.instant('confirm-dialog-train.selectedFineTuning') + this.selectedFineTuning;
+      this.colorFineTuning = "black";
+    }
 
     if (!this.selectedWeight) {
       this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
       this.weightColor = "red";
     }
-    else
+    else {
       this.messageWeight = this.translate.instant('confirm-dialog-train.selectedWeight') + this.selectedWeight;
+      this.weightColor = "black";
+    }
+
 
     if (this.process_type == "inference") {
-      this.showMessageModel = false;
-      this.showMessageWeight = true;
+      this.showMessageModel = true;
+      this.showMessageWeight = false;
+      this.showMessagePreTraining = false;
+      this.showMessageFineTuning = true;
     }
 
     if (this.process_type == "train") {
       this.showMessageModel = true;
       this.showMessageWeight = false;
+      this.showMessagePreTraining = true;
+      this.showMessageFineTuning = false;
     }
   }
 

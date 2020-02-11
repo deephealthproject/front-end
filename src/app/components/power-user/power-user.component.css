@@ -13,16 +13,13 @@
   /*width: 19.29vw;*/
   width: 18%;
   display: inline-block;
-  border-right-style: solid;
-  border-width: 2px;
-  border-right-color: rgb(91, 109, 124);
   height: 100%;
   overflow: auto;
   background-color: rgb(66, 84, 99)
 }
 
 .div-right {
-  width: calc(100% - 18.2%);
+  width: calc(100% - 18%);
   /*width: 97.4vw;*/
   height: 100%;
   display: inline-block;
@@ -38,12 +35,10 @@
 }
 
 .div-border {
-  padding: 20px;
+  padding: 12px;
   border-bottom-style: solid;
-  border-right-style: solid;
   border-width: 0.5px;
   border-color: #1a759d;
-  width: 30%;
 }
 
 .div-right-menu-icon {
@@ -70,19 +65,20 @@
 }
 
 .div-right-text {
-  font-size: 15px;
+  font-size: 16px;
   display: inline-block;
   color: black;
   vertical-align: middle;
   cursor: pointer;
-  font-family: serif;
+  font-family: 'Segoe UI';
 }
 
 .div-right-project {
   font-size: 20px;
   display: inline-block;
-  width: 100%;
+  width: calc(100%-25%);
   cursor: pointer;
+  padding-left: 25px;
 }
 
 .div-right-icon-project {
@@ -94,11 +90,11 @@
 }
 
 .div-right-text-project {
-  font-size: 16px;
+  font-size: 14px;
   display: inline-block;
   color: black;
   vertical-align: middle;
-  font-family: serif;
+
 }
 
 .left-mat-icon {
@@ -115,7 +111,6 @@
   cursor: pointer;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   font-size: 18px;
-  border-bottom: 1px black;
 }
 
 .div-left-text-model {
@@ -136,5 +131,5 @@
 }
 
 .div-left-content {
-  padding: 5px;
+  padding-top: 5px;
 }

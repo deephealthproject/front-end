@@ -5,10 +5,10 @@
                 {{'project.task' | translate}}
             </div>
             <div class="div-left-section-box">
-                <mat-radio-group label="tasks">
+                <mat-radio-group label="tasks" [(ngModel)]="selectedTask">
                     <div class="tasks" *ngFor="let task of tasks">
-                        <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.name"
-                            checked={{task.checked}} (click)="changeCheckedTask(task); resetSelectedOptions();">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.id"
+                             (click)="resetSelectedOptions(); changeCheckedTask(task)">
                             {{ task.name }}</mat-radio-button>
                     </div>
                 </mat-radio-group>
@@ -149,6 +149,18 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+                            <!-- <div #optimizer id="optimizer">
+                                <div class="div-middle-box-title">
+                                    {{'project.optimizer' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionOptimizer>
+                                        <mat-option *ngFor="let option of optimizerDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div> -->
                             <div #learningRate id="learningRate">
                                 <div class="div-middle-box-title">
                                     {{'project.learningRate' | translate}}
@@ -158,10 +170,18 @@
                                         (change)="changeLearningRateValue($event)">
                                 </mat-form-field>
                             </div>
+                            <div #epochs id="epochs">
+                                <div class="div-middle-box-title">
+                                    {{'project.epochs' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <input matInput type="number" value={{epochsValue}} step=1>
+                                </mat-form-field>
+                            </div>
                             <div #useDropout id="useDropout">
                                 <div class="div-middle-box-content">
-                                    <mat-checkbox color="primary" [checked]=useDropoutCheckedState
-                                        (change)="changeUseDropoutCheckedState(checked)">
+                                    <mat-checkbox color="primary" [checked]=false
+                                        (change)="changeUseDropoutCheckedState()">
                                         {{'project.useDropout' | translate}}
                                     </mat-checkbox>
                                 </div>

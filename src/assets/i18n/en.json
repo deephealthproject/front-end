@@ -81,10 +81,12 @@
     "confirm-dialog-train": {
         "errorModel": "Please select a model.",
         "selectedModel": "Selected model: ",
-        "selectedFineTuning": "Selected fine-tuning dataset: ",
-        "errorFineTuning": "Please select fine-tuning dataset.",
+        "selectedPreTraining": "Selected preTraining dataset: ",
+        "errorPreTraining": "Please select preTraining dataset.",
         "errorWeight": "Please select a weight.",
         "selectedWeight": " Selected weight: ",
+        "errorFineTuning": "Please select fineTuning dataset.",
+        "selectedFineTuning": "Selected fineTuning dataset: ",
         "OKButton": "OK",
         "CancelButton": "Cancel"
     }

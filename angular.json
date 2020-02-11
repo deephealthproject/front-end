@@ -53,6 +53,22 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "test": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.test.ts"
+                }
+              ]
+            },
+            "dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ]
             }
           }
         },
@@ -64,6 +80,12 @@
           "configurations": {
             "production": {
               "browserTarget": "deep-health:build:production"
+            },
+            "test": {
+              "browserTarget": "deep-health:build:test"
+            },
+            "dev": {
+              "browserTarget": "deep-health:build:dev"
             }
           }
         },

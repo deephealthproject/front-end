@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ɵConsole } from '@angular/core';
 import { InteractionService } from 'src/app/services/interaction.service';
 import { DataService } from 'src/app/services/data.service';
 import { MatDialogConfig, MatDialog, MatSnackBar } from '@angular/material';
@@ -6,7 +6,7 @@ import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dia
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PropertyInstance, Project } from 'src/app/components/power-user/power-user.component';
+import { PropertyInstance, Project, Model } from 'src/app/components/power-user/power-user.component';
 
 export class Task {
   id: number;
@@ -35,6 +35,12 @@ enum ProcessStatus {
   running,
   finished,
   error
+}
+
+export class DropdownResponse {
+  name;
+  id;
+  default;
 }
 
 @Component({
@@ -74,7 +80,8 @@ export class ProjectComponent implements OnInit {
   public message: string;
 
   //selectors option list
-  selectors: Array<string> = ["model", "pretraining", "finetuning", "input_size", "loss", "optimizer", "learning_rate", "epochs"];
+  // selectors: Array<string> = ["model", "pretraining", "finetuning", "input_size", "loss", "optimizer", "learning_rate", "epochs"];
+  selectors: Array<string> = ["model", "pretraining", "finetuning", "epochs"];
   modelDropdown;
   preTrainingDropdown;
   fineTuningDropdown;
@@ -99,8 +106,9 @@ export class ProjectComponent implements OnInit {
   reTrainState = false;
 
   //properties
-  useDropoutCheckedState;
+  useDropoutCheckedState: boolean = false;
   learningRateValue;
+  epochsValue: number;
   checked;
 
   //data augmentation
@@ -113,9 +121,11 @@ export class ProjectComponent implements OnInit {
   shiftingCheckedState;
   shearingCheckedState;
 
-  dropDownDetailsResponseData = undefined;
+  dropDownDetailsResponseData: DropdownResponse[];
   fineTuningResponseData = undefined;
   weightsResponseData = undefined;
+
+  selectedTaskId;
 
   dataAugmentation = [
     { label: 'Flipping', selected: false },
@@ -150,9 +160,12 @@ export class ProjectComponent implements OnInit {
   trainMessage: string = null;
   inferenceMessage: string = null;
   runningProcesses: ProcessingObject[] = [];
-  modelsResponseData: any;
+  modelsResponseData: Array<Model>;
   preTrainingResponseData: any;
   currentProject: Project;
+
+  selectedTask = null; 
+
 
   constructor(public _interactionService: InteractionService, private _dataService: DataService, public dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
@@ -187,20 +200,25 @@ export class ProjectComponent implements OnInit {
     this.initialiseInputTypes();
     this.initialiseImageInput();
     this.initialiseDropdowns();
+    this.initialiseProperties()
     this.initiliaseSelectedOptions();
     this.initialiseReTrainSection();
     this.initialiseSelectedModel();
     this.initialiseselectedFineTuning();
     this.initialiseInferenceButton();
     this.initialiseTrainButton();
-    // this.getProperties();
-    this.fillDropdowns(this.selectors);
+    this.fillDropdowns();
   }
 
   initialiseCurrentProject() {
     this._interactionService.currentProject$.subscribe(
       project => {
         this.currentProject = project;
+        // this.tasks.forEach(task => {
+        //   if(task.id == this.currentProject.task_id){
+        //     task.checked = true;
+        //   }
+        // })
       }
     );
   }
@@ -277,6 +295,26 @@ export class ProjectComponent implements OnInit {
     this._interactionService.dropdownPreTraining$.subscribe(
       state => {
         this.preTrainingDropdown = state;
+      }
+    );
+  }
+
+  initialiseProperties() {
+    this._interactionService.dropdownLoss$.subscribe(
+      state => {
+        this.lossDropdown = state;
+      }
+    );
+
+    this._interactionService.learningRateValue$.subscribe(
+      state => {
+        this.learningRateValue = state;
+      }
+    );
+
+    this._interactionService.epochsValueSource$.subscribe(
+      state => {
+        this.epochsValue = state;
       }
     );
   }
@@ -361,10 +399,8 @@ export class ProjectComponent implements OnInit {
 
   initialiseTasks() {
     this._interactionService.checkedTask$.subscribe(
-      state => {
-        this.tasks.forEach(task => {
-          task.checked = state;
-        });
+      id => {
+        this.selectedTask = id;
       }
     );
   }
@@ -470,6 +506,7 @@ export class ProjectComponent implements OnInit {
   resetDropDownDetails() {
     this.modelDropdown = [];
     this.preTrainingDropdown = [];
+    this.weightDropdown= [];
   }
 
   showImageInput() {
@@ -541,8 +578,8 @@ export class ProjectComponent implements OnInit {
     }
   }
 
-  changeUseDropoutCheckedState(checked) {
-    this.useDropoutCheckedState = checked;
+  changeUseDropoutCheckedState() {
+    this.useDropoutCheckedState = !this.useDropoutCheckedState;
   }
 
   changeLearningRateValue(event) {
@@ -571,14 +608,6 @@ export class ProjectComponent implements OnInit {
       // this.optimizer.nativeElement.style.display = "block";
       // this.epochs.nativeElement.style.display = "block";
       // this.useDropout.nativeElement.style.display = "block";
-
-      let weightsResponseData;
-      weightsResponseData = this._dataService.getWeights(this.currentProject.modelweights_id);
-      this.preTrainingDropdown = null;
-      weightsResponseData.forEach(element => {
-        this.preTrainingDropdown.push(element.pretraining.name);
-      });
-
     }
   }
 
@@ -598,47 +627,56 @@ export class ProjectComponent implements OnInit {
     loss.name = "Loss function";
     loss.value = this.selectedOptionLoss;
     selectedProperties.push(loss);
-    let dropout = new PropertyInstance;
-    dropout.name = "Use dropout";
-    dropout.value = this.useDropoutCheckedState;
-    selectedProperties.push(dropout);
+    // let dropout = new PropertyInstance;
+    // dropout.name = "Use dropout";
+    // if(this.useDropoutCheckedState){
+    //   dropout.value = "true";
+    // }
+    // else {
+    //   dropout.value = "false";
+    // }
+    // selectedProperties.push(dropout);
 
     let selectedModelId;
-    this.modelsResponseData.forEach(model => {
+    let modelList = this._interactionService.getModelsByTaskArray();
+    modelList.forEach(model => {
       if (model.name == this.selectedOptionModel) {
         selectedModelId = model.id;
       }
     });
 
     let selectedWeightId;
-    this.weightsResponseData.forEach(weight => {
-      if (weight.id == this.selectedOptionWeight) {
-        selectedWeightId = weight.id;
-      }
-    });
+    if (this.selectedOptionWeight) {
+      this.weightsResponseData.forEach(weight => {
+        if (weight.name == this.selectedOptionWeight) {
+          selectedWeightId = weight.id;
+        }
+      });
+    }
 
     let selectedPreTrainingId;
     if (this.selectedOptionPreTraining) {
-      this.preTrainingResponseData.forEach(dataset => {
-        if (dataset.name == this.selectedOptionPreTraining) {
-          selectedPreTrainingId = dataset.id;
+      this.preTrainingResponseData.forEach(pretraining => {
+        if (pretraining.name == this.selectedOptionPreTraining) {
+          selectedPreTrainingId = pretraining.id;
         }
       })
     }
     else {
-      selectedPreTrainingId = 0;
+      selectedPreTrainingId = null;
     }
 
-    let selectedFineTuningId;
+    let selectedDatasetId;
+    let fineTuningList = this._interactionService.getFineTuningResponseData();
     if (this.selectedOptionFineTuning) {
-      this.fineTuningResponseData.forEach(dataset => {
+      fineTuningList.forEach(dataset => {
         if (dataset.name == this.selectedOptionFineTuning) {
-          selectedFineTuningId = dataset.id;
+          selectedDatasetId = dataset.id;
         }
       })
     }
     else {
-      selectedFineTuningId = 0;
+      selectedDatasetId = undefined;
     }
 
     const dialogConfig = new MatDialogConfig();
@@ -649,7 +687,7 @@ export class ProjectComponent implements OnInit {
       dialogContent: this.translate.instant('project.areYouSureTrain'),
       trainingTime: this.translate.instant('project.estimatedTimeTrain'),
       modelSelected: this.selectedOptionModel,
-      fineTuningSelected: this.selectedOptionFineTuning,
+      pretrainingSelected: this.selectedOptionPreTraining,
       weightSelected: this.selectedOptionWeight,
       process_type: this.process_type
     }
@@ -658,12 +696,12 @@ export class ProjectComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
-      if (result && this.selectedOptionModel != null && this.selectedOptionPreTraining != null) {
-        this._dataService.trainModel(selectedModelId, selectedWeightId, selectedProperties, selectedPreTrainingId, selectedFineTuningId).subscribe(data => {
-          if (data.body.result == "ok") {
-            this.trainSpinner = false;
-            this.disabledTrainButton = true;
-          }
+      if (result) {
+        this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, selectedPreTrainingId, this.currentProject.id).subscribe(data => {
+          // if (data.body.result == "ok") {
+          //   this.trainSpinner = false;
+          //   this.disabledTrainButton = true;
+          // }
           this.openSnackBar(this.translate.instant('project.startedTrainProcessMessage'));
           this.trainSpinner = false;
           this.disabledTrainButton = true;
@@ -691,19 +729,28 @@ export class ProjectComponent implements OnInit {
 
     this.inferenceProcessStarted = true;
 
-    let selectedWeightId;
-    this.weightsResponseData.forEach(weight => {
-      if (weight.id == this.selectedOptionWeight) {
-        selectedWeightId = weight.id;
-      }
-    });
+    let selectedModelWeightsId;
+    if (this.selectedOptionModel) {
+      let modelList = this._interactionService.getModelsByTaskArray();
+      modelList.forEach(model => {
+        if (model.name == this.selectedOptionModel) {
+          selectedModelWeightsId = model.id;
+        }
+      });
+    }
 
-    let selectedFineTuningId;
-    this.fineTuningResponseData.forEach(dataset => {
-      if (dataset.name == this.selectedOptionFineTuning) {
-        selectedFineTuningId = dataset.id;
-      }
-    })
+    let selectedDatasetId;
+    let fineTuningList = this._interactionService.getFineTuningResponseData();
+    if (this.selectedOptionFineTuning) {
+      fineTuningList.forEach(dataset => {
+        if (dataset.name == this.selectedOptionFineTuning) {
+          selectedDatasetId = dataset.id;
+        }
+      })
+    }
+    else {
+      selectedDatasetId = undefined;
+    }
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -713,8 +760,7 @@ export class ProjectComponent implements OnInit {
       dialogContent: this.translate.instant('project.areYouSureInference'),
       trainingTime: this.translate.instant('project.estimatedTimePreTrain'),
       modelSelected: this.selectedOptionModel,
-      fineTuningSelected: this.selectedOptionFineTuning,
-      weightSelected: this.selectedOptionWeight,
+      finetuningSelected: this.selectedOptionFineTuning,
       process_type: this.process_type
     }
 
@@ -722,8 +768,8 @@ export class ProjectComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
-      if (result && this.selectedOptionWeight != null && this.selectedOptionFineTuning != null) {
-        this._dataService.inferenceModel(selectedWeightId, selectedFineTuningId).subscribe(data => {
+      if (result && this.selectedOptionModel != null && this.selectedOptionFineTuning != null) {
+        this._dataService.inferenceModel(selectedModelWeightsId, selectedDatasetId, this.currentProject.id).subscribe(data => {
           if (data.body.result == "ok") {
             this.disabledInferenceButton = true;
           }
@@ -808,46 +854,104 @@ export class ProjectComponent implements OnInit {
   }
 
   changeCheckedTask(checkedButton: Task) {
-    this.tasks.forEach(task => {
-      if (task.name == checkedButton.name) {
-        task.checked = true;
-      }
-      else {
-        task.checked = false;
-      }
-    })
-    console.log("the checked task: " + checkedButton.name);
-    this._dataService.updateProject(this.currentProject.name, this.currentProject.id,
-      this.currentProject.modelweights_id, checkedButton.id);
-    let newSelectors = [];
-    newSelectors.push("model");
-    newSelectors.push("pretraining ");
-    newSelectors.push("finetuning");
-    this.fillDropdowns(newSelectors);
+    this.updateProjectsTaskId(checkedButton.id);
+    if (checkedButton.id != undefined || checkedButton.id != null) {
+      this.selectedTaskId = checkedButton.id;
+      // this._dataService.getModels(this.selectedTaskId).subscribe(data => {
+      //   this.updateModelsList(data)
+      // });
+      this._interactionService.initialiseModelDropdown(this.selectedTaskId);
+      this.weightDropdown = [];
+      this.preTrainingDropdown = [];
+      
+
+      console.log("task id: " + this.selectedTaskId);
+      console.log("the checked task: " + checkedButton.name);
+
+      // this.tasks.forEach(task => {
+      //   if (task.name == checkedButton.name || this.currentProject.task_id == checkedButton.id) {
+      //     task.checked = true;
+      //   }
+      //   else {
+      //     task.checked = false;
+      //   }
+      // })
+
+      // let newSelectors = [];
+      // newSelectors.push("model");
+      // newSelectors.push("pretraining");
+      // newSelectors.push("finetuning");
+      // this.fillDropdowns(newSelectors, this.currentProject.id);
+    }
   }
 
   //weights functions
-  getWeights(modelName) {
+  getWeights(modelName: string) {
     let modelId;
-    this.modelsResponseData.forEach(model => {
+    let modelList = this._interactionService.getModelsByTaskArray();
+    modelList.forEach(model => {
       if (model.name == modelName) {
         modelId = model.id;
       }
     });
-
     this._dataService.getWeights(modelId).subscribe(data => {
+      // update weight selector
       this.updateWeightsList(data);
+      // update pretraining selector
+      this.updatePretrainingList(data);
     })
+
+    //this._dataService.getDropDownDetails(this.currentProject.id, "model").subscribe(data => {
+    // this.updatemodelsResponseData(data.body);
+    // console.log(data.body);
+    // data.body.forEach(element => {
+    // if (element.name == modelName) {
+    //  modelId = element.id;
+    //}
+
+    // });
+
+
+    //})
+  }
+
+  updateModelsList(contentData) {
+    var modelsValuesNameList = [];
+    this.selectedOptionModel = null;
+    this.modelsResponseData = contentData;
+    contentData.forEach(model => {
+      modelsValuesNameList.push(model.name);
+    });
+    this.modelDropdown = modelsValuesNameList;
   }
 
   updateWeightsList(contentData) {
     var weightsValuesNameList = [];
+    this.selectedOptionWeight = null;
     this.weightsResponseData = contentData;
-
     contentData.forEach(weight => {
-      weightsValuesNameList.push(weight.id);
+      weightsValuesNameList.push(weight.name);
     });
     this.weightDropdown = weightsValuesNameList;
+  }
+
+  updatePretrainingList(contentData) {
+    var pretrainigValuesNameList = [];
+    this.selectedOptionPreTraining = null;
+    this.preTrainingResponseData = contentData;
+    contentData.forEach(pretraining => {
+      if (pretraining.pretrained_on != null || pretraining.pretrained_on != undefined) {
+        pretrainigValuesNameList.push(pretraining.name);
+      }
+    });
+    this.preTrainingDropdown = pretrainigValuesNameList;
+  }
+
+  updateModelsResponseData(contentData) {
+    this.modelsResponseData = [];
+    contentData.forEach(model => {
+      this.modelsResponseData.push(model);
+    });
   }
 
   //old stop function
@@ -892,20 +996,31 @@ export class ProjectComponent implements OnInit {
   }
 
   //dropdown functions
-  fillDropdowns(selectorList) {
-    selectorList.forEach(selector => {
-      this._dataService.getDropDownDetails(this.currentProject.id, selector).subscribe(data => {
-        if (data.body != undefined || data != undefined) {
-          this.populateSelector(selector, data);
-        }
-      })
-    });
+  fillDropdowns() {
+
+    // if (this.currentProject)
+    //   selectorList.forEach(selector => {
+    //     this._dataService.getDropDownDetails(this.currentProject.id, selector).subscribe(data => {
+    //       console.log(data);
+    //       if (data.body != undefined || data != undefined) {
+    //         this.populateSelector(selector, data);
+    //       }
+    //     })
+    //   });
+    // else {
+    //   selectorList.forEach(selector => {
+    //     this._dataService.getDropDownDetails(currentProjectId, selector).subscribe(data => {
+    //       console.log(data);
+    //       if (data.body != undefined || data != undefined) {
+    //         this.populateSelector(selector, data.body);
+    //       }
+    //     })
+    //   });
+    // }
   }
 
   populateSelector(selector, contentData) {
     var selectorValuesNameList = [];
-    this.dropDownDetailsResponseData = contentData;
-
     contentData.forEach(item => {
       selectorValuesNameList.push(item.name);
     });
@@ -924,17 +1039,34 @@ export class ProjectComponent implements OnInit {
         this.inputSizeDropdown = selectorValuesNameList;
         break;
       case "loss":
-        this.inputSizeDropdown = selectorValuesNameList;
+        this.lossDropdown = selectorValuesNameList;
         break;
       case "optimizer":
-        this.inputSizeDropdown = selectorValuesNameList;
+        this.optimizerDropdown = selectorValuesNameList;
         break;
       case "learning_rate":
-        this.inputSizeDropdown = selectorValuesNameList;
+        this.learningRateDropdown = selectorValuesNameList;
         break;
       case "epochs":
-        this.inputSizeDropdown = selectorValuesNameList;
+        this.epochsDropdown = selectorValuesNameList;
         break;
     }
   }
+
+  //projects
+  updateProjectsTaskId(taskId) {
+    this._dataService.updateProject(this.currentProject.name, this.currentProject.id,
+      this.currentProject.modelweights_id, taskId).subscribe(data => {
+        this._interactionService.resetProjectsList(data.body);
+        console.log(data.body);
+      })
+  }
+
+  triggerSelectedModel(event) {
+    this.weightDropdown = [];
+    var selectedModel = event.value;
+    
+    this.getWeights(selectedModel);
+  }
+
 }

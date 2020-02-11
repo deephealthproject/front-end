@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
+
+<mat-dialog-content>
+   <div>
+   <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}">
+   </div>
+   
+  <mat-form-field >
+      Select task
+      <mat-select [(value)]=selectedOptionTask>
+          <!-- <mat-option *ngFor="let option of taskDropdown" value={{option}}>
+              {{option}}
+          </mat-option> -->
+          <mat-option *ngFor="let option of taskDropdown" [value]="option.id">
+               {{option.name}}
+             </mat-option>
+      </mat-select>
+   </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+   <button mat-button mat-dialog-close>{{'confirm-dialog.CancelButton' | translate}}</button>
+   <button mat-raised-button (click)="save()">{{'confirm-dialog.OKButton' | translate}}</button>
+</mat-dialog-actions>

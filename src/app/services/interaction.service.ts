@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Project } from '../components/power-user/power-user.component';
+import { Project, Model } from '../components/power-user/power-user.component';
+import { DataService } from 'src/app/services/data.service';
 
 export class TabObject {
   name: string;
@@ -11,6 +12,11 @@ export class TabObject {
   providedIn: 'root'
 })
 export class InteractionService extends TabObject {
+
+  constructor(private _dataService: DataService) {
+    super();
+  }
+
   //deepHealth component -> which component is shown
   private _projectStateSource = new Subject<boolean>();
   projectState$ = this._projectStateSource.asObservable();
@@ -18,6 +24,7 @@ export class InteractionService extends TabObject {
   powerUserState$ = this._powerUserStateSource.asObservable();
 
   tabs = Array<TabObject>();
+
   projectImagePathSource;
   projectImageURLSource;
   projectInputFiles;
@@ -51,7 +58,7 @@ export class InteractionService extends TabObject {
   projectDisabledProcessImage$ = this._projectDisabledProcessImageButtonSource.asObservable();
 
   //project component -> task radio buttons
-  private _checkedTaskSource = new Subject<boolean>();
+  private _checkedTaskSource = new Subject<number>();
   checkedTask$ = this._checkedTaskSource.asObservable();
 
   //project component -> input type radio buttons
@@ -67,6 +74,8 @@ export class InteractionService extends TabObject {
   //project component -> currently selected value of selectors
   private _selectedOptionModelSource = new Subject<string>();
   selectedOptionModel$ = this._selectedOptionModelSource.asObservable();
+  private _selectedOptionWeightSource = new Subject<string>();
+  selectedOptionWeightSource$ = this._selectedOptionWeightSource.asObservable();
   private _selectedOptionPreTrainingSource = new Subject<string>();
   selectedOptionPreTraining$ = this._selectedOptionPreTrainingSource.asObservable();
   private _selectedOptionFineTuningSource = new Subject<string>();
@@ -89,6 +98,13 @@ export class InteractionService extends TabObject {
   dropdownLoss$ = this._dropdownLossSource.asObservable();
   private _dropdownInputSizeSource = new Subject<Array<string>>();
   dropdownInputSize$ = this._dropdownInputSizeSource.asObservable();
+  private _dropdownModelsSource = new Subject<Array<string>>();
+  dropdownModels$ = this._dropdownModelsSource.asObservable();
+
+  private _learningRateValueSource = new Subject<number>();
+  learningRateValue$ = this._learningRateValueSource.asObservable();
+  private _epochsValueSource = new Subject<number>();
+  epochsValueSource$ = this._epochsValueSource.asObservable();
 
   //project component -> div-details re-Train toggle button, inference button, train button
   private _reTrainButtonCheckedStateSource = new Subject<boolean>();
@@ -97,7 +113,6 @@ export class InteractionService extends TabObject {
   inferenceButtonState$ = this._inferenceButtonStateSource.asObservable();
   private _trainButtonStateSource = new Subject<boolean>();
   trainButtonState$ = this._trainButtonStateSource.asObservable();
-
 
   //
   private _selectedModelIdSource = new Subject<boolean>();
@@ -116,6 +131,87 @@ export class InteractionService extends TabObject {
   //
   private _currentProjectSource = new Subject<Project>();
   currentProject$ = this._currentProjectSource.asObservable();
+  private _projectsListSource = new Subject<Array<Project>>();
+  projectsList$ = this._projectsListSource.asObservable();
+
+  private modelsByTaskArray: Array<Model> = [];
+  private finetuningResponseData;
+  private propertiesResponseData;
+
+  initialiseModelDropdown(taskId) {
+    this._dataService.getModels(taskId).subscribe(data => {
+      this.insertDataIntoModelDropdown(data);
+    })
+  }
+
+  initialiseProperties() {
+    this._dataService.properties().subscribe(data => {
+      if (data.body != undefined) {
+        this.propertiesResponseData = data.body;
+        this.fillProperties();
+      }
+      else {
+        this.propertiesResponseData = data;
+        this.fillProperties();
+      }
+    })
+  }
+
+  fillProperties() {
+    let valuesArray: Array<string> = [];
+    this.propertiesResponseData.forEach(property => {
+      if (property.values != null) {
+        valuesArray = property.values.split(",");
+      }
+      switch (property.name) {
+        case "Learning rate":
+          this._learningRateValueSource.next(property.default);
+          break;
+        case "Loss function":
+          this._dropdownLossSource.next(valuesArray);
+          this._selectedOptionLossSource.next(property.default);
+          break;
+        case "Epochs":
+          this._epochsValueSource.next(property.default);
+          break;
+      }
+    });
+  }
+
+  insertDataIntoModelDropdown(contentData) {
+    let valuesArray: Array<string> = [];
+    this.modelsByTaskArray = [];
+    contentData.forEach(element => {
+      valuesArray.push(element.name);
+      this.modelsByTaskArray.push(element);
+    });
+    this._dropdownModelSource.next(valuesArray);
+  }
+
+  getModelsByTaskArray() {
+    return this.modelsByTaskArray;
+  }
+
+  getFineTuningResponseData() {
+    return this.finetuningResponseData;
+  }
+
+
+  initialiseFineTuningDropdown() {
+    this._dataService.getDatasets().subscribe(data => {
+      this.insertDataIntoFineTuningDropdown(data);
+    })
+  }
+
+  insertDataIntoFineTuningDropdown(contentData) {
+    let valuesArray: Array<string> = [];
+    this.finetuningResponseData = [];
+    contentData.forEach(element => {
+      valuesArray.push(element.name);
+      this.finetuningResponseData.push(element);
+    });
+    this._dropdownFineTuningSource.next(valuesArray);
+  }
 
   resetImageData() {
     this.projectImagePathSource = null;
@@ -123,12 +219,13 @@ export class InteractionService extends TabObject {
     this.projectInputFiles = null;
   }
 
-  changeTaskCheckedState(state: boolean) {
-    this._checkedTaskSource.next(state);
+  changeCheckedTask(taskId: number) {
+    this._checkedTaskSource.next(taskId);
   }
 
   resetSelectedOptions() {
     this._selectedOptionModelSource.next(null);
+    this._selectedOptionWeightSource.next(null);
     // this._selectedOptionInputSizeSource.next(null);
     this._selectedOptionPreTrainingSource.next(null);
     this._selectedOptionFineTuningSource.next(null);
@@ -165,10 +262,10 @@ export class InteractionService extends TabObject {
 
     this.changeStateDisableProcessImageButton(false);
 
-    this.changeTaskCheckedState(false);
+    //this.changeCheckedTask(false);
     this.resetInputType(false);
     this.resetSelectedOptions();
-    this.resetDropdowns();
+    //this.resetDropdowns();
 
     this.changeCheckedStateReTrainButton(false);
     this.changeStateInferenceButton(false);
@@ -178,18 +275,18 @@ export class InteractionService extends TabObject {
   changeCheckedStateReTrainButton(state: boolean) {
     this._reTrainButtonCheckedStateSource.next(state);
     if (state == false) {
-    //   let learningRate = document.getElementById("learningRate");
-    //   learningRate.style.display = "none";
-    //   let loss = document.getElementById("loss");
-    //   loss.style.display = "none";
-    //   let useDropout = document.getElementById("useDropout");
-    //   useDropout.style.display = "none";
+      //   let learningRate = document.getElementById("learningRate");
+      //   learningRate.style.display = "none";
+      //   let loss = document.getElementById("loss");
+      //   loss.style.display = "none";
+      //   let useDropout = document.getElementById("useDropout");
+      //   useDropout.style.display = "none";
       let dataAugmentationSection = document.getElementById("dataAugmentationSection");
       dataAugmentationSection.style.display = "none";
-    //   let optimizer = document.getElementById("optimizer");
-    //   optimizer.style.display = "none";
-    //   let epochs = document.getElementById("epochs");
-    //   epochs.style.display = "none";
+      //   let optimizer = document.getElementById("optimizer");
+      //   optimizer.style.display = "none";
+      //   let epochs = document.getElementById("epochs");
+      //   epochs.style.display = "none";
     }
   }
 
@@ -283,6 +380,11 @@ export class InteractionService extends TabObject {
 
   changeCurrentProject(project: Project) {
     this._currentProjectSource.next(project);
+    this.initialiseModelDropdown(project.task_id);
+    this.initialiseProperties();
+    this.initialiseFineTuningDropdown();
+    this.changeCheckedTask(project.task_id);
+    
   }
 
   closeProjectTab() {
@@ -301,4 +403,20 @@ export class InteractionService extends TabObject {
     this.unreadNotificationsNumber--;
     this._unreadNotificationsNumberSource.next(this.unreadNotificationsNumber);
   }
+
+  //projects functions
+  resetProjectsList(contentData) {
+    this._projectsListSource.next(null);
+    this._projectsListSource.next(contentData);
+    return this._projectsListSource;
+  }
+
+  // addNewProject() {
+  //   this._projectsListSource.
+  // }
+
+  getProjectList() {
+    return this._projectsListSource;
+  }
+
 }

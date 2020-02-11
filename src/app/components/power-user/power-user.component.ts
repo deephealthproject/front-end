@@ -3,21 +3,23 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogConfig } from '@angular/material';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
+import { CreateProjectDialogComponent } from 'src/app/components/create-project-dialog/create-project-dialog.component';
 import { InteractionService } from 'src/app/services/interaction.service';
 import { DataService } from 'src/app/services/data.service';
 import { TranslateService } from '@ngx-translate/core';
 
 export class Project {
   id: number;
-  name: string
+  name: string;
+  task_id: number;
   modelweights_id: number;
+  inference_id;
 }
 
 export class Dataset {
   id: number;
   name: string;
-  path: string;
-  ispretraining: boolean;
+  dataset: string;
   color: string;
 }
 
@@ -32,11 +34,7 @@ export class Model {
 
 export class Weight {
   id: number;
-  location: string;
-  model_id: number;
-  pretraining_id: number;
-  properties: Array<PropertyInstance>;
-  //name: string;
+  pretraining_id: Dataset;
   color: string;
 }
 
@@ -51,11 +49,11 @@ export class PropertyInstance {
   templateUrl: './power-user.component.html',
   styleUrls: ['./power-user.component.css']
 })
-export class PowerUserComponent extends Project implements OnInit {
-
+export class PowerUserComponent implements OnInit {
   projects: Array<Project> = [];
   projectName: string;
-  projectId: number = -1;
+  projectTaskId;
+  projectId: number = 2;
   task_id: number;
   selectedModel: Model;
   selectedFineTuning: Dataset;
@@ -70,6 +68,7 @@ export class PowerUserComponent extends Project implements OnInit {
   datasets: Array<Dataset>;
   selectedFineTuningColor;
   modelweights_id: number = -1;
+  taskList = [];
 
   constructor(private _interactionService: InteractionService,
     private matIconRegistry: MatIconRegistry,
@@ -77,7 +76,6 @@ export class PowerUserComponent extends Project implements OnInit {
     public dialog: MatDialog,
     private _dataService: DataService,
     public translate: TranslateService) {
-    super();
     this.matIconRegistry.addSvgIcon(
       'folder',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-folder-24px.svg')
@@ -98,16 +96,36 @@ export class PowerUserComponent extends Project implements OnInit {
   @ViewChild('messageCreateProject') messageCreateProject: ElementRef;
 
   ngOnInit() {
-    this.projects = this.getProjects();
-    // this.models = this.getModels();
+    this.initialiseProjectsList();
+    this.getProjects();
+    this.models = this.getModels(undefined);
     this.modelsList.nativeElement.style.display = "none";
     this.weightsShowStatus = false;
     this.weights = [];
-    // this.datasets = this.getDatasets();
+    this.datasets = this.getDatasets();
     this.datasetsList.nativeElement.style.display = "none";
+    this.setTasksList();
+  }
+
+  initialiseProjectsList() {
+    this._interactionService.projectsList$.subscribe(
+      projects => {
+        this.projects = projects;
+      }
+    );
   }
 
   createNewProject(): void {
+    this.taskList = [];
+    this._dataService.getTasks().subscribe(data => {
+      console.log(data);
+      if (data != undefined || data != null) {
+        this.createNewProjectWithTask(data);
+      }
+    });
+  }
+
+  createNewProjectWithTask(data) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
@@ -115,9 +133,11 @@ export class PowerUserComponent extends Project implements OnInit {
       inputValue: this.projectName,
       dialogTitle: this.translate.instant('powerUser.createNewProject'),
       inputPlaceHolder: this.translate.instant('powerUser.projectName'),
+      selectedOptionTask: null,
+      taskDropdown: data,
     };
 
-    let dialogRef = this.dialog.open(ConfirmDialogComponent, dialogConfig);
+    let dialogRef = this.dialog.open(CreateProjectDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
@@ -130,18 +150,12 @@ export class PowerUserComponent extends Project implements OnInit {
           }
           if (thatProjectExist == false) {
             this.projectName = result.inputValue;
+            this.projectTaskId = result.selectedOptionTask;
             this.projectId++;
             let newProject = new Project();
             console.log('Yes clicked');
             console.log("project " + this.projectName + " created");
-            newProject.name = this.projectName;
-            newProject.id = this.projectId;
-            newProject.modelweights_id = this.modelweights_id;
-            // newProject.modelId = this.selectedModel.id;
-            // newProject.datasetId = this.selectedFineTuning.id;
-            // newProject.weight = this.selectedWeight;
-            // this.addProject(this.projectName, this.projectId, this.selectedModel.id, this.selectedFineTuning.id, this.selectedWeight);
-            this.addProject(this.projectName, this.projectId, this.modelweights_id, this.task_id);
+            this.addProject(this.projectName, null, this.projectTaskId );
           }
           else
             console.log('Project already exists');
@@ -151,14 +165,54 @@ export class PowerUserComponent extends Project implements OnInit {
         console.log('Canceled');
       }
     });
+
+    // let dialogRef = this.dialog.open(ConfirmDialogComponent, dialogConfig);
+    // dialogRef.afterClosed().subscribe(result => {
+    //   console.log('The dialog was closed');
+    //   console.log(result);
+    //   if (result) {
+    //     if (result.inputValue) {
+    //       let thatProjectExist = false;
+    //       for (let currentProject of this.projects) {
+    //         if (currentProject.name == result.inputValue)
+    //           thatProjectExist = true;
+    //       }
+    //       if (thatProjectExist == false) {
+    //         this.projectName = result.inputValue;
+    //         this.projectId++;
+    //         let newProject = new Project();
+    //         console.log('Yes clicked');
+    //         console.log("project " + this.projectName + " created");
+    //         this.addProject(this.projectName, null, 1);
+    //       }
+    //       else
+    //         console.log('Project already exists');
+    //     }
+    //   }
+    //   else {
+    //     console.log('Canceled');
+    //   }
+    // });
   }
+
+  setTasksList() {
+    this.taskList = [];
+    this._dataService.getTasks().subscribe(data => {
+      console.log(data);
+      if (data != undefined || data != null) {
+        this.taskList.push(data);
+      }
+    });
+  }
+
+  
 
   showProject(selectedProject: Project) {
     this._interactionService.changeShowStatePowerUser(false);
     this._interactionService.changeShowStateProject(true);
     this._interactionService.showProjectTab(selectedProject.name);
     this._interactionService.changeCurrentProject(selectedProject);
-    //this._interactionService.resetProject();
+    this._interactionService.resetProject();
 
     this._interactionService.changeShowStateProjectDivLeft(true);
     this._interactionService.changeShowStateProjectDivMiddle(true);
@@ -170,58 +224,51 @@ export class PowerUserComponent extends Project implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
+
+    //this.projects = this._interactionService.getProjectList();
   }
 
-  getProjects(): Array<Project> {
+  getProjects() {
     this._dataService.projects().subscribe(data => {
+     // this._interactionService.resetProjectsList(data);
       this.updateProjectsList(data);
     })
-    return this.projects;
   }
 
-  addProject(projectName, projectId, modelweights_id, task_id) {
-    this._dataService.project(projectName, projectId, modelweights_id, task_id).subscribe(data => {
-      console.log(data.body);
-      this.projects = data.body;
+  updateProjectsList(contentData) {
+    this.projects = [];
+    for (let entry of contentData) {
+      this.projects.push(entry);
+    }
+    console.log(this.projects);
+  }
+
+  addProject(projectName, modelweights_id, task_id) {
+    this._dataService.addProject(projectName, modelweights_id, task_id).subscribe(data => {
+      // this._interactionService.resetProjectsList(data.body);
+      if(data.body != undefined) {
+        this.insertProject(data.body);
+      }
+      else {
+        this.insertProject(data);
+      }
     })
   }
 
-  updateProjectsList(data) {
-    this.projects = [];
-    for (var entry of data) {
-      this.projects.push(entry);
-    }
-  }
+  insertProject(contentData) {
+    let p = new Project;
+    p.id = contentData.id;
+    p.name = contentData.name;
+    p.task_id = contentData.task_id;
+    p.modelweights_id = contentData.modelweights_id;
+    p.inference_id = contentData.inference_id;
+    this.projects.push(p);
+  };
 
-  updateModelsList(data) {
-    this.models = [];
-    for (let entry of data) {
-      this.models.push(entry);
-    }
-  }
-
-  // getModels() {
-  //   let str: string = undefined;
-  //   this._dataService.getModels(str).subscribe(data => {
-  //     this.updateModelsList(data);
-  //   })
-  //   return this.models;
-  // }
-
-  expandModels() {
-    if (this.modelsList.nativeElement.style.display == "none") {
-      this.modelsList.nativeElement.style.display = "block";
-      this.myModelsIcon = "open-folder";
-    } else {
-      this.modelsList.nativeElement.style.display = "none";
-      this.myModelsIcon = "folder";
-    }
-  }
-
-  updateWeightsList(model: Model, data) {
+  //weights functions
+  updateWeightsList(model: Model, contentData) {
     model.weightsList = [];
-    console.log(model.weightsList);
-    for (let entry of data) {
+    for (let entry of contentData) {
       model.weightsList.push(entry);
     }
     console.log(model.weightsList);
@@ -229,10 +276,46 @@ export class PowerUserComponent extends Project implements OnInit {
 
   getWeights(model: Model) {
     let modelId = model.id;
-    console.log(modelId);
     this._dataService.getWeights(modelId).subscribe(data => {
       this.updateWeightsList(model, data);
     })
+  }
+
+  selectWeight(weight) {
+    this.selectedWeight = weight;
+    this.updateBackgroundColorWeight();
+    //this._interactionService.changeSelectedWeight(weight);
+  }
+
+  updateBackgroundColorWeight() {
+    if (this.models) {
+      for (let model of this.models) {
+        if (model.weightsList)
+          for (let weight of model.weightsList) {
+            if (this.selectedWeight == weight) {
+              weight.color = "rgb(134, 154, 170)";
+            }
+            else {
+              weight.color = "#425463";
+            }
+          }
+      }
+    }
+  }
+
+  //datasets functions 
+  getDatasets() {
+    this._dataService.getDatasets().subscribe(data => {
+      this.updateDatasetsList(data);
+    })
+    return this.datasets;
+  }
+
+  updateDatasetsList(data) {
+    this.datasets = [];
+    for (let entry of data) {
+      this.datasets.push(entry);
+    }
   }
 
   expandDatasets() {
@@ -245,38 +328,54 @@ export class PowerUserComponent extends Project implements OnInit {
     }
   }
 
-  selectModel(model) {
-    this.selectedModel = model;
-    this.updateBackgroundColorModel();
-    this._interactionService.changeSelectedModel(model);
-  }
-
   selectDataset(dataset) {
     this.selectedFineTuning = dataset;
     this.updateBackgroundColorsDataset()
     this._interactionService.changeSelectedFineTuningId(dataset);
   }
 
-  selectWeight(weight) {
-    this.selectedWeight = weight;
-    this.updateBackgroundColorWeight();
-    //this._interactionService.changeSelectedWeight(weight);
+  updateBackgroundColorsDataset() {
+    if (this.datasets) {
+      for (let dataset of this.datasets) {
+        dataset.color = "#425463";
+        if (this.selectedFineTuning == dataset) {
+          dataset.color = "rgb(134, 154, 170)";
+        }
+      }
+    }
   }
 
-  // updateDatasetsList(data) {
-  //   this.datasets = [];
-  //   for (let entry of data) {
-  //     this.datasets.push(entry);
-  //   }
-  // }
+  //models functions
+  getModels(taskId) {
+    this._dataService.getModels(taskId).subscribe(data => {
+      this.updateModelsList(data);
+    })
+    console.log(this.models);
+    return this.models;
+  }
 
-  // getDatasets() {
-  //   let bool: boolean;
-  //   this._dataService.getDatasets("classification", bool).subscribe(data => {
-  //     this.updateDatasetsList(data);
-  //   })
-  //   return this.datasets;
-  // }
+  updateModelsList(data) {
+    this.models = [];
+    for (let entry of data) {
+      this.models.push(entry);
+    }
+  }
+
+  expandModels() {
+    if (this.modelsList.nativeElement.style.display == "none") {
+      this.modelsList.nativeElement.style.display = "block";
+      this.myModelsIcon = "open-folder";
+    } else {
+      this.modelsList.nativeElement.style.display = "none";
+      this.myModelsIcon = "folder";
+    }
+  }
+
+  selectModel(model) {
+    this.selectedModel = model;
+    this.updateBackgroundColorModel();
+    this._interactionService.changeSelectedModel(model);
+  }
 
   updateBackgroundColorModel() {
     if (this.models) {
@@ -285,34 +384,7 @@ export class PowerUserComponent extends Project implements OnInit {
           model.color = "rgb(134, 154, 170)";
         }
         else {
-          model.color = "#5B6D7C";
-        }
-      }
-    }
-  }
-
-  updateBackgroundColorWeight() {
-    if (this.models) {
-      for (let model of this.models) {
-        if (model.weightsList)
-          for (let weight of model.weightsList) {
-            if (this.selectedWeight == weight) {
-              weight.color = "rgb(134, 154, 170)";
-            }
-            else {
-              weight.color = "#5B6D7C";
-            }
-          }
-      }
-    }
-  }
-
-  updateBackgroundColorsDataset() {
-    if (this.datasets) {
-      for (let dataset of this.datasets) {
-        dataset.color = "#5B6D7C";
-        if (this.selectedFineTuning == dataset) {
-          dataset.color = "rgb(134, 154, 170)";
+          model.color = "#425463";
         }
       }
     }
