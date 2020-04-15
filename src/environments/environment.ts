@@ -5,7 +5,11 @@
 export const environment = {
   production: false,
   // apiBaseUrl: 'http://localhost:5000'
-  apiBaseUrl: 'https://jenkins-master-deephealth-unix01.ing.unimore.it/backend'
+  apiBaseUrl: 'https://jenkins-master-deephealth-unix01.ing.unimore.it/backend',
+  // 'configFile' is a path to an asset JSON file containing additional 
+  // settings that can be set without rebuild. They can be accessed 
+  // through the 'AppConfigService'
+  // configFile: '/assets/config.json'
 };
 
 /*
