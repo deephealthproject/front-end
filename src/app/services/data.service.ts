@@ -1,16 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { AppConfigService } from '../providers/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class DataService {
-  apiUrl = environment.apiBaseUrl;
 
-  constructor(private httpClient: HttpClient) { }
+  apiUrl = null;
+
+  constructor(private httpClient: HttpClient, private config: AppConfigService) { 
+    this.apiUrl = this.config.getConfig().apiBaseUrl;
+    console.log(this.config.getConfig());
+  }
 
   processImage(fileLocation: string): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/processImage');
