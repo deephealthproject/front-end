@@ -1,13 +1,11 @@
 <h1 mat-dialog-title>{{dialogTitle}}</h1>
 
 <mat-dialog-content>
-  <!-- <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}"> -->
   <div>
     {{dialogContent}} <span>{{trainingTime}}</span>
   </div>
   <div *ngIf="showMessageModel" style="padding-top: 15px" [ngStyle]="{'color': modelColor}">{{messageModel}}</div>
-  <div *ngIf="showMessagePreTraining" style="padding-top: 15px" [ngStyle]="{'color': colorPreTraining}">{{messagePreTraining}}</div>
-  <div *ngIf="showMessageFineTuning" style="padding-top: 15px" [ngStyle]="{'color': colorFineTuning}">{{messageFineTuning}}</div>
+  <div *ngIf="showMessageDataset" style="padding-top: 15px" [ngStyle]="{'color': colorDataset}">{{messageDataset}}</div>
   <div *ngIf="showMessageWeight" style="padding-top: 15px" [ngStyle]="{'color': weightColor}">{{messageWeight}}</div>
 </mat-dialog-content>
 

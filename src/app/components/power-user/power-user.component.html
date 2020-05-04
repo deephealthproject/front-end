@@ -7,14 +7,14 @@
       </div>
       <div style="padding-left: 10px;" #modelsList id="modelsList">
         <div *ngFor="let model of models">
-          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model); getWeights(model)">
-            <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
+          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model); getWeights(model);">
+            <mat-icon class="left-mat-icon" svgIcon={{weightsIcon}}></mat-icon>
             <div class="div-left-text-model">
               <span>{{model.name}}</span>
             </div>
           </div>
-          <div style="padding-left: 10px;" #weightsListId>
-            <div *ngFor="let weight of model.weightsList" (click)="selectWeight(weight); selectModel(model)">
+          <div style="padding-left: 10px;" #weightsListId id="weightsListId">
+            <div *ngFor="let weight of model.weightsList" (click)="selectWeight(weight); selectModel(model);">
               <div [ngStyle]="{'background-color': weight.color}">
                 <div class="div-left-text-model">
                   <span>{{weight.name}}</span>
@@ -62,7 +62,7 @@
       </div>
     </div>
     <div *ngFor="let project of projects">
-      <div class="div-right-project" (click)="showProject(project)">
+      <div class="div-right-project" (click)="showProject(project); getProjectsById(project.id)">
         <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
         <div class="div-right-text-project">
           <p>{{project.name}}</p>

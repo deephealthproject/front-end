@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Project, Model } from '../components/power-user/power-user.component';
+import { Project, Model, PropertyInstance } from '../components/power-user/power-user.component';
 import { DataService } from 'src/app/services/data.service';
 
 export class TabObject {
   name: string;
   type: string;
+  id: number;
 }
 
 @Injectable({
@@ -28,6 +29,9 @@ export class InteractionService extends TabObject {
   projectImagePathSource;
   projectImageURLSource;
   projectInputFiles;
+
+  projectDatasetPath;
+  projectDatasetUrl;
 
   //project component -> which tab section is shown  
   private _projectDivLeftShowStatusSource = new Subject<boolean>();
@@ -76,12 +80,10 @@ export class InteractionService extends TabObject {
   selectedOptionModel$ = this._selectedOptionModelSource.asObservable();
   private _selectedOptionWeightSource = new Subject<string>();
   selectedOptionWeightSource$ = this._selectedOptionWeightSource.asObservable();
-  private _selectedOptionPreTrainingSource = new Subject<string>();
-  selectedOptionPreTraining$ = this._selectedOptionPreTrainingSource.asObservable();
-  private _selectedOptionFineTuningSource = new Subject<string>();
-  selectedOptionFineTuning$ = this._selectedOptionFineTuningSource.asObservable();
-  private _selectedOptionInputSizeSource = new Subject<string>();
-  selectedOptionInputSize$ = this._selectedOptionInputSizeSource.asObservable();
+  private _selectedOptionDatasetSource = new Subject<string>();
+  selectedOptionDataset$ = this._selectedOptionDatasetSource.asObservable();
+  private _selectedOptionMetricSource = new Subject<string>();
+  selectedOptionMetric$ = this._selectedOptionMetricSource.asObservable();
   private _selectedOptionLossSource = new Subject<string>();
   selectedOptionLoss$ = this._selectedOptionLossSource.asObservable();
 
@@ -90,14 +92,12 @@ export class InteractionService extends TabObject {
   dropdownModel$ = this._dropdownModelSource.asObservable();
   private _dropdownWeightsSource = new Subject<Array<string>>();
   dropdownWeights$ = this._dropdownWeightsSource.asObservable();
-  private _dropdownPreTrainingSource = new Subject<Array<string>>();
-  dropdownPreTraining$ = this._dropdownPreTrainingSource.asObservable();
-  private _dropdownFineTuningSource = new Subject<Array<string>>();
-  dropdownFineTuning$ = this._dropdownFineTuningSource.asObservable();
+  private _dropdownDatasetSource = new Subject<Array<string>>();
+  dropdownDataset$ = this._dropdownDatasetSource.asObservable();
   private _dropdownLossSource = new Subject<Array<string>>();
   dropdownLoss$ = this._dropdownLossSource.asObservable();
-  private _dropdownInputSizeSource = new Subject<Array<string>>();
-  dropdownInputSize$ = this._dropdownInputSizeSource.asObservable();
+  private _dropdownMetricSource = new Subject<Array<string>>();
+  dropdownMetric$ = this._dropdownMetricSource.asObservable();
   private _dropdownModelsSource = new Subject<Array<string>>();
   dropdownModels$ = this._dropdownModelsSource.asObservable();
 
@@ -105,20 +105,38 @@ export class InteractionService extends TabObject {
   learningRateValue$ = this._learningRateValueSource.asObservable();
   private _epochsValueSource = new Subject<number>();
   epochsValueSource$ = this._epochsValueSource.asObservable();
+  private _batchSizeValueSource = new Subject<number>();
+  batchSizeValueSource$ = this._batchSizeValueSource.asObservable();
+  private _metricValueSource = new Subject<number>();
+  metricValueSource$ = this._metricValueSource.asObservable();
+  private _inputHeightValueSource = new Subject<number>();
+  inputHeightValueSource$ = this._inputHeightValueSource.asObservable();
+  private _inputWidthValueSource = new Subject<number>();
+  inputWidthValueSource$ = this._inputWidthValueSource.asObservable();
 
-  //project component -> div-details re-Train toggle button, inference button, train button
+  //project component -> dataset augmentations box
+  private _trainingAugmentationsValueSource = new Subject<string>();
+  trainingAugmentationsValueSource$ = this._trainingAugmentationsValueSource.asObservable();
+  private _validationAugmentationsValueSource = new Subject<string>();
+  validationAugmentationsValueSource$ = this._validationAugmentationsValueSource.asObservable();
+  private _testAugmentationsValueSource = new Subject<string>();
+  testAugmentationsValueSource$ = this._testAugmentationsValueSource.asObservable();
+
+  //project component -> div-details re-Train toggle button, inference button, train button, stop button
   private _reTrainButtonCheckedStateSource = new Subject<boolean>();
   reTrainButtonCheckedState$ = this._reTrainButtonCheckedStateSource.asObservable();
   private _inferenceButtonStateSource = new Subject<boolean>();
   inferenceButtonState$ = this._inferenceButtonStateSource.asObservable();
   private _trainButtonStateSource = new Subject<boolean>();
   trainButtonState$ = this._trainButtonStateSource.asObservable();
+  private _stopButtonStateSource = new Subject<boolean>();
+  stopButtonState$ = this._stopButtonStateSource.asObservable();
 
   //
   private _selectedModelIdSource = new Subject<boolean>();
   selectedModelId$ = this._selectedModelIdSource.asObservable();
-  private _selectedFineTuningIdSource = new Subject<boolean>();
-  selectedDataId$ = this._selectedFineTuningIdSource.asObservable();
+  private _selectedDatasetIdSource = new Subject<boolean>();
+  selectedDataId$ = this._selectedDatasetIdSource.asObservable();
   private _datasetResponseSource = new Subject<string>();
   datasetResponse = this._datasetResponseSource.asObservable();
 
@@ -135,8 +153,10 @@ export class InteractionService extends TabObject {
   projectsList$ = this._projectsListSource.asObservable();
 
   private modelsByTaskArray: Array<Model> = [];
-  private finetuningResponseData;
+  private datasetResponseData;
+  private imageUrlResponseData;
   private propertiesResponseData;
+  private propertiesById: Array<PropertyInstance> = [];
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
@@ -174,6 +194,28 @@ export class InteractionService extends TabObject {
         case "Epochs":
           this._epochsValueSource.next(property.default);
           break;
+        case "Batch size":
+          this._batchSizeValueSource.next(property.default);
+          break;
+        case "Metric":
+          this._dropdownMetricSource.next(valuesArray);
+          this._metricValueSource.next(property.default);
+          break;
+        case "Input height":
+          this._inputHeightValueSource.next(property.default);
+          break;
+        case "Input width":
+          this._inputWidthValueSource.next(property.default);
+          break;
+        // case "Training augmentations":
+        //   this._trainingAugmentationsValueSource.next(property.default);
+        //   break;
+        // case "Validations augmentations":
+        //   this._validationAugmentationsValueSource.next(property.default);
+        //   break;
+        // case "Test augmentations":
+        //   this._testAugmentationsValueSource.next(property.default);
+        //   break;
       }
     });
   }
@@ -192,25 +234,32 @@ export class InteractionService extends TabObject {
     return this.modelsByTaskArray;
   }
 
-  getFineTuningResponseData() {
-    return this.finetuningResponseData;
+  getPropertiesById() {
+    return this.propertiesResponseData;
   }
 
+  getDatasetResponseData() {
+    return this.datasetResponseData;
+  }
 
-  initialiseFineTuningDropdown() {
-    this._dataService.getDatasets().subscribe(data => {
-      this.insertDataIntoFineTuningDropdown(data);
+  getImageUrlResponseData() {
+    return this.imageUrlResponseData;
+  }
+
+  initialiseDatasetDropdown(taskId) {
+    this._dataService.getDatasets(taskId).subscribe(data => {
+      this.insertDataIntoDatasetDropdown(data);
     })
   }
 
-  insertDataIntoFineTuningDropdown(contentData) {
+  insertDataIntoDatasetDropdown(contentData) {
     let valuesArray: Array<string> = [];
-    this.finetuningResponseData = [];
+    this.datasetResponseData = [];
     contentData.forEach(element => {
       valuesArray.push(element.name);
-      this.finetuningResponseData.push(element);
+      this.datasetResponseData.push(element);
     });
-    this._dropdownFineTuningSource.next(valuesArray);
+    this._dropdownDatasetSource.next(valuesArray);
   }
 
   resetImageData() {
@@ -226,9 +275,19 @@ export class InteractionService extends TabObject {
   resetSelectedOptions() {
     this._selectedOptionModelSource.next(null);
     this._selectedOptionWeightSource.next(null);
-    // this._selectedOptionInputSizeSource.next(null);
-    this._selectedOptionPreTrainingSource.next(null);
-    this._selectedOptionFineTuningSource.next(null);
+    this._selectedOptionMetricSource.next(null);
+    this._selectedOptionDatasetSource.next(null);
+    this._selectedOptionLossSource.next(null);
+    this._metricValueSource.next(null);
+    this._epochsValueSource.next(null);
+    this._inputHeightValueSource.next(null);
+    this._inputWidthValueSource.next(null);
+    this._batchSizeValueSource.next(null);
+    this._dropdownLossSource.next(null);
+    this._learningRateValueSource.next(null);
+    this._trainingAugmentationsValueSource.next(null);
+    this._validationAugmentationsValueSource.next(null);
+    this._testAugmentationsValueSource.next(null);
   }
 
   resetInputType(state: boolean) {
@@ -241,9 +300,9 @@ export class InteractionService extends TabObject {
   resetDropdowns() {
     this._dropdownModelSource.next(null);
     this._dropdownWeightsSource.next(null);
-    this._dropdownInputSizeSource.next(null);
-    this._dropdownPreTrainingSource.next(null);
-    this._dropdownFineTuningSource.next(null);
+    this._dropdownMetricSource.next(null);
+    this._dropdownDatasetSource.next(null);
+    this._dropdownLossSource.next(null);
   }
 
   resetProject() {
@@ -262,31 +321,45 @@ export class InteractionService extends TabObject {
 
     this.changeStateDisableProcessImageButton(false);
 
-    //this.changeCheckedTask(false);
+    //this.changeCheckedTask(1);
     this.resetInputType(false);
     this.resetSelectedOptions();
-    //this.resetDropdowns();
+    this.resetDropdowns();
 
     this.changeCheckedStateReTrainButton(false);
     this.changeStateInferenceButton(false);
     this.changeCheckedStateTrainButton(false);
+    this.changeCheckedStateStopButton(false);
   }
 
   changeCheckedStateReTrainButton(state: boolean) {
     this._reTrainButtonCheckedStateSource.next(state);
     if (state == false) {
-      //   let learningRate = document.getElementById("learningRate");
-      //   learningRate.style.display = "none";
-      //   let loss = document.getElementById("loss");
-      //   loss.style.display = "none";
-      //   let useDropout = document.getElementById("useDropout");
-      //   useDropout.style.display = "none";
+      let inference = document.getElementById("inference");
+      inference.style.display = "block";
+      let learningRate = document.getElementById("learningRate");
+      learningRate.style.display = "none";
+      let loss = document.getElementById("loss");
+      loss.style.display = "none";
+      let useDropout = document.getElementById("useDropout");
+      useDropout.style.display = "none";
       let dataAugmentationSection = document.getElementById("dataAugmentationSection");
       dataAugmentationSection.style.display = "none";
-      //   let optimizer = document.getElementById("optimizer");
-      //   optimizer.style.display = "none";
-      //   let epochs = document.getElementById("epochs");
-      //   epochs.style.display = "none";
+      let epochs = document.getElementById("epochs");
+      epochs.style.display = "none";
+      let batchSize = document.getElementById("batchSize");
+      batchSize.style.display = "none";
+      let inputHeight = document.getElementById("inputHeight");
+      inputHeight.style.display = "none";
+      let inputWidth = document.getElementById("inputWidth");
+      inputWidth.style.display = "none";
+
+      let trainingAugmentations = document.getElementById("trainingAugmentations");
+      trainingAugmentations.style.display = "none";
+      let validationAugmentations = document.getElementById("validationAugmentations");
+      validationAugmentations.style.display = "none";
+      let testAugmentations = document.getElementById("testAugmentations");
+      testAugmentations.style.display = "block";
     }
   }
 
@@ -295,6 +368,12 @@ export class InteractionService extends TabObject {
   }
   changeCheckedStateTrainButton(state: boolean) {
     this._trainButtonStateSource.next(state);
+  }
+
+  changeCheckedStateStopButton(state: boolean) {
+    if(state == true) {
+      this._stopButtonStateSource.next(state);
+    }
   }
 
   //deepHealth component -> which component is shown
@@ -349,8 +428,8 @@ export class InteractionService extends TabObject {
     this._selectedModelIdSource.next(model);
   }
 
-  changeSelectedFineTuningId(datasetId) {
-    this._selectedFineTuningIdSource.next(datasetId);
+  changeSelectedDatasetId(datasetId) {
+    this._selectedDatasetIdSource.next(datasetId);
   }
 
   //app tabs -> which tab to show/close
@@ -378,13 +457,30 @@ export class InteractionService extends TabObject {
     }
   }
 
+  showProjectIdTab(projectId: number) {
+    if (this.tabs.length == 1) {
+      let newTab = new TabObject();
+      newTab.id = projectId;
+      newTab.type = "Project";
+      this.tabs.push(newTab);
+    }
+    else if (this.tabs[1].id != projectId) {
+      this.tabs[1].id = projectId;
+      this.resetImageData();
+      this.resetProject();
+    }
+    else {
+      console.log("The project tab with id " + projectId + " is already open");
+    }
+  }
+
   changeCurrentProject(project: Project) {
     this._currentProjectSource.next(project);
     this.initialiseModelDropdown(project.task_id);
     this.initialiseProperties();
-    this.initialiseFineTuningDropdown();
+    this.initialiseDatasetDropdown(project.task_id);
     this.changeCheckedTask(project.task_id);
-    
+    this.changeCheckedStateStopButton(true);
   }
 
   closeProjectTab() {
@@ -399,6 +495,7 @@ export class InteractionService extends TabObject {
     this.unreadNotificationsNumber++;
     this._unreadNotificationsNumberSource.next(this.unreadNotificationsNumber);
   }
+
   decreaseNotificationsNumber() {
     this.unreadNotificationsNumber--;
     this._unreadNotificationsNumberSource.next(this.unreadNotificationsNumber);
@@ -410,10 +507,6 @@ export class InteractionService extends TabObject {
     this._projectsListSource.next(contentData);
     return this._projectsListSource;
   }
-
-  // addNewProject() {
-  //   this._projectsListSource.
-  // }
 
   getProjectList() {
     return this._projectsListSource;

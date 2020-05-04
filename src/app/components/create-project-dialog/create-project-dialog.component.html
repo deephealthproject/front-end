@@ -8,9 +8,6 @@
   <mat-form-field >
       Select task
       <mat-select [(value)]=selectedOptionTask>
-          <!-- <mat-option *ngFor="let option of taskDropdown" value={{option}}>
-              {{option}}
-          </mat-option> -->
           <mat-option *ngFor="let option of taskDropdown" [value]="option.id">
                {{option.name}}
              </mat-option>
