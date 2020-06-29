@@ -7,10 +7,11 @@ export interface TrainDialogData {
   dialogContent: string;
   trainingTime: string;
   modelSelected;
-  pretrainingSelected;
-  finetuningSelected;
+  datasetSelected;
   weightSelected;
   process_type;
+  inputPlaceHolder: string;
+  inputValue: string;
 }
 
 @Component({
@@ -23,22 +24,21 @@ export class ConfirmDialogTrainComponent implements OnInit {
   dialogContent: string;
   trainingTime: string;
   messageModel: string;
-  messagePreTraining: string;
   messageWeight: string;
-  messageFineTuning: string;
+  messageDataset: string;
   selectedModel;
-  selectedPreTraining;
   selectedWeight;
-  selectedFineTuning;
+  selectedDataset;
   modelColor;
-  colorPreTraining;
-  colorFineTuning;
+  colorDataset;
   weightColor;
   process_type: string;
   showMessageModel: boolean;
   showMessageWeight: boolean;
-  showMessagePreTraining: boolean;
-  showMessageFineTuning: boolean;
+  showMessageDataset: boolean;
+  showDatasetInputPath: boolean;
+  inputPlaceHolder: string;
+  inputValue: string;
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData,
@@ -47,10 +47,10 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.dialogContent = data.dialogContent;
     this.trainingTime = data.trainingTime;
     this.selectedModel = data.modelSelected;
-    this.selectedPreTraining = data.pretrainingSelected;
-    this.selectedFineTuning = data.finetuningSelected;
+    this.selectedDataset = data.datasetSelected;
     this.selectedWeight = data.weightSelected;
     this.process_type = data.process_type;
+    this.inputPlaceHolder = data.inputPlaceHolder;
 
     if (!this.selectedModel) {
       this.messageModel = this.translate.instant('confirm-dialog-train.errorModel');
@@ -61,28 +61,18 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.modelColor = "black";
     }
 
-    if (!this.selectedPreTraining) {
-      this.messagePreTraining = this.translate.instant('confirm-dialog-train.errorPreTraining');
-      this.colorPreTraining = "red";
+    if (!this.selectedDataset) {
+      this.messageDataset = this.translate.instant('confirm-dialog-train.errorDataset');
+      this.colorDataset = "red";
     }
     else {
-      this.messagePreTraining = this.translate.instant('confirm-dialog-train.selectedPreTraining') + this.selectedPreTraining;
-      this.colorPreTraining = "black";
-    }
-
-
-    if (!this.selectedFineTuning) {
-      this.messageFineTuning = this.translate.instant('confirm-dialog-train.errorFineTuning');
-      this.colorFineTuning = "red";
-    }
-    else {
-      this.messageFineTuning = this.translate.instant('confirm-dialog-train.selectedFineTuning') + this.selectedFineTuning;
-      this.colorFineTuning = "black";
+      this.messageDataset = this.translate.instant('confirm-dialog-train.selectedDataset') + this.selectedDataset;
+      this.colorDataset = "black";
     }
 
     if (!this.selectedWeight) {
-      this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
-      this.weightColor = "red";
+      // this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
+      // this.weightColor = "red";
     }
     else {
       this.messageWeight = this.translate.instant('confirm-dialog-train.selectedWeight') + this.selectedWeight;
@@ -93,15 +83,22 @@ export class ConfirmDialogTrainComponent implements OnInit {
     if (this.process_type == "inference") {
       this.showMessageModel = true;
       this.showMessageWeight = false;
-      this.showMessagePreTraining = false;
-      this.showMessageFineTuning = true;
+      this.showMessageDataset = true;
+      this.showDatasetInputPath = false;
     }
 
     if (this.process_type == "train") {
       this.showMessageModel = true;
+      this.showMessageWeight = true;
+      this.showMessageDataset = true;
+      this.showDatasetInputPath = false;
+    }
+
+    if (this.process_type == "inferenceSingle") {
+      this.showMessageModel = true;
       this.showMessageWeight = false;
-      this.showMessagePreTraining = true;
-      this.showMessageFineTuning = false;
+      this.showMessageDataset = false;
+      this.showDatasetInputPath = true;
     }
   }
 
@@ -109,6 +106,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
   }
 
   save() {
+    this.data.inputValue = this.inputValue;
     this.dialogRef.close(this.data);
   }
 

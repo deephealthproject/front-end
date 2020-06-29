@@ -1,0 +1,47 @@
+<div mat-dialog-title class="div-outputs-title">
+  {{dialogTitle}}
+</div>
+<mat-dialog-content class="mat-typography" style=" max-width: none !important;">
+  <div>
+    {{'output-details-dialog.proccessId' | translate}} {{processId}}
+  </div>
+
+  <div>
+    <div style="display: inline-block; padding-right: 20px;">
+      <div style="width: 470px;">{{'output-details-dialog.image' | translate}}</div>
+    </div>
+    <div style="display: inline-block;">
+      <div>{{'output-details-dialog.classes' | translate}}</div>
+    </div>
+  </div>
+  <div>
+    <div style="display: inline-block; padding-right: 20px; vertical-align: middle;">
+      <img src="{{imageSrc}}" style="width: 470px; height: auto;">
+    </div>
+    <div style="display: inline-block; vertical-align: middle;">
+      <div *ngFor="let class of classes">
+        <div >
+          {{class}}
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- <div style="display: inline-block">
+      <div class="div-details-title">{{'output-details-dialog.image' | translate}}</div>
+      <div>{{imageSrc}}</div>
+      <div class="div-detail-image-container">
+        <img src="{{imageSrc}}" class="div-detail-image">
+      </div>
+    </div>
+    <div style="display: inline-block">
+      <div class="div-details-title">{{'output-details-dialog.classes' | translate}}</div>
+      <div>{{classes}}</div>
+    </div> -->
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="close()">{{'output-details-dialog.closeButton' | translate}}</button>
+</mat-dialog-actions>

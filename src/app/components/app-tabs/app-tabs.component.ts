@@ -52,10 +52,14 @@ export class AppTabsComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(true);
+    this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
+    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeShowStateProjectDivOutputResults(false);
   }
 }

@@ -1,21 +1,22 @@
 .footer-toolbar {
     background-color: rgb(79, 94, 109);
     /* margin-top: 5px; */
-    height: -webkit-stretch;
+   
     /* position: fixed; */
     width: 100%;
     bottom: 0;
-    height: 67px;
+    height: 53px;
 }
 
 .footer-toolbar .row {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 52px;
 }
 
 .logo-container img {
-    width: 80px;
+    width: 60px;
 }
 
 img {

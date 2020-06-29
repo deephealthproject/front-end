@@ -1,0 +1,24 @@
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
+
+<mat-dialog-content>
+    <div style="padding-left: 10px; padding-right: 10px;">
+      <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}">
+    </div>
+
+    <mat-form-field>
+      <div>
+        {{dialogContent}}
+      </div>
+      <div #isUrlLink id="isUrlLink" style="padding-top: 5px;">
+        <mat-checkbox color="primary" [checked]=false (change)="changeIsUrlLinkCheckedState()">
+          {{'project.isUrlLink' | translate}}
+        </mat-checkbox>
+      </div>
+      <input matInput [(ngModel)]="inputValuePath" placeholder="{{inputPlaceHolderPath}}">
+    </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>{{'upload-dataset-dialog.CancelButton' | translate}}</button>
+  <button mat-raised-button (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
+</mat-dialog-actions>

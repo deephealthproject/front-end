@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
+
+<mat-dialog-content>
+  <div>
+    {{'project.weightId' | translate}}
+    <input style="border: white" readonly="readonly" [(ngModel)]="_interactionService.formDataWeight.weightId">
+  </div>
+
+  <mat-form-field>
+    <div>
+      {{dialogContent}}
+    </div>
+    {{'project.weightName' | translate}}
+    <div style="padding-top: 8px;">
+      <input matInput [(ngModel)]="_interactionService.formDataWeight.weightName" >
+    </div>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="close()">{{'update-weight-dialog.CancelButton' | translate}}</button>
+  <button mat-raised-button (click)="save()">{{'update-weight-dialog.OKButton' | translate}}</button>
+</mat-dialog-actions>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Weight } from '../components/power-user/power-user.component';
 
 @Injectable({
   providedIn: 'root'
@@ -63,11 +64,37 @@ export class DataService {
 
   getWeights(modelId): Observable<HttpResponse<any>> {
     console.log(modelId);
-    // const url = this.NEWswaggerApiUrl.concat("/weights?model_id=");
-    // url.concat(modelId);
     let url = this.apiUrl.concat("/weights?model_id=");
     url += modelId;
     return this.httpClient.get<any>(url);
+  }
+
+  getWeights2(modelId): Observable<Weight[]> {
+    console.log(modelId);
+    let url = this.apiUrl.concat("/weights?model_id=");
+    url += modelId;
+    return this.httpClient.get<Weight[]>(url);
+  }
+
+  getOutput(processId) {
+    console.log(processId);
+    let url = this.apiUrl.concat("/output?process_id=");
+    url += processId;
+    return this.httpClient.get<any>(url);
+  }
+
+  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrain_on: number, taskId: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/weights');
+    const payload = {
+      id: weightId,
+      dataset_id: datasetId,
+      name: weightName,
+      model_id: modelId,
+      pretrained_on: pretrain_on,
+      task_id: taskId
+    };
+    console.log(payload);
+    return this.httpClient.put<any>(url, payload, { observe: 'response' });
   }
 
   //weigths for swagger-stub
@@ -79,21 +106,20 @@ export class DataService {
   //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
   // }
 
-  trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, selectedPretrainingId, selectedProjectId): Observable<HttpResponse<any>> {
+  trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, selectedProjectId): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/train');
     const payload = {
-      dataset_id: selectedDatasetId,
       model_id: selectedModelId,
-      pretraining_id: selectedPretrainingId,
       project_id: selectedProjectId,
       properties: selectedProperties,
-      weights_id: selectedWeightId
-      //finetuning_id: selectedFineTuningId
+      weights_id: selectedWeightId,
+      dataset_id: selectedDatasetId
     }
     console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
+  //todo
   trainingSettings(modelWeightsId, propertyId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainingSettings?modelweights_id=');
     url += modelWeightsId;
@@ -102,11 +128,22 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  inferenceModel(selectedModelWeightsId, selectedDatasetId, selectedProjectId): Observable<HttpResponse<any>> {
+  inferenceModel(selectedWeightId, selectedDatasetId, selectedProjectId): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/inference');
     const payload = {
-      modelweights_id: selectedModelWeightsId,
+      modelweights_id: selectedWeightId,
       dataset_id: selectedDatasetId,
+      project_id: selectedProjectId
+    }
+    console.log(payload);
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  inferenceSingle(selectedWeightId, datasetImagePath, selectedProjectId): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/inferenceSingle');
+    const payload = {
+      modelweights_id: selectedWeightId,
+      image_url: datasetImagePath,
       project_id: selectedProjectId
     }
     console.log(payload);
@@ -119,6 +156,20 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
+  output(processId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/output?process_id=');
+    url += processId;
+    return this.httpClient.get<any>(url);
+  }
+
+  stopProcess(processId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/stopProcess');
+    const payload = {
+      process_id: processId
+    }
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
   //status for swagger-stub
   // status(processId): Observable<HttpResponse<any>> {
   //   let url = this.apiUrl.concat('/status');
@@ -128,13 +179,17 @@ export class DataService {
   //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
   // }
 
-  //get all the projects
   projects(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/projects');
     return this.httpClient.get<any>(url);
   }
 
-  //create new project
+  projectsById(projectId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/projects/');
+    url += projectId;
+    return this.httpClient.get<any>(url);
+  }
+
   addProject(projectName: string, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/projects');
     const payload = {
@@ -145,7 +200,6 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  //update a project
   updateProject(projectName: string, projectId: number, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/projects');
     const payload = {
@@ -176,10 +230,25 @@ export class DataService {
   //   return this.httpClient.get<any>(url);
   // }
 
-  getDatasets(): Observable<HttpResponse<any>> {
-    let url = this.apiUrl.concat("/datasets");
+  getDatasets(taskId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/datasets');
+    if (taskId != undefined) {
+      url += "?task_id=";
+      url += taskId;
+    }
+    console.log(url);
     return this.httpClient.get<any>(url);
   }
 
+  uploadDataset(datasetName, taskId, datasetPath): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/datasets');
+    const payload = {
+      name: datasetName,
+      task_id: taskId,
+      path: datasetPath
+    }
+    console.log(payload);
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
 
 }

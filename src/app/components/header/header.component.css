@@ -1,11 +1,20 @@
+
 .mat-toolbar-row-custom-banner {
-  height: auto;
+  height: 48px;
   background-image: linear-gradient(305deg, rgb(39, 72, 99), rgb(52, 114, 165), #61AFD5, rgb(155, 194, 207), white, white);
-  padding-top: 8px;
+  padding-top: 4px;
+}
+
+.mat-toolbar-multiple-rows {
+  min-height: 48px;
 }
 
 .example-spacer {
   flex: 1 1 auto; 
+}
+
+.example-spacer img {
+  width: 170px;
 }
 
 .banner-right-text {
@@ -14,4 +23,5 @@
   font-family: fantasy;
   text-align: end;
   float: right;
+  font-size: 20px;
 }

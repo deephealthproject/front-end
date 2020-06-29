@@ -1,0 +1,23 @@
+.div-outputs-title {
+    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-left: 10px;
+    border-bottom-style: ridge;
+    color: #3180ae;
+}
+
+.div-details-title {
+    border-bottom-style: ridge;
+    color: #3180ae;
+}
+
+.div-detail-image-container {
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.div-detail-image {
+    width: 100%;
+    height: auto;
+}

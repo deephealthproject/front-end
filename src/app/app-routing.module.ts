@@ -16,6 +16,9 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogTrainComponent } from './components/confirm-dialog-train/confirm-dialog-train.component';
 import { CreateProjectDialogComponent } from './components/create-project-dialog/create-project-dialog.component';
+import { UploadDatasetsDialogComponent } from './components/upload-datasets-dialog/upload-datasets-dialog.component';
+import { UpdateWeightDialogComponent } from './components/update-weight-dialog/update-weight-dialog.component';
+import { ShowOutputDetailsDialogComponent } from './components/show-output-details-dialog/show-output-details-dialog.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -34,7 +37,10 @@ const routes: Routes = [
     ProjectComponent,
     ConfirmDialogComponent,
     ConfirmDialogTrainComponent,
-    CreateProjectDialogComponent
+    CreateProjectDialogComponent,
+    UploadDatasetsDialogComponent,
+    UpdateWeightDialogComponent,
+    ShowOutputDetailsDialogComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -62,7 +68,10 @@ const routes: Routes = [
   entryComponents: [
     ConfirmDialogComponent,
     ConfirmDialogTrainComponent,
-    CreateProjectDialogComponent
+    CreateProjectDialogComponent,
+    UploadDatasetsDialogComponent,
+    UpdateWeightDialogComponent,
+    ShowOutputDetailsDialogComponent
   ]
 })
 export class AppRoutingModule {

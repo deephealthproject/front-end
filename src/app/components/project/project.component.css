@@ -154,7 +154,12 @@
 }
 
 .div-middle-inference-button {
-    color: green;
+    color: rgb(9, 46, 78);
+}
+
+.div-left-upload-dataset-button {
+    color: rgb(78, 151, 216);
+    background-color: rgb(255, 255, 255);
 }
 
 .div-middle-box-content-button {
@@ -267,12 +272,8 @@
     border-right: 2px solid #1A759D;
 }
 
-/* .div-notifications-title {
-
-} */
-
 .div-notifications-title-section {
-    width: calc(100% / 3 - 1px);
+    width: calc(100% / 4 - 1px);
     background-color: #65A4C4;
     display: inline-block;
     text-align: center;
@@ -292,7 +293,7 @@
 }
 
 .div-notifications-process-section {
-    width: calc(100% / 3);
+    width: calc(100% / 4);
     display: inline-block;
     padding-top: 20px;
     text-align: center;
@@ -316,4 +317,64 @@
     color: #084A6C;
     display: inline-block;
     padding-top: 20px;
+}
+
+.div-edit-weights {
+    width: calc(100% - 18% - 2px);
+    float: left;
+    height: 100%;
+    overflow: auto;
+    border-right-color: #1A759D;
+    border-right-width: 2px;
+    border-right-style: solid;
+}
+
+.div-output-results {
+    width: calc(100% - 18% - 2px);
+    float: left;
+    height: 100%;
+    overflow: auto;
+    border-right-color: #1A759D;
+    border-right-width: 2px;
+    border-right-style: solid;
+}
+
+table {
+    width: 100%;
+    overflow: auto;
+}
+
+.edit-button {
+    color: rgb(9, 46, 78);
+}
+
+.mat-form-field {
+    font-size: 14px;
+}
+
+.div-edit-weights-title {
+    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-left: 10px;
+    border-bottom-style: ridge;
+    color: #3180ae;
+}
+
+.div-middle-box-title-edit-weight {
+    display: inline-block;
+    font-size: 14px;
+    color: #3180ae;
+}
+
+.div-prefilter-by-models{
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.td-output-results-cells {
+    padding-top: 3px; 
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
 }

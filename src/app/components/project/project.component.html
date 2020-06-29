@@ -2,13 +2,20 @@
     <div class="div-left" [hidden]="!divLeftShowStatus">
         <div class="div-left-section">
             <div class="div-left-section-title">
+                {{'project.uploadDataset' | translate}}
+            </div>
+            <div style="padding-top: 10px; padding-bottom: 10px;" class="div-left-section-box">
+                <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadDataset();">
+                    {{'project.uploadDataset' | translate}}
+                </button>
+            </div>
+            <div class="div-left-section-title">
                 {{'project.task' | translate}}
             </div>
             <div class="div-left-section-box">
                 <mat-radio-group label="tasks" [(ngModel)]="selectedTask">
                     <div class="tasks" *ngFor="let task of tasks">
-                        <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.id"
-                             (click)="resetSelectedOptions(); changeCheckedTask(task)">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.id" (click)="resetSelectedOptions(); changeCheckedTask(task)">
                             {{ task.name }}</mat-radio-button>
                     </div>
                 </mat-radio-group>
@@ -19,30 +26,23 @@
                 {{'project.inputType' | translate}}
             </div>
             <div class="div-left-section-box">
-                <form>
-                    <mat-radio-group aria-label="input-types">
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Text"
-                            checked={{checkedStateTextInputType}}
+                    <mat-radio-group aria-label="input-types" [(ngModel)]="selectedInputType">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Text" checked={{checkedStateTextInputType}}
                             (click)="changeCheckedInputType('Text'); hideImageInput();">
                             {{'project.text' | translate}}
                         </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Image"
-                            checked={{checkedStateImageInputType}}
-                            (click)="changeCheckedInputType('Image'); showImageInput();">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Image" checked={{checkedStateImageInputType}}
+                            (click)="changeCheckedInputType('Image'); hideImageInput();">
                             {{'project.image' | translate}}
                         </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="3D"
-                            checked={{checkedState3DInputType}}
-                            (click)="changeCheckedInputType('3D'); hideImageInput();">
+                        <mat-radio-button class="div-left-section-box-button" color="primary" value="3D" checked={{checkedState3DInputType}} (click)="changeCheckedInputType('3D'); hideImageInput();">
                             {{'project.3DVolumes(Slices)' | translate}}
                         </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Video"
-                            checked={{checkedStateVideoInputType}}
+                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Video" checked={{checkedStateVideoInputType}}
                             (click)="changeCheckedInputType('Video'); hideImageInput();">
                             {{'project.video' | translate}}
                         </mat-radio-button>
                     </mat-radio-group>
-                </form>
             </div>
         </div>
         <div class="div-left-section">
@@ -69,19 +69,17 @@
                 <div>
                     <label class="input-file-button mat-flat-button">
                         <span>{{'project.chooseImage' | translate}}</span>
-                        <input class="input-file-field" #fileInput type="file" accept="image/*"
-                            (change)="browseImage($event)">
+                        <input class="input-file-field" #fileInput type="file" accept="image/*" (change)="browseImage($event)">
                     </label>
                 </div>
             </div>
 
             <div class="div-middle-box-bottom">
                 <div class="div-middle-box-bottom-left">
-                    <div class="div-middle-slide-toggle-button">
+                    <div #reTrain id="reTrain" class="div-middle-slide-toggle-button">
                         <span>{{'project.reTrainTheModel' | translate}}</span>
                         <div>
-                            <mat-slide-toggle color="primary" checked={{reTrainState}}
-                                (change)="changeStateReTrainToggle()">
+                            <mat-slide-toggle color="primary" checked={{reTrainState}} (change)="changeStateReTrainToggle()">
                             </mat-slide-toggle>
                         </div>
                     </div>
@@ -107,35 +105,27 @@
                             </mat-select>
                         </mat-form-field>
                         <div class="div-middle-box-title">
-                            {{'project.preTraining' | translate}}
+                            {{'project.dataset' | translate}}
                         </div>
                         <mat-form-field class="div-middle-box-content">
-                            <mat-select [(value)]=selectedOptionPreTraining>
-                                <mat-option *ngFor="let option of preTrainingDropdown" value={{option}}>
+                            <mat-select [(value)]=selectedOptionDataset>
+                                <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
                                     {{option}}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <div class="div-middle-box-title">
-                            {{'project.fineTuning' | translate}}
+                        <div #metric id="metric" style="padding-top: 10px;">
+                            <div class="div-middle-box-title">
+                                {{'project.metric' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select [(value)]=selectedOptionMetric>
+                                    <mat-option *ngFor="let option of metricDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
                         </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <mat-select [(value)]=selectedOptionFineTuning>
-                                <mat-option *ngFor="let option of fineTuningDropdown" value={{option}}>
-                                    {{option}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <!-- <div class="div-middle-box-title">
-                            {{'project.inputSize' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <mat-select [(value)]=selectedOptionInputSize>
-                                <mat-option *ngFor="let option of inputSizeDropdown" value={{option}}>
-                                    {{option}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field> -->
                         <div>
                             <div #loss id="loss">
                                 <div class="div-middle-box-title">
@@ -166,8 +156,7 @@
                                     {{'project.learningRate' | translate}}
                                 </div>
                                 <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{learningRateValue}} step=0.00001
-                                        (change)="changeLearningRateValue($event)">
+                                    <input matInput type="number" value={{learningRateValue}} step=0.00001 (change)="changeLearningRateValue($event)">
                                 </mat-form-field>
                             </div>
                             <div #epochs id="epochs">
@@ -178,10 +167,33 @@
                                     <input matInput type="number" value={{epochsValue}} step=1>
                                 </mat-form-field>
                             </div>
+                            <div #batchSize id="batchSize">
+                                <div class="div-middle-box-title">
+                                    {{'project.batchSize' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <input matInput type="number" value={{batchSizeValue}} step=1>
+                                </mat-form-field>
+                            </div>
+                            <div #inputHeight id="inputHeight">
+                                <div class="div-middle-box-title">
+                                    {{'project.inputHeight' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <input matInput type="number" value={{inputHeightValue}} step=1>
+                                </mat-form-field>
+                            </div>
+                            <div #inputWidth id="inputWidth">
+                                <div class="div-middle-box-title">
+                                    {{'project.inputWidth' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <input matInput type="number" value={{inputWidthValue}} step=1>
+                                </mat-form-field>
+                            </div>
                             <div #useDropout id="useDropout">
                                 <div class="div-middle-box-content">
-                                    <mat-checkbox color="primary" [checked]=false
-                                        (change)="changeUseDropoutCheckedState()">
+                                    <mat-checkbox color="primary" [checked]=false (change)="changeUseDropoutCheckedState()">
                                         {{'project.useDropout' | translate}}
                                     </mat-checkbox>
                                 </div>
@@ -190,31 +202,72 @@
                     </form>
                 </div>
                 <div class="div-middle-box-bottom-right">
-                    <div class="div-middle-inference-button">
-                        <button mat-flat-button color="primary" (click)="inferenceModel()"
-                            [disabled]="disabledInferenceButton">
-                            {{'project.inference' | translate}}</button>
-                        <!-- <div *ngIf="inferenceProcessStarted">
-                            <p>
-                                {{inferenceMessage}}
-                            </p>
-                        </div> -->
+                    <div #inference id="inference">
+                        <div class="div-middle-inference-button">
+                            <button mat-flat-button color="primary" (click)="inferenceModel()" [disabled]="disabledInferenceButton">
+                                {{'project.inference' | translate}}</button>
+                            <div *ngIf="inferenceProcessStarted">
+                                <p>
+                                    {{ inferenceMessage }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div style="padding-top: 15px;" #dataAugmentationSection id=dataAugmentationSection>
+                    <div #inferenceSingle id="inferenceSingle">
+                        <div class="div-middle-inference-button">
+                            <button mat-flat-button color="primary" (click)="inferenceSingleMethod()" [disabled]="disabledInferenceSingleButton">
+                                {{'project.inferenceSingle' | translate}}</button>
+                            <div *ngIf="inferenceProcessStarted">
+                                <p>
+                                    {{ inferenceMessage }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-top: 15px; color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
                         <div>{{'project.dataAugumentation' | translate}}</div>
                         <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
                             <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}
                             </mat-checkbox>
                         </div>
+                    </div>
+                    <div style="padding-top: 10px;" #trainingAugmentations id="trainingAugmentations">
+                        <div class="div-middle-box-title">
+                            {{'project.trainingAugmentations' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                                <textarea matInput cdkTextareaAutosize value={{trainingAugmentationsValue}}></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div #validationAugmentations id="validationAugmentations">
+                        <div class="div-middle-box-title">
+                            {{'project.validationAugmentations' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <textarea matInput cdkTextareaAutosize value={{validationAugmentationsValue}}></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div #testAugmentations id="testAugmentations" style="padding-top: 10px;">
+                        <div class="div-middle-box-title">
+                            {{'project.testAugmentations' | translate}}
+                        </div>
+                        <mat-form-field class="div-middle-box-content">
+                            <textarea matInput cdkTextareaAutosize value={{testAugmentationsValue}}></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div #trainButton id=trainButton>
                         <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
                             {{'project.train' | translate}}</button>
-                        <!-- <button mat-flat-button color="warn" *ngIf="showStopButton"
-                        (click)="stopModel()">{{'project.stop' | translate}}</button> -->
-                        <!-- <div *ngIf="disabledTrainButton">
+                        <div *ngIf="trainProcessStarted">
                             <p>
-                                {{trainMessage}}
+                                {{ trainMessage }}
                             </p>
-                        </div> -->
+                        </div>
+                        <div *ngIf="disabledTrainButton">
+                            <p>
+                                {{ trainMessage }}
+                            </p>
+                        </div>
                         <div style="padding-top: 15px;" *ngIf="trainSpinner">
                             <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
                         </div>
@@ -226,21 +279,23 @@
 
     <div class="div-right">
         <div>
-            <button mat-flat-button class="div-right-button" (click)="openConfiguration()"
-                [class.div-right-button-clicked]="configurationIsClicked">
+            <button mat-flat-button class="div-right-button" (click)="openConfiguration()" [class.div-right-button-clicked]="configurationIsClicked">
                 {{'project.configuration' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openUserScreen()"
-                [class.div-right-button-clicked]="userScreenIsClicked">
+            <button mat-flat-button class="div-right-button" (click)="openUserScreen()" [class.div-right-button-clicked]="userScreenIsClicked">
                 {{'project.userScreen' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()"
-                [class.div-right-button-clicked]="networkStatisticsIsClicked">
+            <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()" [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 {{'project.networkStatistics' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openNotifications()"
-                [class.div-right-button-clicked]="notificationsIsClicked">
+            <button mat-flat-button class="div-right-button" (click)="openNotifications()" [class.div-right-button-clicked]="notificationsIsClicked">
                 {{'project.notifications' | translate}}
+            </button>
+            <button mat-flat-button class="div-right-button" (click)="openEditWeights()" [class.div-right-button-clicked]="editWeightsIsClicked">
+                {{'project.editWeights' | translate}}
+            </button>
+            <button mat-flat-button class="div-right-button" (click)="openOutputResults();" [class.div-right-button-clicked]="outputResultsIsClicked">
+                {{'project.outputResults' | translate}}
             </button>
             <div class="div-user-screen-search">
                 <mat-icon class="left-mat-icon" svgIcon={{searchIcon}}></mat-icon>
@@ -258,12 +313,10 @@
             </div>
             <div class="div-user-screen-section-content">
                 <div class="div-user-screen-image-input">
-                    <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto
-                        *ngIf="this._interactionService.projectImageURLSource">
+                    <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto *ngIf="this._interactionService.projectImageURLSource">
                 </div>
                 <div>
-                    <button class="div-user-screen-process-image-button" mat-flat-button (click)="processImage()"
-                        [disabled]="!disabledProcessImageButton">
+                    <button class="div-user-screen-process-image-button" mat-flat-button (click)="processImage()" [disabled]="!disabledProcessImageButton">
                         {{'project.processImage' | translate}}
                     </button>
                 </div>
@@ -288,18 +341,25 @@
                 {{'project.projectId' | translate}}
             </div>
             <div class="div-notifications-title-section">
-                {{'project.projectType' | translate}}
+                {{'project.processId' | translate}}
+            </div>
+            <div class="div-notifications-title-section">
+                {{'project.processType' | translate}}
             </div>
             <div style="border-color: #65A4C4;" class="div-notifications-title-section">
-                {{'project.projectStatus' | translate}}
+                {{'project.processStatus' | translate}}
             </div>
         </div>
-        <div class="div-notifications-process" *ngFor="let process of runningProcesses"
-            (click)="markNotificationAsRead(process)">
+        <div class="div-notifications-process" *ngFor="let process of runningProcesses" (click)="markNotificationAsRead(process)">
             <div class="div-notifications-process-section">
                 <div class="div-notifications-icon" *ngIf="process.unread">
                     <mat-icon svgIcon="markUnread"></mat-icon>
                 </div>
+                <div class="div-notifications-text">
+                    {{process.projectId}}
+                </div>
+            </div>
+            <div class="div-notifications-process-section">
                 <div class="div-notifications-text">
                     {{process.processId}}
                 </div>
@@ -310,6 +370,155 @@
             <div class="div-notifications-process-section">
                 {{process.process_status}}
             </div>
+            <button mat-flat-button color="primary" style="background: #3180ae;" (click)="showOutputProcess(process.processId)">
+                {{'project.showOutput' | translate}}
+            </button>
+            <button mat-flat-button color="warn" (click)="stopProcess(process.processId)" [disabled]="disabledStopButton">
+                {{'project.stop' | translate}}
+            </button>
         </div>
+    </div>
+    <div class="div-edit-weights" [hidden]="!divEditWeightsShowStatus">
+        <div class="div-edit-weights-title">{{'project.editWeights' | translate}}</div>
+        <div class="div-prefilter-by-models">
+            <div class="div-middle-box-title" style="color: #3180ae;">
+                {{'project.selectAModel' | translate}}
+            </div>
+            <br/>
+            <div>
+                <div class="div-middle-box-title-edit-weight">
+                    {{'project.model' | translate}}:
+                </div>
+                <div style="display: inline-block;">
+                    <mat-form-field class="div-middle-box-content">
+                        <mat-select (selectionChange)="triggerSelectedModelEditWeight($event)" [(ngModel)]="selectedValueEditWeight"
+                            [(value)]=selectedOptionModelEditList>
+                            <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                {{option}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div>
+                <mat-form-field>
+                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+                </mat-form-field>
+            </div>
+        </div>
+        <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
+            <ng-container matColumnDef="weightId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Id</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="weightName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Name</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="weightCeleryId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Celery Id</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightCeleryId}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="weightOptions">
+                <th mat-header-cell *matHeaderCellDef>Options</th>
+                <td mat-cell *matCellDef="let row">
+                    <button mat-flat-button style="background-color: #65A4C5; color: white;" (click)="onEditWeight(row)">
+                        {{'project.edit' | translate}}
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+    </div>
+
+    <div class="div-output-results" [hidden]="!divOutputResultsShowStatus">
+        <div class="div-edit-weights-title">{{'project.outputResults' | translate}}</div>
+        <div class="div-prefilter-by-models">
+            <div class="div-middle-box-title" style="color: #3180ae;">
+                {{'project.selectAModel' | translate}}
+            </div>
+            <br/>
+            <div>
+                <div class="div-middle-box-title-edit-weight">
+                    {{'project.model' | translate}}:
+                </div>
+                <div style="display: inline-block;">
+                    <mat-form-field class="div-middle-box-content">
+                        <mat-select (selectionChange)="triggerSelectedModelEditWeight($event)" [(ngModel)]="selectedValueEditWeight"
+                            [(value)]=selectedOptionModelEditList>
+                            <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                {{option}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div>
+                <mat-form-field>
+                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+                </mat-form-field>
+            </div>
+        </div>
+        <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
+            <ng-container matColumnDef="weightId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Id</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightId}} </td>
+            </ng-container>
+            <ng-container matColumnDef="weightName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Name</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="weightCeleryId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Celery Id</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightCeleryId}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="weightOptions">
+                <th mat-header-cell *matHeaderCellDef>Options</th>
+                <td mat-cell *matCellDef="let row">
+                    <button mat-flat-button style="background-color: #65A4C5; color: white;" (click)="onShowOutputsByWeight(row.weightCeleryId)">
+                        {{'project.showOutput' | translate}}
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+
+        <div class="div-prefilter-by-models">
+            <div class="div-middle-box-title" style="color: #3180ae;">
+                {{'project.outputResultList' | translate}}{{outputResultsDetailProcessId}}
+            </div>
+            <div>
+                <mat-form-field>
+                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+                </mat-form-field>
+            </div>
+        </div>
+        <table mat-table [dataSource]="outputList" matSort class="mat-elevation-z8">
+            <ng-container matColumnDef="outputImage">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Image</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
+            </ng-container>
+            <ng-container matColumnDef="outputDetails">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Details</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> ... </td>
+            </ng-container>
+            <ng-container matColumnDef="outputDetailsOptions">
+                <th mat-header-cell *matHeaderCellDef>Options</th>
+                <td mat-cell *matCellDef="let row">
+                    <button mat-flat-button class="td-output-results-cells" style="background-color: #65A4C5; color: white;" (click)="onShowOutputDetails(row)">
+                        {{'project.viewOutputDetails' | translate}}
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedOutputColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedOutputColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
     </div>
 </div>
