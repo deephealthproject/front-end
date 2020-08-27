@@ -21,9 +21,11 @@ export class ProcessingObject {
   projectId;
   processId;
   process_type;
-  process_status: ProcessStatus;
+  process_status: string;
   process_data: Array<ProcessData>;
   unread: boolean;
+  showStopButton: boolean;
+  showDisabledButton: boolean;
   color;
 }
 
@@ -56,15 +58,17 @@ export interface WeightData {
   WeightId: number;
   WeightName: string;
   weightCeleryId: string;
+  weightDatasetId: number;
 }
-
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
   styleUrls: ['./project.component.css']
 })
+
 export class ProjectComponent implements OnInit {
+
   fileTempLocation: string;
 
   //div-right tabs
@@ -127,7 +131,7 @@ export class ProjectComponent implements OnInit {
   selectedOptionProperty = null;
 
   //slide toggle
-  reTrainState = false;
+  // reTrainState = false;
 
   //properties
   useDropoutCheckedState: boolean = false;
@@ -184,6 +188,7 @@ export class ProjectComponent implements OnInit {
 
   searchIcon = "search";
   markUnreadIcon = "markUnread";
+  stopProcessIcon = "stopProcess";
 
   trainProcessStarted = false;
   inferenceProcessStarted = false;
@@ -193,7 +198,6 @@ export class ProjectComponent implements OnInit {
   showInference = false;
   trainSpinner = false;
   showTrainButton = true;
-  showStopButton = false;
   disabledStopButton = false;
   process_type: string;
   trainMessage: string = null;
@@ -201,6 +205,7 @@ export class ProjectComponent implements OnInit {
   runningProcesses: ProcessingObject[] = [];
   modelsResponseData: Array<Model>;
   currentProject: Project;
+  fullStatusProcess = false;
 
   selectedTask = null;
   selectedInputType = null;
@@ -216,17 +221,63 @@ export class ProjectComponent implements OnInit {
   //updateWeights
   weights: Array<Weight> = [];
   weightName: string;
-  weightsList: MatTableDataSource<any>
-  displayedColumns: string[] = ['weightId', 'weightName', 'weightCeleryId', 'weightOptions']
-  outputList: MatTableDataSource<any>
-  outpulResultsData = [];
-  displayedOutputColumns: string[] = ['outputImage', 'outputDetails', 'outputDetailsOptions']
-  outputResultsDetailProcessId;
+  weightsList: MatTableDataSource<any>;
+  weightDetails: MatTableDataSource<any>;
+  displayedWeightDetailsColumns: string[] = ['Weight_Id', 'Name', 'dataset_name', 'model_name', 'pretrained_on', 'celery_id'];
+  displayedColumns: string[] = ['weightId', 'weightName', 'weightCeleryId', 'weightDatasetId', 'weightOptions'];
   weightsEditData = [];
   selectedOptionModelEditList = null;
   modelIdEditWeight = null;
   selectedValueEditWeight = undefined;
+  weightIdForTitle: any;
+  showWeightDetailsTable: boolean = false;
 
+  //output
+  outputList: MatTableDataSource<any>;
+  outputResultsData = [];
+  displayedOutputColumns: string[] = ['outputImage', 'outputDetails']
+  outputResultsDetailProcessId;
+  outputResultsRunning: MatTableDataSource<any>;
+  displayedOutputResultsRunningColumns: string[] = ['Model_Id', 'Dataset_Id', 'Weight_Id', 'Epoch', 'Loss_Function', 'Metric', 'Batch_Size', 'Input_Height', 'Input_Width', 'Training_Augmentations', 'Validation_Augmentations'];
+  outputResultsFinished: MatTableDataSource<any>;
+  showOutputRunning: boolean = false;
+  showOutputInferenceSingle: boolean = false;
+  showGraphicProcess: boolean = false;
+  showProgressBarProcess: boolean = false;
+  outputInference: number = 0;
+
+  values: any[];
+  view: any[] = [1290, 370];
+  crossEntropyChartValues = [];
+  categoricalAccuracyChartValues = [];
+
+  // options
+  legend: boolean = true;
+  showLabels: boolean = true;
+  animations: boolean = true;
+  xAxis: boolean = true;
+  yAxis: boolean = true;
+  showYAxisLabel: boolean = true;
+  showXAxisLabel: boolean = true;
+  xAxisLabel: string = 'Cross entropy';
+  yAxisLabel: string = 'Categorical accuracy';
+  timeline: boolean = true;
+
+  colorScheme = {
+    domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5']
+  };
+
+  onSelect(data): void {
+    console.log('Item clicked', JSON.parse(JSON.stringify(data)));
+  }
+
+  onActivate(data): void {
+    console.log('Activate', JSON.parse(JSON.stringify(data)));
+  }
+
+  onDeactivate(data): void {
+    console.log('Deactivate', JSON.parse(JSON.stringify(data)));
+  }
 
   constructor(public _interactionService: InteractionService, private _dataService: DataService, public dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
@@ -241,6 +292,26 @@ export class ProjectComponent implements OnInit {
       'markUnread',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-markunread-24px.svg')
     );
+    this.matIconRegistry.addSvgIcon(
+      'stopProcess',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/stop_circle-24px.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'showOutput',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/format_list_bulleted-24px.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'inavailable',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/block-24px.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'viewDetails',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/visibility-24px.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'edit',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/edit-24px.svg')
+    );
   }
 
   @ViewChild('loss') loss: ElementRef;
@@ -248,7 +319,6 @@ export class ProjectComponent implements OnInit {
   @ViewChild('useDropout') useDropout: ElementRef;
   @ViewChild('inference') inference: ElementRef;
   @ViewChild('inferenceSingle') inferenceSingleButton: ElementRef;
-  @ViewChild('reTrain') reTrain: ElementRef;
   @ViewChild('dataAugmentationSection') dataAugmentationSection: ElementRef;
   @ViewChild('trainButton') trainButton: ElementRef;
   @ViewChild('epochs') epochs: ElementRef;
@@ -276,28 +346,20 @@ export class ProjectComponent implements OnInit {
     this.initialiseDropdowns();
     this.initialiseProperties()
     this.initiliaseSelectedOptions();
-    this.initialiseReTrainSection();
     this.initialiseSelectedModel();
     this.initialiseSelectedDataset();
     this.initialiseInferenceButton();
     this.initialiseInferenceSingleButton();
     this.initialiseTrainButton();
-    this.initialiseStopButton();
-    this.fillDropdowns();
 
-    this.cleanWeightseditList();
+    this.cleanWeightsEditList();
+    //this.insertDummyDataNotif();
   }
-
 
   initialiseCurrentProject() {
     this._interactionService.currentProject$.subscribe(
       project => {
         this.currentProject = project;
-        // this.tasks.forEach(task => {
-        //   if(task.id == this.currentProject.task_id){
-        //     task.checked = true;
-        //   }
-        // })
       }
     );
   }
@@ -350,37 +412,6 @@ export class ProjectComponent implements OnInit {
     )
   }
 
-  initialiseReTrainSection() {
-    this._interactionService.reTrainButtonCheckedState$.subscribe(
-      state => {
-        if (state == false) {
-          if (this.trainProcessStarted == true) {
-            this.showTrainButton = true;
-            console.log("stop");
-            this.trainProcessStarted = false;
-          }
-        }
-        this.reTrainState = state;
-      }
-    );
-    this.dataAugmentationSection.nativeElement.style.display = "none";
-    this.inference.nativeElement.style.display = "true";
-    this.trainButton.nativeElement.style.display = "none";
-    this.loss.nativeElement.style.display = "none";
-    this.learningRate.nativeElement.style.display = "none";
-    this.epochs.nativeElement.style.display = "none";
-    this.batchSize.nativeElement.style.display = "none";
-    this.inputHeight.nativeElement.style.display = "none";
-    this.inputWidth.nativeElement.style.display = "none";
-    this.useDropout.nativeElement.style.display = "none";
-
-    this.dataAugmentation.forEach(item => item.selected = false);
-
-    this.trainingAugmentations.nativeElement.style.display = "none";
-    this.validationAugmentations.nativeElement.style.display = "none";
-    this.testAugmentations.nativeElement.style.display = "block";
-  }
-
   initialiseDropdowns() {
     //clears dropdowns
     this._interactionService.dropdownModel$.subscribe(
@@ -400,7 +431,6 @@ export class ProjectComponent implements OnInit {
         this.datasetDropdown = state;
       }
     );
-
   }
 
   initialiseProperties() {
@@ -626,57 +656,6 @@ export class ProjectComponent implements OnInit {
     this._interactionService.resetSelectedOptions();
   }
 
-  changeCheckedInputType(checkedButton: any) {
-
-    switch (checkedButton) {
-      case "Video":
-        this.checkedStateVideoInputType = true;
-        this.inference.nativeElement.style.display = "block";
-        this.reTrain.nativeElement.style.display = "block";
-        this.trainButton.nativeElement.style.display = "none";
-        this.inferenceSingleButton.nativeElement.style.display = "none";
-        this.testAugmentations.nativeElement.style.display = "block";
-        break;
-      case "Image":
-        this.checkedStateImageInputType = true;
-        this.inference.nativeElement.style.display = "none";
-        this.reTrain.nativeElement.style.display = "none";
-        this.trainButton.nativeElement.style.display = "none";
-        this.inferenceSingleButton.nativeElement.style.display = "block";
-        this.dataAugmentationSection.nativeElement.style.display = "none";
-        this.learningRate.nativeElement.style.display = "none";
-        this.loss.nativeElement.style.display = "none";
-        this.epochs.nativeElement.style.display = "none";
-        this.batchSize.nativeElement.style.display = "none";
-        this.useDropout.nativeElement.style.display = "none";
-        this.inputHeight.nativeElement.style.display = "none";
-        this.inputWidth.nativeElement.style.display = "none";
-
-        this.trainingAugmentations.nativeElement.style.display = "none";
-        this.validationAugmentations.nativeElement.style.display = "none";
-        this.testAugmentations.nativeElement.style.display = "none";
-        break;
-      case "3D":
-        this.checkedState3DInputType = true;
-        this.inference.nativeElement.style.display = "block";
-        this.reTrain.nativeElement.style.display = "block";
-        this.trainButton.nativeElement.style.display = "none";
-        this.inferenceSingleButton.nativeElement.style.display = "none";
-        this.testAugmentations.nativeElement.style.display = "block";
-        break;
-      case "Text":
-        this.checkedStateTextInputType = true;
-        this.inference.nativeElement.style.display = "block";
-        this.reTrain.nativeElement.style.display = "block";
-        this.trainButton.nativeElement.style.display = "none";
-        this.inferenceSingleButton.nativeElement.style.display = "none";
-        this.trainButton.nativeElement.style.display = "none";
-        this.testAugmentations.nativeElement.style.display = "block";
-        break;
-    }
-  }
-
-
   browseImage(event: any) {
     this._interactionService.projectInputFiles = event.target.files;
     this.fileTempLocation = event.target.value;
@@ -770,14 +749,6 @@ export class ProjectComponent implements OnInit {
     this.lossDropdown = [];
   }
 
-  showImageInput() {
-    this._interactionService.changeShowStateProjectDivDetailsLeftSide(true);
-  }
-
-  hideImageInput() {
-    this._interactionService.changeShowStateProjectDivDetailsLeftSide(false);
-  }
-
   openUserScreen() {
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
@@ -829,17 +800,27 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
+  // insertDummyDataNotif() {
+  //   let process = new ProcessingObject;
+  //   process.projectId = "1234";
+  //   process.processId = "69719416-560f-496e-aec9-1f4a27da5d40";
+  //   process.process_status = ProcessStatus[2];
+  //   process.process_type = "inference";
+  //   process.unread = true;
+  //   this.runningProcesses.push(process);
+  //   this.changeStopButton(process);
+
+  //   let process2 = new ProcessingObject;
+  //   process2.projectId = "1234";
+  //   process2.processId = "fa4ffa5f-63c7-4c1e-9a52-71547a6a9214";
+  //   process2.process_status = ProcessStatus[1];
+  //   process2.process_type = "training";
+  //   process2.unread = true;
+  //   this.runningProcesses.push(process2);
+  //   this.changeStopButton(process2);
+  // }
+
   openNotifications() {
-    /* // TODO: test
-    let process = new ProcessingObject;
-    process.projectId = "1234";
-    process.processId = "69719416-560f-496e-aec9-1f4a27da5d40";
-    process.process_status = ProcessStatus.finished;
-    process.process_type = "inference";
-    process.unread = true;
-    this.runningProcesses.push(process); */
-
-
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
@@ -858,7 +839,7 @@ export class ProjectComponent implements OnInit {
 
   openEditWeights() {
     // clean edit weights list
-    this.cleanWeightseditList();
+    this.cleanWeightsEditList();
 
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
@@ -882,11 +863,11 @@ export class ProjectComponent implements OnInit {
 
   openOutputResultCustom(processIdNotification) {
     // TODO: clean first Grid
-    this.cleanWeightseditList();
+    this.cleanWeightsEditList();
     if (processIdNotification != undefined && processIdNotification != null) {
       // TODO: show info about output results from weights or from notification process
-
     }
+
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
@@ -903,31 +884,17 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectOutputResultsIsClicked(true);
   }
 
-  displayOutputResultsOuputsTable(processId) {
+  displayOutputResultsOuputsTable(process) {
+    console.log(process);
+    if (process.processId != null || process.processId != undefined) {
+      this.checkProcessStatusForOutput(process);
+    }
+    else if (process.weightCeleryId != null || process.weightCeleryId != undefined) {
+      this.getOutput(process.weightCeleryId);
+    }
+
     // clean second outputs details list grid
     this.cleanOutputResultsOuputsTableList();
-    this.outputResultsDetailProcessId = processId;
-    // call backend
-    this._dataService.getOutput(processId).subscribe(data => {
-
-      var outputsResults = data.outputs;
-      let outputDetail = [];
-      outputsResults.forEach(output => {
-        JSON.parse(output[1]).forEach(element => {
-          outputDetail = element;
-        });
-        this.outpulResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
-      });
-
-      this.outputList = new MatTableDataSource(this.outpulResultsData);
-      this.outputList.sort = this.sort;
-      this.outputList.paginator = this.paginator;
-      this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
-
-    }, error => {
-      this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusError'));
-    })
-
 
     var testRealOutputs = {
       "outputs": [
@@ -937,35 +904,54 @@ export class ProjectComponent implements OnInit {
         ]
       ]
     }
+  }
 
+  getOutput(processId) {
+    this._dataService.getOutput(processId).subscribe(data => {
+      this.outputResultsDetailProcessId = processId;
+      var outputsResults = data.outputs;
+      let outputDetail = [];
+      outputsResults.forEach(output => {
+        JSON.parse(output[1]).forEach(element => {
+          outputDetail = element;
+        });
+        this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
+      });
 
+      this.outputList = new MatTableDataSource(this.outputResultsData);
+      this.outputList.sort = this.sort;
+      this.outputList.paginator = this.paginator;
+      this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
+    }, error => {
+      this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusError'));
+    })
+  }
+
+  // checkProcessStatusForOutput(contentData, process) {
+  checkProcessStatusForOutput(process) {
+    if (process.process_status == "finished") {
+      this.getOutput(process.processId);
+      this.showOutputInferenceSingle = true;
+    }
+    else if (process.process_status == "running") {
+     
+      if(process.process_type == "training") {
+        this.showGraphicProcess = true;
+        this.showProgressBarProcess = false;
+      }
+      else if(process.process_type == "inference") {
+        this.showProgressBarProcess = true;
+        this.showGraphicProcess = false;
+      }
+      this.showOutputRunningTable(process);
+    }
   }
 
   cleanOutputResultsOuputsTableList() {
     this.outputResultsDetailProcessId = undefined;
-    this.outpulResultsData = [];
-    this.outputList = new MatTableDataSource(this.outpulResultsData);
-  }
-
-  showUseDropout() {
-    if (this.reTrainState == true) {
-      this.useDropout.nativeElement.style.display = "block";
-    }
-    else {
-      this.useDropout.nativeElement.style.display = "none";
-    }
-  }
-
-  showInferenceButton() {
-    if (this.reTrainState == true) {
-      this.inference.nativeElement.style.display = "none";
-      this.inferenceSingleButton.nativeElement.style.display = "none";
-
-    }
-    else {
-      this.inference.nativeElement.style.display = "block";
-      this.inferenceSingleButton.nativeElement.style.display = "none";
-    }
+    this.outputResultsData = [];
+    this.outputList = new MatTableDataSource(this.outputResultsData);
+    this.showOutputRunning = false;
   }
 
   changeUseDropoutCheckedState() {
@@ -976,51 +962,9 @@ export class ProjectComponent implements OnInit {
     this.learningRateValue = event.target.value;
   }
 
-  changeStateReTrainToggle() {
-    if (this.reTrainState == true) {
-      //this.disabledInferenceButton = false;
-      this.inference.nativeElement.style.display = "block";
-      this.trainButton.nativeElement.style.display = "none";
-      this._interactionService.changeCheckedStateReTrainButton(false);
-      this.dataAugmentation.forEach(item => item.selected = false);
-      this.dataAugmentationSection.nativeElement.style.display = "none";
-      this.learningRate.nativeElement.style.display = "none";
-      this.loss.nativeElement.style.display = "none";
-      this.epochs.nativeElement.style.display = "none";
-      this.batchSize.nativeElement.style.display = "none";
-      this.useDropout.nativeElement.style.display = "none";
-      this.inputHeight.nativeElement.style.display = "none";
-      this.inputWidth.nativeElement.style.display = "none";
-
-      this.trainingAugmentations.nativeElement.style.display = "none";
-      this.validationAugmentations.nativeElement.style.display = "none";
-      this.testAugmentations.nativeElement.style.display = "block";
-    }
-    else {
-      //this.disabledInferenceButton = true;
-      this.inference.nativeElement.style.display = "none";
-      this.trainButton.nativeElement.style.display = "block";
-      this._interactionService.changeCheckedStateReTrainButton(true);
-      this.dataAugmentation.forEach(item => item.selected = false);
-      this.dataAugmentationSection.nativeElement.style.display = "block";
-      this.learningRate.nativeElement.style.display = "block";
-      this.loss.nativeElement.style.display = "block";
-      this.batchSize.nativeElement.style.display = "block";
-      this.epochs.nativeElement.style.display = "block";
-      this.useDropout.nativeElement.style.display = "block";
-      this.inputHeight.nativeElement.style.display = "block";
-      this.inputWidth.nativeElement.style.display = "block";
-
-      this.trainingAugmentations.nativeElement.style.display = "block";
-      this.validationAugmentations.nativeElement.style.display = "block";
-      this.testAugmentations.nativeElement.style.display = "none";
-    }
-  }
-
   //train & inference functions
   trainModel() {
     this.process_type = "training";
-    this.disabledStopButton = false;
     this.trainProcessStarted = true;
     this.trainSpinner = false;
 
@@ -1083,7 +1027,7 @@ export class ProjectComponent implements OnInit {
       });
     }
     else {
-      selectedWeightId = null;
+      selectedWeightId =undefined;
     }
 
     let selectedDatasetId;
@@ -1117,7 +1061,7 @@ export class ProjectComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         console.log('The dialog was closed');
         console.log(result);
-        if (result && this.trainProcessStarted == true) {
+        if (result && this.trainProcessStarted == true && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
           this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, this.currentProject.id).subscribe(data => {
             // if (data.body.result == "ok") {
             //   this.trainSpinner = false;
@@ -1131,10 +1075,11 @@ export class ProjectComponent implements OnInit {
             let process = new ProcessingObject;
             process.projectId = this.currentProject.id;
             process.processId = data.body.process_id;
-            process.process_status = ProcessStatus.running;
+            process.process_status = ProcessStatus[1];
             process.process_type = this.process_type;
             process.unread = true;
             this.runningProcesses.push(process);
+            this.changeStopButton(process);
             this.checkStatusTrain(process);
           })
         }
@@ -1200,13 +1145,13 @@ export class ProjectComponent implements OnInit {
           this.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
-          this.showStopButton = true;
           process.projectId = this.currentProject.id;
           process.processId = data.body.process_id;
-          process.process_status = ProcessStatus.running;
+          process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
           this.runningProcesses.push(process);
+          this.changeStopButton(process);
           this.checkStatusInference(process);
           this.getOutputResultsOfInference(process);
         })
@@ -1258,14 +1203,16 @@ export class ProjectComponent implements OnInit {
           this.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
-          this.showStopButton = true;
           process.projectId = this.currentProject.id;
           process.processId = data.body.process_id;
-          process.process_status = ProcessStatus.running;
+          process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
           this.runningProcesses.push(process);
-          this.checkStatusInference(process);
+          this.changeStopButton(process);
+          setTimeout(() => {
+            this.checkStatusInference(process)
+          }, 2000);
           this.getOutputResultsOfInference(process);
         })
       }
@@ -1281,11 +1228,13 @@ export class ProjectComponent implements OnInit {
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
       process.projectId = status.projectId;
+      process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
+      this.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
-        this.disabledStopButton = false;
+        // this.disabledStopButton = false;
         setTimeout(() => {
           this.checkStatusTrain(process)
         }, 10 * 1000);
@@ -1293,7 +1242,7 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this.openSnackBar(this.translate.instant('project.finishedTrainProcessMessage'));
         this.trainProcessStarted = false;
-        this.disabledStopButton = true;
+        // this.disabledStopButton = true;
         this.trainSpinner = false;
         this._interactionService.increaseNotificationsNumber();
       }
@@ -1309,10 +1258,10 @@ export class ProjectComponent implements OnInit {
       process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
-
+      this.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
-        this.disabledStopButton = false;
+        // this.disabledStopButton = false;
         setTimeout(() => {
           this.checkStatusInference(process)
         }, 10 * 1000);
@@ -1320,12 +1269,13 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this.openSnackBar(this.translate.instant('project.finishedInferenceProcessMessage'));
         this.inferenceProcessStarted = false;
-        this.disabledStopButton = true;
+        // this.disabledStopButton = true;
         this.trainSpinner = false;
         this._interactionService.increaseNotificationsNumber();
       }
       this.inferenceMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
     })
+    // TODO: catch error case
   }
 
   getOutputResultsOfInference(process) {
@@ -1346,12 +1296,10 @@ export class ProjectComponent implements OnInit {
 
   populateTasks(contentData) {
     var valuesNameList = [];
-
     contentData.forEach(task => {
       task.checked = false;
       valuesNameList.push(task);
     });
-
     this.tasks = valuesNameList;
   }
 
@@ -1359,28 +1307,11 @@ export class ProjectComponent implements OnInit {
     this.updateProjectsTaskId(checkedButton.id);
     if (checkedButton.id != undefined || checkedButton.id != null) {
       this.selectedTaskId = checkedButton.id;
-      // this._dataService.getModels(this.selectedTaskId).subscribe(data => {
-      //   this.updateModelsList(data)
-      // });
       this._interactionService.initialiseModelDropdown(this.selectedTaskId);
       this.weightDropdown = [];
 
       console.log("task id: " + this.selectedTaskId);
       console.log("the checked task: " + checkedButton.name);
-
-      // this.tasks.forEach(task => {
-      //   if (task.name == checkedButton.name || this.currentProject.task_id == checkedButton.id) {
-      //     task.checked = true;
-      //   }
-      //   else {
-      //     task.checked = false;
-      //   }
-      // })
-
-      // let newSelectors = [];
-      // newSelectors.push("model");
-      // newSelectors.push("dataset");
-      // this.fillDropdowns(newSelectors, this.currentProject.id);
     }
   }
 
@@ -1397,16 +1328,6 @@ export class ProjectComponent implements OnInit {
       // update weight selector
       this.updateWeightsList(data);
     })
-
-    //this._dataService.getDropDownDetails(this.currentProject.id, "model").subscribe(data => {
-    // this.updatemodelsResponseData(data.body);
-    // console.log(data.body);
-    // data.body.forEach(element => {
-    // if (element.name == modelName) {
-    //  modelId = element.id;
-    //}
-    // });
-    //})
   }
 
   updateModelsList(contentData) {
@@ -1450,36 +1371,7 @@ export class ProjectComponent implements OnInit {
     });
   }
 
-  //old stop function
-
-  // stopModel() {
-  //   const dialogConfig = new MatDialogConfig();
-  //   dialogConfig.disableClose = true;
-  //   dialogConfig.autoFocus = true;
-  //   dialogConfig.data = {
-  //     dialogTitle: this.translate.instant('project.stopTraining'),
-  //     dialogContent: this.translate.instant('project.areYouSureStop'),
-  //     trainingTime: ""
-  //   }
-
-  //   let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     console.log('The dialog was closed');
-  //     console.log(result);
-  //     if (result) {
-  //       this.showTrainButton = true;
-  //       this.showStopButton = false;
-  //       this.trainSpinner = false;
-  //       console.log("stop");
-  //       this.trainProcessStarted = false;
-  //     }
-  //     else {
-  //       console.log('Canceled');
-  //     }
-  //   });
-  // }
-
-  stopProcess(processId) {
+  stopProcess(process) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
@@ -1494,20 +1386,22 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this._dataService.stopProcess(processId).subscribe(data => {
+        this._dataService.stopProcess(process.processId).subscribe(data => {
           if (data.statusText == "OK") {
             this.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
-            this.disabledStopButton = true;
+            // this.disabledStopButton = true;
             this.inferenceProcessStarted = false;
-            this._interactionService.changeCheckedStateStopButton(true);
-
+            // this._interactionService.changeCheckedStateStopButton(true);
+            process.showStopButton = false;
+            process.showDisabledButton = true;
+            process.process_status = ProcessStatus[2];
           }
           else {
             this.trainProcessStarted = true;
-            this.disabledStopButton = false;
+            // this.disabledStopButton = false;
             this.inferenceProcessStarted = true;
-            this._interactionService.changeCheckedStateStopButton(false);
+            // this._interactionService.changeCheckedStateStopButton(false);
           }
         });
       }
@@ -1517,13 +1411,13 @@ export class ProjectComponent implements OnInit {
     });
   }
 
-  showOutputProcess(processIdNotification) {
-    this.openOutputResultCustom(processIdNotification);
-    this.displayOutputResultsOuputsTable(processIdNotification);
+  showOutputProcess(process) {
+    this.openOutputResultCustom(process.processId);
+    this.displayOutputResultsOuputsTable(process);
   }
 
-  showOutputProcessFromWeights(processIdNotification) {
-    this.displayOutputResultsOuputsTable(processIdNotification);
+  showOutputProcessFromWeights(process) {
+    this.displayOutputResultsOuputsTable(process);
   }
 
   markNotificationAsRead(process) {
@@ -1540,28 +1434,6 @@ export class ProjectComponent implements OnInit {
   }
 
   //dropdown functions
-  fillDropdowns() {
-    // if (this.currentProject)
-    //   selectorList.forEach(selector => {
-    //     this._dataService.getDropDownDetails(this.currentProject.id, selector).subscribe(data => {
-    //       console.log(data);
-    //       if (data.body != undefined || data != undefined) {
-    //         this.populateSelector(selector, data);
-    //       }
-    //     })
-    //   });
-    // else {
-    //   selectorList.forEach(selector => {
-    //     this._dataService.getDropDownDetails(currentProjectId, selector).subscribe(data => {
-    //       console.log(data);
-    //       if (data.body != undefined || data != undefined) {
-    //         this.populateSelector(selector, data.body);
-    //       }
-    //     })
-    //   });
-    // }
-  }
-
   getAllowedProperties(modelName: string) {
     let modelId;
     let modelList = this._interactionService.getModelsByTaskArray();
@@ -1686,8 +1558,6 @@ export class ProjectComponent implements OnInit {
     this._dataService.getWeights2(this.modelIdEditWeight).subscribe(data => {
       this.displayWeightsListByModel(data);
     })
-
-
   }
 
   displayWeightList(modelName: string) {
@@ -1704,20 +1574,23 @@ export class ProjectComponent implements OnInit {
   }
 
   displayWeightsListByModel(weightdataList) {
-    //var dummyData = [{ weightId: 1, weightName: "Weight1" }, { weightId: 2, weightName: "Weight2" }]
     this.weightsEditData = [];
     weightdataList.forEach(weightdata => {
-      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightCeleryId: weightdata.celery_id });
+      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightCeleryId: weightdata.celery_id, weightDatasetId: weightdata.dataset_id });
     });
     this.weightsList = new MatTableDataSource(this.weightsEditData);
     this.weightsList.sort = this.sort;
     this.weightsList.paginator = this.paginator;
   }
 
-  cleanWeightseditList() {
+  cleanWeightsEditList() {
     this.selectedValueEditWeight = undefined;
     this.weightsEditData = [];
     this.weightsList = new MatTableDataSource(this.weightsEditData);
+
+    let dummyArray = [];
+    this.weightDetails = new MatTableDataSource(dummyArray);
+    this.showWeightDetailsTable = false;
   }
 
   onEditWeight(weight) {
@@ -1737,21 +1610,55 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this._dataService.updateWeight(weight.weightId, weight.dataset_id, weight.weightName, this.modelIdEditWeight, weight.pretrain_on, weight.task_id).subscribe(data => {
+        this._dataService.updateWeight(weight.weightId, weight.weightDatasetId, weight.weightName, this.modelIdEditWeight, weight.pretrained_on).subscribe(data => {
           if (data.statusText == "OK") {
             this._interactionService.resetEditWeightsList(data.body);
             console.log(data.body);
             this.openSnackBar(this.translate.instant('project.updateWeightResult'));
             console.log(data.body);
             console.log("weight " + weight.weightName + " updated");
-          } else {
-            this.openSnackBar("Error");
           }
         }, error => {
           this.openSnackBar("Error: " + error);
         });
       }
     });
+  }
+
+  showWeightDetails(weight) {
+    this._dataService.getWeightById(weight.weightId).subscribe(data => {
+      this.updateWeightDetails(data);
+    });
+  }
+
+  updateWeightDetails(contentData) {
+    this.showWeightDetailsTable = true;
+    let dummyArray = [];
+    let dataset_name;
+    let model_name;
+    let datasetList = this._interactionService.getDatasetResponseData();
+    let modelList = this._interactionService.getModelsByTaskArray();
+    modelList.forEach(element => {
+      if (element.id == contentData.model_id) {
+        model_name = element.name;
+      }
+    });
+    datasetList.forEach(element => {
+      if (element.id == contentData.dataset_id) {
+        dataset_name = element.name;
+      }
+    });
+    dummyArray.push(
+      {
+        Weight_Id: contentData.id,
+        Name: contentData.name,
+        dataset_name: dataset_name,
+        model_name: model_name,
+        pretrained_on: contentData.pretrained_on,
+        celery_id: contentData.celery_id,
+      });
+    this.weightIdForTitle = contentData.id;
+    this.weightDetails = new MatTableDataSource(dummyArray);
   }
 
   applyFilter(filterValue: string) {
@@ -1772,12 +1679,141 @@ export class ProjectComponent implements OnInit {
       dialogTitle: this.translate.instant('output-details-dialog.dialogTitle'),
       dialogContent: outputResultsRow
     }
-
     let dialogRef = this.dialog.open(ShowOutputDetailsDialogComponent, dialogConfig);
   }
 
   onShowOutputsByWeight(outputResultsRow) {
     this.showOutputProcessFromWeights(outputResultsRow);
+  }
 
+  changeStopButton(process) {
+    if (process.process_status == "running") {
+      process.showStopButton = true;
+      process.showDisabledButton = false;
+    }
+    else if (process.process_status == "finished") {
+      process.showDisabledButton = true;
+      process.showStopButton = false;
+    }
+  }
+
+  showOutputRunningTable(process) {
+    this.fullStatusProcess = true;
+    this._dataService.statusCompleteForEvolution(process.processId, this.fullStatusProcess).subscribe(data => {
+      this.updateOutputRunningTable(data);
+      this.showGraphicData(data);
+      this.outputResultsDetailProcessId = process.processId;
+      this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
+      this.changeStopButton(process);
+    }), error => {
+      this.showOutputRunning = false;
+      this.showOutputInferenceSingle = false;
+      this.openSnackBar(this.translate.instant('project.outputStatusError'));
+    };
+  }
+
+  updateOutputRunningTable(contentData) {
+    console.log(contentData);
+    this.showOutputRunning = true;
+    this.showOutputInferenceSingle = false;
+    let outputsResultsTable = contentData.status;
+    let outputsArray = [];
+    let outputModel, outputDataset, outputWeight, outputEpoch, outputLoss, outputMetric, outputBatch, outputInputH, outputInputW, outputTrainingAug, outputValidationAug;
+    let varModel = ' "model_id":', varDataset = ' "dataset_id":', varWeight = ' "weight_id":', varEpoch = ' "epochs":';
+    let varLoss = ' "loss": "', varMetric = ' "metric": "', varBatch = ' "batch_size":', varInputH = ' "input_h":', varInputW = ' "input_w":';
+    let varTrainingAug = ' "train_augs":', varValidationAug = ' "val_augs":';
+
+    outputsResultsTable.forEach(output => {
+      if (output.indexOf(varModel) > 0) {
+        outputModel = output.substr(output.indexOf(varModel) + varModel.length, ' 1,'.length - 1);
+      }
+      if (output.indexOf(varDataset) > 0) {
+        outputDataset = output.substr(output.indexOf(varDataset) + varDataset.length, ' 1,'.length - 1);
+      }
+      if (output.indexOf(varWeight) > 0) {
+        outputWeight = output.substr(output.indexOf(varWeight) + varWeight.length, ' 475,'.length - 1);
+      }
+      if (output.indexOf(varEpoch) > 0) {
+        outputEpoch = output.substr(output.indexOf(varEpoch) + varEpoch.length, ' 3,'.length - 1);
+      }
+      if (output.indexOf(varLoss) > 0) {
+        outputLoss = output.substr(output.indexOf(varLoss) + varLoss.length, ' CrossEntropy",'.length - 3);
+      }
+      if (output.indexOf(varMetric) > 0) {
+        outputMetric = output.substr(output.indexOf(varMetric) + varMetric.length, ' CategoricalAccuracy",'.length - 3);
+      }
+      if (output.indexOf(varBatch) > 0) {
+        outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, ' 64,'.length - 1);
+      }
+      if (output.indexOf(varInputH) > 0) {
+        outputInputH = output.substr(output.indexOf(varInputH) + varInputH.length, ' 100,'.length - 1);
+      }
+      if (output.indexOf(varInputW) > 0) {
+        outputInputW = output.substr(output.indexOf(varInputW) + varInputW.length, ' 100,'.length - 1);
+      }
+      if (output.indexOf(varTrainingAug) > 0) {
+        outputTrainingAug = output.substr(output.indexOf(varTrainingAug) + varTrainingAug.length, ' null,'.length - 1);
+      }
+      if (output.indexOf(varValidationAug) > 0) {
+        outputValidationAug = output.substr(output.indexOf(varValidationAug) + varValidationAug.length, ' null,'.length - 1);
+      }
+    })
+    outputsArray.push({
+      Model_Id: outputModel,
+      Dataset_Id: outputDataset,
+      Weight_Id: outputWeight,
+      Epoch: outputEpoch,
+      Loss_Function: outputLoss,
+      Metric: outputMetric,
+      Batch_Size: outputBatch,
+      Input_Height: outputInputH,
+      Input_Width: outputInputW,
+      Training_Augmentations: outputTrainingAug,
+      Validation_Augmentations: outputValidationAug
+    });
+    this.outputResultsRunning = new MatTableDataSource(outputsArray);
+  }
+
+  showGraphicData(contentData) {
+    var outputsResults = contentData.status;
+    let outputCross;
+    let outputAccuracy;
+    let outputBatch;
+    let varCrossEntropy = "cross_entropy=";
+    let varCategoricalAccuracy = ",categorical_accuracy=";
+    let varBatch = "Infer Batch";
+    let outputMax;
+    let chartObject;
+    let chartValuesList = [
+      {
+        "name": "Evolution of the process",
+        "series": []
+      }
+    ];
+
+    outputsResults.forEach(output => {
+      if (output.indexOf("Train Epoch:") == 0 && output.indexOf(varCrossEntropy) > 0 && output.indexOf(varCategoricalAccuracy) > 0) {
+        outputCross = output.substr(output.indexOf(varCrossEntropy) + varCrossEntropy.length, 5);
+        outputAccuracy = output.substr(output.indexOf(varCategoricalAccuracy) + varCategoricalAccuracy.length, 5);
+
+        chartObject = { name: outputCross, value: parseFloat(outputAccuracy) };
+        chartValuesList[0].series.push(chartObject);
+
+        console.log(chartValuesList);
+        Object.assign(this, { chartValuesList });
+      }
+      else if (output.indexOf(varBatch) == 0) {
+        if (output.length <= 18) {
+          outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 5);
+          outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
+          this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+        }
+        else if (output.length > 18) {
+          outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 6);
+          outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
+          this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+        }
+      } 
+    });
   }
 }

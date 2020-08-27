@@ -87,7 +87,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.showDatasetInputPath = false;
     }
 
-    if (this.process_type == "train") {
+    if (this.process_type == "training") {
       this.showMessageModel = true;
       this.showMessageWeight = true;
       this.showMessageDataset = true;

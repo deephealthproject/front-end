@@ -106,41 +106,60 @@
     background-color: #65A4C4;
 }
 
-.div-middle-box {
+/* .div-middle-box {
     width: 100%;
     display: inline-block;
     font-size: 14px;
     color: rgb(4, 36, 53);
     background-color: #ECEFF1;
-}
+} */
 
 .div-middle-box-title {
     width: 100%;
     display: inline-block;
-    font-size: 14px;
+    font-size: 15px;
     color: rgb(4, 36, 53);
 }
 
-.div-middle-box-top {
+/* .div-middle-box-top {
     width: calc(50% - 40.5px);
     padding: 20px;
-}
+} */
 
 .div-middle-box-content {
     display: inline-block;
-    padding-left: 3px;
     color: rgb(4, 36, 53);
+    width: 100%;
 }
 
-.div-middle-box-bottom-left {
-    width: calc(50% - 40.5px);
-    padding: 20px;
-    float: left; 
+.div-middle-box {
+    display: flex;
+    padding: 2%;
 }
 
-.div-middle-box-bottom-right {
-    width: calc(50% - 40px);
-    padding: 20px;
+.div-middle-box-left {
+    width: 60%;
+    padding-right: 5%;
+}
+
+.div-middle-box-right {
+    width: 30%;
+    padding-left: 5%;
+}
+
+.div-middle-box-left-cols {
+    display: flex;
+}
+
+.div-middle-box-left-col1 {
+    width: 45%;
+    padding-right: 5%;
+    float: left;
+}
+
+.div-middle-box-left-col2 {
+    width: 45%;
+    padding-left: 5%;
     float: right;
 }
 
@@ -167,6 +186,15 @@
     background-color: #2DB5D3;
     color: white;
     display: flex;
+}
+
+.div-middle-box-progress-bar {
+    width: 80%;
+    padding: 25px;
+}
+
+.mat-progress-bar {
+    height: 15px;
 }
 
 .div-border {
@@ -288,15 +316,27 @@
 
 .div-notifications-process {
     display: flex;
-    text-align: left;
     cursor: pointer;
+    vertical-align: middle;
 }
 
 .div-notifications-process-section {
     width: calc(100% / 4);
     display: inline-block;
-    padding-top: 20px;
     text-align: center;
+    padding: 20px 0;
+    vertical-align: middle;
+}
+
+.div-notifications-process-section-text {
+    width: 70%;
+    float: left;
+}
+
+.div-notifications-process-section-buttons {
+    width: 30%;
+    float: right;
+    display: flex;
 }
 
 .div-notifications-icon {
@@ -309,7 +349,7 @@
     width: calc(80% - 2px);
     padding-left: 2px;
     float: right;
-    background-color: #ECF3F4;
+    /* background-color: #ECF3F4; */
 }
 
 .left-mat-icon {
@@ -366,15 +406,27 @@ table {
     color: #3180ae;
 }
 
-.div-prefilter-by-models{
+.div-prefilter-by-models {
     padding-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
 }
 
 .td-output-results-cells {
-    padding-top: 3px; 
+    padding-top: 3px;
     padding-bottom: 3px;
     padding-left: 3px;
     padding-right: 3px;
+}
+
+.div-middle-inference-button {
+    padding-left: 40%;
+}
+
+textarea {
+    border: solid 1px;
+}
+
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button {
+    opacity: 1;
 }

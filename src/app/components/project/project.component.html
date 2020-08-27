@@ -26,23 +26,20 @@
                 {{'project.inputType' | translate}}
             </div>
             <div class="div-left-section-box">
-                    <mat-radio-group aria-label="input-types" [(ngModel)]="selectedInputType">
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Text" checked={{checkedStateTextInputType}}
-                            (click)="changeCheckedInputType('Text'); hideImageInput();">
-                            {{'project.text' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Image" checked={{checkedStateImageInputType}}
-                            (click)="changeCheckedInputType('Image'); hideImageInput();">
-                            {{'project.image' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="3D" checked={{checkedState3DInputType}} (click)="changeCheckedInputType('3D'); hideImageInput();">
-                            {{'project.3DVolumes(Slices)' | translate}}
-                        </mat-radio-button>
-                        <mat-radio-button class="div-left-section-box-button" color="primary" value="Video" checked={{checkedStateVideoInputType}}
-                            (click)="changeCheckedInputType('Video'); hideImageInput();">
-                            {{'project.video' | translate}}
-                        </mat-radio-button>
-                    </mat-radio-group>
+                <mat-radio-group aria-label="input-types" [(ngModel)]="selectedInputType">
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Image" checked={{checkedStateImageInputType}}>
+                        {{'project.image' | translate}}
+                    </mat-radio-button>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Text" checked={{checkedStateTextInputType}}>
+                        {{'project.text' | translate}}
+                    </mat-radio-button>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="3D" checked={{checkedState3DInputType}}>
+                        {{'project.3DVolumes(Slices)' | translate}}
+                    </mat-radio-button>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Video" checked={{checkedStateVideoInputType}}>
+                        {{'project.video' | translate}}
+                    </mat-radio-button>
+                </mat-radio-group>
             </div>
         </div>
         <div class="div-left-section">
@@ -59,9 +56,352 @@
 
     <div class="div-middle" [hidden]=!divMiddleShowStatus>
         <div class="div-middle-title">
-            {{'project.details' | translate}}
+            {{'project.detailsTitle' | translate}}
         </div>
-        <div class="div-middle-box">
+        <div class="div-middle-tabs">
+            <mat-tab-group animationDuration="0ms">
+                <mat-tab label="{{'project.train' | translate }}">
+                    <div class="div-middle-box">
+                        <div class="div-middle-box-left">
+                            <!-- <div #reTrain id="reTrain" class="div-middle-slide-toggle-button">
+                                <span>{{'project.reTrainTheModel' | translate}}</span>
+                                <div>
+                                    <mat-slide-toggle color="primary" checked={{reTrainState}} (change)="changeStateReTrainToggle()">
+                                    </mat-slide-toggle>
+                                </div>
+                            </div> -->
+                            <form>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
+                                        <div class="div-middle-box-title">
+                                            {{'project.model' | translate}}
+                                        </div>
+                                        <mat-form-field class="div-middle-box-content">
+                                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                                <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                                    {{option}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="div-middle-box-left-col2 ">
+                                        <div class="div-middle-box-title">
+                                            {{'project.dataset' | translate}}
+                                        </div>
+                                        <mat-form-field class="div-middle-box-content">
+                                            <mat-select [(value)]=selectedOptionDataset>
+                                                <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
+                                                    {{option}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+
+                                <div class="div-middle-box-title">
+                                    {{'project.weight' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionWeight>
+                                        <mat-option *ngFor="let option of weightDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
+                                        <div #metric id="metric">
+                                            <div class="div-middle-box-title">
+                                                {{'project.metric' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <mat-select [(value)]=selectedOptionMetric>
+                                                    <mat-option *ngFor="let option of metricDropdown" value={{option}}>
+                                                        {{option}}
+                                                    </mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    <div class="div-middle-box-left-col2">
+                                        <div #learningRate id="learningRate">
+                                            <div class="div-middle-box-title">
+                                                {{'project.learningRate' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{learningRateValue}} step=0.00001 (change)="changeLearningRateValue($event)">
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
+                                        <div #epochs id="epochs">
+                                            <div class="div-middle-box-title">
+                                                {{'project.epochs' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{epochsValue}} step=1>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    <div class="div-middle-box-left-col2">
+                                        <div #batchSize id="batchSize">
+                                            <div class="div-middle-box-title">
+                                                {{'project.batchSize' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{batchSizeValue}} step=1>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
+                                        <div #inputHeight id="inputHeight">
+                                            <div class="div-middle-box-title">
+                                                {{'project.inputHeight' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{inputHeightValue}} step=1>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    <div class="div-middle-box-left-col2">
+                                        <div #inputWidth id="inputWidth">
+                                            <div class="div-middle-box-title">
+                                                {{'project.inputWidth' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{inputWidthValue}} step=1>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div #loss id="loss">
+                                        <div class="div-middle-box-title">
+                                            {{'project.loss' | translate}}
+                                        </div>
+                                        <mat-form-field class="div-middle-box-content">
+                                            <mat-select [(value)]=selectedOptionLoss>
+                                                <mat-option *ngFor="let option of lossDropdown" value={{option}}>
+                                                    {{option}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div> -->
+                                <!-- <div #optimizer id="optimizer">
+                                        <div class="div-middle-box-title">
+                                            {{'project.optimizer' | translate}}
+                                        </div>
+                                        <mat-form-field class="div-middle-box-content">
+                                            <mat-select [(value)]=selectedOptionOptimizer>
+                                                <mat-option *ngFor="let option of optimizerDropdown" value={{option}}>
+                                                    {{option}}
+                                                </mat-option>
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </div> -->
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
+                                        <div #useDropout id="useDropout">
+                                            <div class="div-middle-box-content">
+                                                <mat-checkbox color="primary" [checked]=false (change)="changeUseDropoutCheckedState()">
+                                                    {{'project.useDropout' | translate}}
+                                                </mat-checkbox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="div-middle-box-left-col2">
+
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="div-middle-box-left-cols">
+                                <div class="div-middle-box-left-col1"></div>
+                                <div class="div-middle-box-left-col2">
+                                    <div #trainButton id=trainButton class="div-middle-inference-button">
+                                        <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
+                                            {{'project.train' | translate}}</button>
+                                        <div *ngIf="trainProcessStarted">
+                                            <p>
+                                                {{ trainMessage }}
+                                            </p>
+                                        </div>
+                                        <div *ngIf="disabledTrainButton">
+                                            <p>
+                                                {{ trainMessage }}
+                                            </p>
+                                        </div>
+                                        <div style="padding-top: 15px;" *ngIf="trainSpinner">
+                                            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="div-middle-box-right">
+                            <div style="color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
+                                <div>{{'project.dataAugumentation' | translate}}</div>
+                                <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
+                                    <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+                            <br>
+                            <div style="padding-top: 10px;" #trainingAugmentations id="trainingAugmentations">
+                                <div class="div-middle-box-title">
+                                    {{'project.trainingAugmentations' | translate}}
+                                </div>
+                                <mat-form-field appearance="none" class="div-middle-box-content">
+                                    <textarea matInput rows="4" value={{trainingAugmentationsValue}}></textarea>
+                                </mat-form-field>
+                            </div>
+                            <div #validationAugmentations id="validationAugmentations">
+                                <div class="div-middle-box-title">
+                                    {{'project.validationAugmentations' | translate}}
+                                </div>
+                                <mat-form-field appearance="none" class="div-middle-box-content">
+                                    <textarea matInput rows="4" value={{validationAugmentationsValue}}></textarea>
+                                </mat-form-field>
+                            </div>
+                            <!-- <div #testAugmentations id="testAugmentations" style="padding-top: 10px;">
+                                <div class="div-middle-box-title">
+                                    {{'project.testAugmentations' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <textarea matInput cdkTextareaAutosize value={{testAugmentationsValue}}></textarea>
+                                </mat-form-field>
+                            </div> -->
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab label="{{'project.inference' | translate }}">
+                    <div class="div-middle-box">
+                        <div class="div-middle-box-left">
+                            <div class="div-middle-box-title">
+                                {{'project.model' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                    <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="div-middle-box-title">
+                                {{'project.weight' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select [(value)]=selectedOptionWeight>
+                                    <mat-option *ngFor="let option of weightDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="div-middle-box-title">
+                                {{'project.dataset' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select [(value)]=selectedOptionDataset>
+                                    <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div #metric id="metric">
+                                <div class="div-middle-box-title">
+                                    {{'project.metric' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionMetric>
+                                        <mat-option *ngFor="let option of metricDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="div-middle-box-right">
+                            <div #inference id="inference">
+                                <div class="div-middle-inference-button">
+                                    <button mat-flat-button color="primary" (click)="inferenceModel()" [disabled]="disabledInferenceButton">
+                                        {{'project.inference' | translate}}</button>
+                                    <div *ngIf="inferenceProcessStarted">
+                                        <p>
+                                            {{ inferenceMessage }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+                <mat-tab label="{{'project.inferenceSingle' | translate }}">
+                    <div class="div-middle-box">
+                        <div class="div-middle-box-left">
+                            <div class="div-middle-box-title">
+                                {{'project.model' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                    <mat-option *ngFor="let option of modelDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="div-middle-box-title">
+                                {{'project.weight' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select [(value)]=selectedOptionWeight>
+                                    <mat-option *ngFor="let option of weightDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div class="div-middle-box-title">
+                                {{'project.dataset' | translate}}
+                            </div>
+                            <mat-form-field class="div-middle-box-content">
+                                <mat-select [(value)]=selectedOptionDataset>
+                                    <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
+                                        {{option}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <div #metric id="metric">
+                                <div class="div-middle-box-title">
+                                    {{'project.metric' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionMetric>
+                                        <mat-option *ngFor="let option of metricDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="div-middle-box-right">
+                            <div #inferenceSingle id="inferenceSingle">
+                                <div class="div-middle-inference-button">
+                                    <button mat-flat-button color="primary" (click)="inferenceSingleMethod()" [disabled]="disabledInferenceSingleButton">
+                                        {{'project.inferenceSingle' | translate}}</button>
+                                    <div *ngIf="inferenceProcessStarted">
+                                        <p>
+                                            {{ inferenceMessage }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+        <!-- <div class="div-middle-box">
             <div class="div-middle-box-top" [hidden]="!divDetailsLeftSideShowStatus">
                 <div class="div-middle-box-title">
                     {{'project.inputFile' | translate}}
@@ -69,212 +409,12 @@
                 <div>
                     <label class="input-file-button mat-flat-button">
                         <span>{{'project.chooseImage' | translate}}</span>
-                        <input class="input-file-field" #fileInput type="file" accept="image/*" (change)="browseImage($event)">
+                        <input class="input-file-field" #fileInput type="file" accept="image/*"
+                            (change)="browseImage($event)">
                     </label>
                 </div>
             </div>
-
-            <div class="div-middle-box-bottom">
-                <div class="div-middle-box-bottom-left">
-                    <div #reTrain id="reTrain" class="div-middle-slide-toggle-button">
-                        <span>{{'project.reTrainTheModel' | translate}}</span>
-                        <div>
-                            <mat-slide-toggle color="primary" checked={{reTrainState}} (change)="changeStateReTrainToggle()">
-                            </mat-slide-toggle>
-                        </div>
-                    </div>
-                    <form>
-                        <div class="div-middle-box-title">
-                            {{'project.model' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
-                                <mat-option *ngFor="let option of modelDropdown" value={{option}}>
-                                    {{option}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <div class="div-middle-box-title">
-                            {{'project.weight' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <mat-select [(value)]=selectedOptionWeight>
-                                <mat-option *ngFor="let option of weightDropdown" value={{option}}>
-                                    {{option}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <div class="div-middle-box-title">
-                            {{'project.dataset' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <mat-select [(value)]=selectedOptionDataset>
-                                <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
-                                    {{option}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <div #metric id="metric" style="padding-top: 10px;">
-                            <div class="div-middle-box-title">
-                                {{'project.metric' | translate}}
-                            </div>
-                            <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionMetric>
-                                    <mat-option *ngFor="let option of metricDropdown" value={{option}}>
-                                        {{option}}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div>
-                            <div #loss id="loss">
-                                <div class="div-middle-box-title">
-                                    {{'project.loss' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionLoss>
-                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <!-- <div #optimizer id="optimizer">
-                                <div class="div-middle-box-title">
-                                    {{'project.optimizer' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionOptimizer>
-                                        <mat-option *ngFor="let option of optimizerDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div> -->
-                            <div #learningRate id="learningRate">
-                                <div class="div-middle-box-title">
-                                    {{'project.learningRate' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{learningRateValue}} step=0.00001 (change)="changeLearningRateValue($event)">
-                                </mat-form-field>
-                            </div>
-                            <div #epochs id="epochs">
-                                <div class="div-middle-box-title">
-                                    {{'project.epochs' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{epochsValue}} step=1>
-                                </mat-form-field>
-                            </div>
-                            <div #batchSize id="batchSize">
-                                <div class="div-middle-box-title">
-                                    {{'project.batchSize' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{batchSizeValue}} step=1>
-                                </mat-form-field>
-                            </div>
-                            <div #inputHeight id="inputHeight">
-                                <div class="div-middle-box-title">
-                                    {{'project.inputHeight' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{inputHeightValue}} step=1>
-                                </mat-form-field>
-                            </div>
-                            <div #inputWidth id="inputWidth">
-                                <div class="div-middle-box-title">
-                                    {{'project.inputWidth' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <input matInput type="number" value={{inputWidthValue}} step=1>
-                                </mat-form-field>
-                            </div>
-                            <div #useDropout id="useDropout">
-                                <div class="div-middle-box-content">
-                                    <mat-checkbox color="primary" [checked]=false (change)="changeUseDropoutCheckedState()">
-                                        {{'project.useDropout' | translate}}
-                                    </mat-checkbox>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="div-middle-box-bottom-right">
-                    <div #inference id="inference">
-                        <div class="div-middle-inference-button">
-                            <button mat-flat-button color="primary" (click)="inferenceModel()" [disabled]="disabledInferenceButton">
-                                {{'project.inference' | translate}}</button>
-                            <div *ngIf="inferenceProcessStarted">
-                                <p>
-                                    {{ inferenceMessage }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div #inferenceSingle id="inferenceSingle">
-                        <div class="div-middle-inference-button">
-                            <button mat-flat-button color="primary" (click)="inferenceSingleMethod()" [disabled]="disabledInferenceSingleButton">
-                                {{'project.inferenceSingle' | translate}}</button>
-                            <div *ngIf="inferenceProcessStarted">
-                                <p>
-                                    {{ inferenceMessage }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="padding-top: 15px; color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
-                        <div>{{'project.dataAugumentation' | translate}}</div>
-                        <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
-                            <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}
-                            </mat-checkbox>
-                        </div>
-                    </div>
-                    <div style="padding-top: 10px;" #trainingAugmentations id="trainingAugmentations">
-                        <div class="div-middle-box-title">
-                            {{'project.trainingAugmentations' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                                <textarea matInput cdkTextareaAutosize value={{trainingAugmentationsValue}}></textarea>
-                        </mat-form-field>
-                    </div>
-                    <div #validationAugmentations id="validationAugmentations">
-                        <div class="div-middle-box-title">
-                            {{'project.validationAugmentations' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <textarea matInput cdkTextareaAutosize value={{validationAugmentationsValue}}></textarea>
-                        </mat-form-field>
-                    </div>
-                    <div #testAugmentations id="testAugmentations" style="padding-top: 10px;">
-                        <div class="div-middle-box-title">
-                            {{'project.testAugmentations' | translate}}
-                        </div>
-                        <mat-form-field class="div-middle-box-content">
-                            <textarea matInput cdkTextareaAutosize value={{testAugmentationsValue}}></textarea>
-                        </mat-form-field>
-                    </div>
-                    <div #trainButton id=trainButton>
-                        <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
-                            {{'project.train' | translate}}</button>
-                        <div *ngIf="trainProcessStarted">
-                            <p>
-                                {{ trainMessage }}
-                            </p>
-                        </div>
-                        <div *ngIf="disabledTrainButton">
-                            <p>
-                                {{ trainMessage }}
-                            </p>
-                        </div>
-                        <div style="padding-top: 15px;" *ngIf="trainSpinner">
-                            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="div-right">
@@ -352,7 +492,7 @@
         </div>
         <div class="div-notifications-process" *ngFor="let process of runningProcesses" (click)="markNotificationAsRead(process)">
             <div class="div-notifications-process-section">
-                <div class="div-notifications-icon" *ngIf="process.unread">
+                <div class="div-notifications-icon" *ngIf="process.unread" title="mark as read">
                     <mat-icon svgIcon="markUnread"></mat-icon>
                 </div>
                 <div class="div-notifications-text">
@@ -360,39 +500,45 @@
                 </div>
             </div>
             <div class="div-notifications-process-section">
-                <div class="div-notifications-text">
-                    {{process.processId}}
-                </div>
+                {{process.processId}}
             </div>
             <div class="div-notifications-process-section">
                 {{process.process_type}}
             </div>
             <div class="div-notifications-process-section">
-                {{process.process_status}}
+                <div class="div-notifications-process-section-text">
+                    {{process.process_status}}
+                </div>
+                <div class="div-notifications-process-section-buttons">
+                    <div style="padding-right: 20px;" (click)="showOutputProcess(process)" title="Show Output">
+                        <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
+                    </div>
+                    <div (click)="stopProcess(process)" title="stop process" *ngIf="process.showStopButton">
+                        <mat-icon svgIcon="stopProcess" style="color: red;"></mat-icon>
+                    </div>
+                    <div title="Disabled" *ngIf="process.showDisabledButton">
+                        <mat-icon svgIcon="inavailable" style="color: grey;"></mat-icon>
+                    </div>
+                </div>
+
             </div>
-            <button mat-flat-button color="primary" style="background: #3180ae;" (click)="showOutputProcess(process.processId)">
-                {{'project.showOutput' | translate}}
-            </button>
-            <button mat-flat-button color="warn" (click)="stopProcess(process.processId)" [disabled]="disabledStopButton">
-                {{'project.stop' | translate}}
-            </button>
         </div>
     </div>
+
     <div class="div-edit-weights" [hidden]="!divEditWeightsShowStatus">
         <div class="div-edit-weights-title">{{'project.editWeights' | translate}}</div>
         <div class="div-prefilter-by-models">
             <div class="div-middle-box-title" style="color: #3180ae;">
                 {{'project.selectAModel' | translate}}
             </div>
-            <br/>
+            <br />
             <div>
                 <div class="div-middle-box-title-edit-weight">
                     {{'project.model' | translate}}:
                 </div>
                 <div style="display: inline-block;">
                     <mat-form-field class="div-middle-box-content">
-                        <mat-select (selectionChange)="triggerSelectedModelEditWeight($event)" [(ngModel)]="selectedValueEditWeight"
-                            [(value)]=selectedOptionModelEditList>
+                        <mat-select (selectionChange)="triggerSelectedModelEditWeight($event)" [(ngModel)]="selectedValueEditWeight" [(value)]=selectedOptionModelEditList>
                             <mat-option *ngFor="let option of modelDropdown" value={{option}}>
                                 {{option}}
                             </mat-option>
@@ -408,117 +554,169 @@
         </div>
         <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
             <ng-container matColumnDef="weightId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Id</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightId' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightId}} </td>
             </ng-container>
             <ng-container matColumnDef="weightName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Name</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightName' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightName}} </td>
             </ng-container>
             <ng-container matColumnDef="weightCeleryId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Celery Id</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightCeleryId' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightCeleryId}} </td>
             </ng-container>
-            
+            <ng-container matColumnDef="weightDatasetId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightDatasetId' | translate }}</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightDatasetId}} </td>
+            </ng-container>
             <ng-container matColumnDef="weightOptions">
-                <th mat-header-cell *matHeaderCellDef>Options</th>
+                <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                    <button mat-flat-button style="background-color: #65A4C5; color: white;" (click)="onEditWeight(row)">
-                        {{'project.edit' | translate}}
-                    </button>
+                    <div style="display: flex;">
+                        <div style="padding-right: 10px; cursor: pointer;" title="{{'project.edit' | translate }}" (click)="onEditWeight(row)">
+                            <mat-icon svgIcon="edit" style="color: #3180ae;"></mat-icon>
+                        </div>
+                        <div style="padding-right: 10px; cursor: pointer;" title="{{'project.viewDetails' | translate }}" (click)="showWeightDetails(row)">
+                            <mat-icon svgIcon="viewDetails" style="color: #3180ae;"></mat-icon>
+                        </div>
+                        <div style="cursor: pointer;" title="{{'project.results' | translate }}" (click)="showOutputProcess(row)">
+                            <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
+                        </div>
+                    </div>
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+
+        <div *ngIf="showWeightDetailsTable">
+            <div style="padding-left: 30px; font-weight: bold;">
+                {{'project.weightView' | translate }} {{this.weightIdForTitle}} {{'project.detailsView' | translate }}
+            </div>
+            <table mat-table [dataSource]="weightDetails">
+                <ng-container matColumnDef="Weight_Id">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.weightId' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.Weight_Id}} </td>
+                </ng-container>
+                <ng-container matColumnDef="Name">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.weightName' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.Name}} </td>
+                </ng-container>
+                <ng-container matColumnDef="dataset_name">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.datasetName' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.dataset_name}} </td>
+                </ng-container>
+                <ng-container matColumnDef="model_name">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.modelName' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.model_name}} </td>
+                </ng-container>
+                <ng-container matColumnDef="pretrained_on">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.pretrainedOn' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.pretrained_on}} </td>
+                </ng-container>
+                <ng-container matColumnDef="celery_id">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.celeryId' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.celery_id}} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedWeightDetailsColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedWeightDetailsColumns;"></tr>
+            </table>
+        </div>
     </div>
 
     <div class="div-output-results" [hidden]="!divOutputResultsShowStatus">
         <div class="div-edit-weights-title">{{'project.outputResults' | translate}}</div>
-        <div class="div-prefilter-by-models">
+        <div class="div-prefilter-by-models" *ngIf="showOutputInferenceSingle">
             <div class="div-middle-box-title" style="color: #3180ae;">
-                {{'project.selectAModel' | translate}}
-            </div>
-            <br/>
-            <div>
-                <div class="div-middle-box-title-edit-weight">
-                    {{'project.model' | translate}}:
-                </div>
-                <div style="display: inline-block;">
-                    <mat-form-field class="div-middle-box-content">
-                        <mat-select (selectionChange)="triggerSelectedModelEditWeight($event)" [(ngModel)]="selectedValueEditWeight"
-                            [(value)]=selectedOptionModelEditList>
-                            <mat-option *ngFor="let option of modelDropdown" value={{option}}>
-                                {{option}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </div>
-            <div>
-                <mat-form-field>
-                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
-                </mat-form-field>
+                {{'project.outputResultList' | translate}} {{outputResultsDetailProcessId}}
             </div>
         </div>
-        <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
-            <ng-container matColumnDef="weightId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Id</th>
-                <td mat-cell *matCellDef="let element"> {{element.weightId}} </td>
-            </ng-container>
-            <ng-container matColumnDef="weightName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Name</th>
-                <td mat-cell *matCellDef="let element"> {{element.weightName}} </td>
-            </ng-container>
-            <ng-container matColumnDef="weightCeleryId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Celery Id</th>
-                <td mat-cell *matCellDef="let element"> {{element.weightCeleryId}} </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="weightOptions">
-                <th mat-header-cell *matHeaderCellDef>Options</th>
-                <td mat-cell *matCellDef="let row">
-                    <button mat-flat-button style="background-color: #65A4C5; color: white;" (click)="onShowOutputsByWeight(row.weightCeleryId)">
-                        {{'project.showOutput' | translate}}
-                    </button>
-                </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
-
-        <div class="div-prefilter-by-models">
-            <div class="div-middle-box-title" style="color: #3180ae;">
-                {{'project.outputResultList' | translate}}{{outputResultsDetailProcessId}}
-            </div>
-            <div>
-                <mat-form-field>
-                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
-                </mat-form-field>
-            </div>
-        </div>
-        <table mat-table [dataSource]="outputList" matSort class="mat-elevation-z8">
+        <table mat-table [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
             <ng-container matColumnDef="outputImage">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Image</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
             </ng-container>
             <ng-container matColumnDef="outputDetails">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Output Details</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> ... </td>
-            </ng-container>
-            <ng-container matColumnDef="outputDetailsOptions">
-                <th mat-header-cell *matHeaderCellDef>Options</th>
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputDetails' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                    <button mat-flat-button class="td-output-results-cells" style="background-color: #65A4C5; color: white;" (click)="onShowOutputDetails(row)">
-                        {{'project.viewOutputDetails' | translate}}
-                    </button>
+                    <div style="cursor: pointer;" title="view details" (click)="onShowOutputDetails(row)">
+                        <mat-icon svgIcon="viewDetails" style="color: #65A4C5;"></mat-icon>
+                    </div>
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedOutputColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputColumns;"></tr>
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+
+        <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;" *ngIf="showOutputRunning">
+            {{'project.outputStatusParametersDetails' | translate}} {{outputResultsDetailProcessId}}
+        </div>
+
+        <table mat-table [dataSource]="outputResultsRunning" *ngIf="showOutputRunning">
+            <ng-container matColumnDef="Model_Id">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputModelId' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Model_Id}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Dataset_Id">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputDatasetId' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Dataset_Id}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Weight_Id">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputWeightId' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Weight_Id}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Epoch">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputEpoch' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Epoch}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Loss_Function">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputLoss' | translate}}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Loss_Function}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Metric">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputMetric' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Metric}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Batch_Size">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputBatchSize' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Batch_Size}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Input_Height">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputInputHeight' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Input_Height}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Input_Width">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputInputWidth' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Input_Width}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Training_Augmentations">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputTrainingAugmentations' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Training_Augmentations}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Validation_Augmentations">
+                <th mat-header-cell *matHeaderCellDef>{{'project.outputValidationAugmentations' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Validation_Augmentations}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedOutputResultsRunningColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedOutputResultsRunningColumns;"></tr>
+        </table>
+
+        <div style="padding-top: 20px;" *ngIf="showOutputRunning">
+            <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;">
+                {{'project.outputStatusEvolution' | translate}}
+            </div>
+            <div *ngIf="showGraphicProcess">
+                <ngx-charts-line-chart [view]="view" [scheme]="colorScheme" [legend]="legend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel"
+                    [xAxis]="xAxis" [yAxis]="yAxis" [xAxisLabel]="xAxisLabel" [yAxisLabel]="yAxisLabel" [timeline]="timeline"
+                    [results]="chartValuesList" (select)="onSelect($event)" (activate)="onActivate($event)" (deactivate)="onDeactivate($event)">
+                </ngx-charts-line-chart>
+            </div>
+        </div>
+        <div class="div-middle-box-progress-bar" *ngIf="showProgressBarProcess">
+            <div class="div-middle-box-title" style="color: #3180ae; padding-bottom: 8px;">{{'project.outputStatusInferenceProcess' | translate}} {{outputInference}} {{'project.outputProcentageInferenceProcess' | translate}}</div>
+            <mat-progress-bar mode="determinate" [value]="outputInference" max="10000"></mat-progress-bar>
+        </div>
     </div>
 </div>

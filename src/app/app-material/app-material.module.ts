@@ -15,7 +15,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { FormsModule } from '@angular/forms'
+import { FormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [],
@@ -35,7 +38,10 @@ import { FormsModule } from '@angular/forms'
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    FormsModule
+    FormsModule,
+    MatTabsModule,
+    NgxChartsModule,
+    MatProgressBarModule
   ],
   exports: [
     MatToolbarModule,
@@ -53,7 +59,10 @@ import { FormsModule } from '@angular/forms'
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    FormsModule
+    FormsModule,
+    MatTabsModule,
+    NgxChartsModule,
+    MatProgressBarModule
   ]
 })
 export class AppMaterialModule { }

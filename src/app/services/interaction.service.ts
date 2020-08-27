@@ -134,8 +134,8 @@ export class InteractionService extends TabObject {
   testAugmentationsValueSource$ = this._testAugmentationsValueSource.asObservable();
 
   //project component -> div-details re-Train toggle button, inference button, train button, stop button
-  private _reTrainButtonCheckedStateSource = new Subject<boolean>();
-  reTrainButtonCheckedState$ = this._reTrainButtonCheckedStateSource.asObservable();
+  // private _reTrainButtonCheckedStateSource = new Subject<boolean>();
+  // reTrainButtonCheckedState$ = this._reTrainButtonCheckedStateSource.asObservable();
   private _inferenceButtonStateSource = new Subject<boolean>();
   inferenceButtonState$ = this._inferenceButtonStateSource.asObservable();
   private _trainButtonStateSource = new Subject<boolean>();
@@ -365,45 +365,45 @@ export class InteractionService extends TabObject {
     this.resetSelectedOptions();
     this.resetDropdowns();
 
-    this.changeCheckedStateReTrainButton(false);
+    // this.changeCheckedStateReTrainButton(false);
     this.changeStateInferenceButton(false);
     this.changeStateInferenceSingleButton(false);
     this.changeCheckedStateTrainButton(false);
     this.changeCheckedStateStopButton(false);
   }
 
-  changeCheckedStateReTrainButton(state: boolean) {
-    this._reTrainButtonCheckedStateSource.next(state);
-    if (state == false) {
-      let inference = document.getElementById("inference");
-      inference.style.display = "block";
-      let inferenceSingle = document.getElementById("inferenceSingle");
-      inferenceSingle.style.display = "none";
-      let learningRate = document.getElementById("learningRate");
-      learningRate.style.display = "none";
-      let loss = document.getElementById("loss");
-      loss.style.display = "none";
-      let useDropout = document.getElementById("useDropout");
-      useDropout.style.display = "none";
-      let dataAugmentationSection = document.getElementById("dataAugmentationSection");
-      dataAugmentationSection.style.display = "none";
-      let epochs = document.getElementById("epochs");
-      epochs.style.display = "none";
-      let batchSize = document.getElementById("batchSize");
-      batchSize.style.display = "none";
-      let inputHeight = document.getElementById("inputHeight");
-      inputHeight.style.display = "none";
-      let inputWidth = document.getElementById("inputWidth");
-      inputWidth.style.display = "none";
+  // changeCheckedStateReTrainButton(state: boolean) {
+  //   this._reTrainButtonCheckedStateSource.next(state);
+  //   if (state == false) {
+  //     let inference = document.getElementById("inference");
+  //     inference.style.display = "block";
+  //     let inferenceSingle = document.getElementById("inferenceSingle");
+  //     inferenceSingle.style.display = "none";
+  //     let learningRate = document.getElementById("learningRate");
+  //     learningRate.style.display = "none";
+  //     let loss = document.getElementById("loss");
+  //     loss.style.display = "none";
+  //     let useDropout = document.getElementById("useDropout");
+  //     useDropout.style.display = "none";
+  //     let dataAugmentationSection = document.getElementById("dataAugmentationSection");
+  //     dataAugmentationSection.style.display = "none";
+  //     let epochs = document.getElementById("epochs");
+  //     epochs.style.display = "none";
+  //     let batchSize = document.getElementById("batchSize");
+  //     batchSize.style.display = "none";
+  //     let inputHeight = document.getElementById("inputHeight");
+  //     inputHeight.style.display = "none";
+  //     let inputWidth = document.getElementById("inputWidth");
+  //     inputWidth.style.display = "none";
 
-      let trainingAugmentations = document.getElementById("trainingAugmentations");
-      trainingAugmentations.style.display = "none";
-      let validationAugmentations = document.getElementById("validationAugmentations");
-      validationAugmentations.style.display = "none";
-      let testAugmentations = document.getElementById("testAugmentations");
-      testAugmentations.style.display = "block";
-    }
-  }
+  //     let trainingAugmentations = document.getElementById("trainingAugmentations");
+  //     trainingAugmentations.style.display = "none";
+  //     let validationAugmentations = document.getElementById("validationAugmentations");
+  //     validationAugmentations.style.display = "none";
+  //     let testAugmentations = document.getElementById("testAugmentations");
+  //     testAugmentations.style.display = "block";
+  //   }
+  // }
 
   changeStateInferenceButton(state: boolean) {
     this._inferenceButtonStateSource.next(state);
@@ -468,7 +468,7 @@ export class InteractionService extends TabObject {
     this._projectNotificationsIsClickedSource.next(state);
   }
   changeStateProjectEditWeightsIsClicked(state: boolean) {
-    this._projectDivEditShowStatusSource.next(state);
+    this._projectEditWeightsIsClickedSource.next(state);
   }
   changeStateProjectOutputResultsIsClicked(state: boolean) {
     this._projectOutputResultsIsClickedSource.next(state);
@@ -515,22 +515,22 @@ export class InteractionService extends TabObject {
     }
   }
 
-  showProjectIdTab(projectId: number) {
-    if (this.tabs.length == 1) {
-      let newTab = new TabObject();
-      newTab.id = projectId;
-      newTab.type = "Project";
-      this.tabs.push(newTab);
-    }
-    else if (this.tabs[1].id != projectId) {
-      this.tabs[1].id = projectId;
-      this.resetImageData();
-      this.resetProject();
-    }
-    else {
-      console.log("The project tab with id " + projectId + " is already open");
-    }
-  }
+  // showProjectIdTab(projectId: number) {
+  //   if (this.tabs.length == 1) {
+  //     let newTab = new TabObject();
+  //     newTab.id = projectId;
+  //     newTab.type = "Project";
+  //     this.tabs.push(newTab);
+  //   }
+  //   else if (this.tabs[1].id != projectId) {
+  //     this.tabs[1].id = projectId;
+  //     this.resetImageData();
+  //     this.resetProject();
+  //   }
+  //   else {
+  //     console.log("The project tab with id " + projectId + " is already open");
+  //   }
+  // }
 
   changeCurrentProject(project: Project) {
     this._currentProjectSource.next(project);

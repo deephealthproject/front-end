@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatSnackBar } from '@angular/material';
 import { ConfirmDialogComponent } from 'src/app/components/confirm-dialog/confirm-dialog.component';
 import { CreateProjectDialogComponent } from 'src/app/components/create-project-dialog/create-project-dialog.component';
 import { InteractionService } from 'src/app/services/interaction.service';
@@ -15,7 +15,7 @@ export class Project {
   modelweights_id: number;
   inference_id;
   dataset_id: number;
-  pretrain_on: number;
+  pretrained_on: number;
   model_id: number;
   weightName: string;
 }
@@ -45,7 +45,7 @@ export class Weight {
   color: string;
   task_id: number;
   dataset_id: number;
-  pretrain_on: number;
+  pretrained_on: number;
   model_id: number;
   weightId: number;
   weightName: string;
@@ -60,11 +60,11 @@ export class PropertyInstance {
 }
 
 @Component({
-
   selector: 'app-power-user',
   templateUrl: './power-user.component.html',
   styleUrls: ['./power-user.component.css']
 })
+
 export class PowerUserComponent implements OnInit {
   projects: Array<Project> = [];
   projectName: string;
@@ -92,7 +92,8 @@ export class PowerUserComponent implements OnInit {
     private domSanitizer: DomSanitizer,
     public dialog: MatDialog,
     private _dataService: DataService,
-    public translate: TranslateService) {
+    public translate: TranslateService,
+    private snackBar: MatSnackBar) {
     this.matIconRegistry.addSvgIcon(
       'folder',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-folder-24px.svg')
@@ -176,10 +177,12 @@ export class PowerUserComponent implements OnInit {
           }
           else
             console.log('Project already exists');
+            this.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
         }
       }
       else {
         console.log('Canceled');
+        this.openSnackBar(this.translate.instant('powerUser.errorMessageNewProject'));
       }
     });
 
@@ -225,8 +228,8 @@ export class PowerUserComponent implements OnInit {
   showProject(selectedProject: Project) {
     this._interactionService.changeShowStatePowerUser(false);
     this._interactionService.changeShowStateProject(true);
-    //this._interactionService.showProjectTab(selectedProject.name);
-    this._interactionService.showProjectIdTab(selectedProject.id);
+    this._interactionService.showProjectTab(selectedProject.name);
+    // this._interactionService.showProjectIdTab(selectedProject.id);
     this._interactionService.changeCurrentProject(selectedProject);
     this._interactionService.resetProject();
 
@@ -290,6 +293,7 @@ export class PowerUserComponent implements OnInit {
     p.modelweights_id = contentData.modelweights_id;
     p.inference_id = contentData.inference_id;
     this.projects.push(p);
+    this.openSnackBar(this.translate.instant('powerUser.successMessageCreatedNewProject'));
   };
 
   updateWeightsList(model: Model, contentData) {
@@ -414,5 +418,11 @@ export class PowerUserComponent implements OnInit {
         }
       }
     }
+  }
+
+  openSnackBar(message) {
+    this.snackBar.open(message, "close", {
+      duration: 5000,
+    });
   }
 }

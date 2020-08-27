@@ -76,6 +76,13 @@ export class DataService {
     return this.httpClient.get<Weight[]>(url);
   }
 
+  getWeightById(weightId): Observable<HttpResponse<any>> {
+    console.log(weightId);
+    let url = this.apiUrl.concat("/weights/");
+    url += weightId;
+    return this.httpClient.get<any>(url);
+  }
+
   getOutput(processId) {
     console.log(processId);
     let url = this.apiUrl.concat("/output?process_id=");
@@ -83,15 +90,14 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrain_on: number, taskId: number): Observable<HttpResponse<any>> {
+  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrained_on: number): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/weights');
     const payload = {
       id: weightId,
       dataset_id: datasetId,
       name: weightName,
       model_id: modelId,
-      pretrained_on: pretrain_on,
-      task_id: taskId
+      pretrained_on: pretrained_on,
     };
     console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
@@ -153,6 +159,14 @@ export class DataService {
   status(processId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/status?process_id=');
     url += processId;
+    return this.httpClient.get<any>(url);
+  }
+
+  statusCompleteForEvolution(processId, fullStatus): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/status?process_id=');
+    url += processId;
+    url += "&full=";
+    url += fullStatus;
     return this.httpClient.get<any>(url);
   }
 
@@ -240,6 +254,12 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
+  getDatasetById(datasetId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/datasets/');
+    url += datasetId;
+    return this.httpClient.get<any>(url);
+  }
+
   uploadDataset(datasetName, taskId, datasetPath): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/datasets');
     const payload = {
@@ -250,5 +270,4 @@ export class DataService {
     console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
-
 }

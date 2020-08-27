@@ -17,7 +17,9 @@
 .div-tabs {
     width: max-content;
     float: left;
-    padding: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .div-notifications {
