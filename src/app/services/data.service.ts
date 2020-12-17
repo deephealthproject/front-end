@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 import { Weight } from '../components/power-user/power-user.component';
 
 @Injectable({
@@ -13,18 +13,24 @@ export class DataService {
 
   constructor(private httpClient: HttpClient) { }
 
-  processImage(fileLocation: string): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat('/processImage');
-    const payload = { location: fileLocation };
-    return this.httpClient.post<any>(url, payload, { observe: 'response' });
-  }
-
   allowedProperties(modelId, propertyId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat("/allowedProperties?model_id=");
     url += modelId;
     url += "&property_id=";
     url += propertyId;
     return this.httpClient.get<any>(url);
+  }
+
+  //TODO
+  createAllowedProperties(allowedValue: string, defaultValue: string, propertyId: number, modelId: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/models/');
+    const payload = {
+      allowed_value: allowedValue,
+      default_value: defaultValue,
+      property_id: propertyId,
+      model_id: modelId
+    };
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
   properties(): Observable<HttpResponse<any>> {
@@ -43,6 +49,13 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
+  //TODO
+  getTasksById(taskId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat("/tasks/");
+    url += taskId;
+    return this.httpClient.get<any>(url);
+  }
+
   getModels(taskId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/models');
     if (taskId != undefined) {
@@ -53,14 +66,26 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  //models for swagger-stub
-  // getModels(taskId): Observable<HttpResponse<any>> {
-  //   let url = this.apiUrl.concat('/models');
-  //   const payload = {
-  //     task_id: taskId
-  //   }
-  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
-  // }
+  uploadModel(modelName: string, taskId: number, onnxURL: string, onnxData: string, datasetId: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/models/');
+    const payload = {
+      name: modelName,
+      task_id: taskId,
+      onnx_url: onnxURL,
+      onnx_data: onnxData,
+      dataset_id: datasetId
+    };
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  uploadModelStatus(processId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/modelStatus');
+    if (processId != undefined) {
+      url += "?process_id=";
+      url += processId;
+    }
+    return this.httpClient.get<any>(url);
+  }
 
   getWeights(modelId): Observable<HttpResponse<any>> {
     console.log(modelId);
@@ -69,7 +94,7 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  getWeights2(modelId): Observable<Weight[]> {
+  getWeightsArray(modelId): Observable<Weight[]> {
     console.log(modelId);
     let url = this.apiUrl.concat("/weights?model_id=");
     url += modelId;
@@ -83,14 +108,7 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  getOutput(processId) {
-    console.log(processId);
-    let url = this.apiUrl.concat("/output?process_id=");
-    url += processId;
-    return this.httpClient.get<any>(url);
-  }
-
-  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrained_on: number): Observable<HttpResponse<any>> {
+  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrained_on: number, publicWeight: boolean, owners): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/weights');
     const payload = {
       id: weightId,
@@ -98,19 +116,56 @@ export class DataService {
       name: weightName,
       model_id: modelId,
       pretrained_on: pretrained_on,
+      public: publicWeight,
+      owners: owners
     };
     console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
   }
 
-  //weigths for swagger-stub
-  // getWeights(modelId: number): Observable<HttpResponse<any>> {
-  //   let url = this.apiUrl.concat("/weights");
-  //   let payload = {
-  //     model_id: modelId
-  //   }
-  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
-  // }
+  deleteWeight(weightId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/weights/');
+    if (weightId != undefined) {
+      url += weightId;
+    }
+    return this.httpClient.delete<any>(url);
+  }
+
+  getDatasets(taskId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/datasets');
+    if (taskId != undefined) {
+      url += "?task_id=";
+      url += taskId;
+    }
+    console.log(url);
+    return this.httpClient.get<any>(url);
+  }
+
+  getDatasetById(datasetId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/datasets/');
+    url += datasetId;
+    return this.httpClient.get<any>(url);
+  }
+
+  uploadDataset(datasetName, taskId, datasetPath, users, publicDataset): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/datasets');
+    const payload = {
+      name: datasetName,
+      task_id: taskId,
+      path: datasetPath,
+      users: users,
+      public: publicDataset
+    }
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  deleteDataset(datasetId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/datasets/');
+    if (datasetId != undefined) {
+      url += datasetId;
+    }
+    return this.httpClient.delete<any>(url);
+  }
 
   trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, selectedProjectId): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/train');
@@ -125,7 +180,13 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  //todo
+  pastTrainingProcesses(project_id) : Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/trainings/?project_id=');
+    url += project_id;
+    return this.httpClient.get<any>(url);
+  }
+
+  //TODO
   trainingSettings(modelWeightsId, propertyId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainingSettings?modelweights_id=');
     url += modelWeightsId;
@@ -145,11 +206,12 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  inferenceSingle(selectedWeightId, datasetImagePath, selectedProjectId): Observable<HttpResponse<any>> {
+  inferenceSingle(selectedWeightId, datasetImagePath, datasetImageData, selectedProjectId): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/inferenceSingle');
     const payload = {
       modelweights_id: selectedWeightId,
       image_url: datasetImagePath,
+      image_data: datasetImageData,
       project_id: selectedProjectId
     }
     console.log(payload);
@@ -170,6 +232,12 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
+  getOutput(processId) {
+    let url = this.apiUrl.concat("/output?process_id=");
+    url += processId;
+    return this.httpClient.get<any>(url);
+  }
+
   output(processId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/output?process_id=');
     url += processId;
@@ -184,15 +252,6 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  //status for swagger-stub
-  // status(processId): Observable<HttpResponse<any>> {
-  //   let url = this.apiUrl.concat('/status');
-  //   const payload = {
-  //     process_id: processId
-  //   }
-  //   return this.httpClient.post<any>(url, payload, { observe: 'response' });
-  // }
-
   projects(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/projects');
     return this.httpClient.get<any>(url);
@@ -204,26 +263,35 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  addProject(projectName: string, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
+  addProject(projectName: string, modelWeights_id: number, task_id: number, users: Map<String, String>): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/projects');
     const payload = {
       name: projectName,
       modelweights_id: modelWeights_id,
-      task_id: task_id
+      task_id: task_id,
+      users: users
     };
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  updateProject(projectName: string, projectId: number, modelWeights_id: number, task_id: number): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat('/projects');
+  updateProject(projectName: string, projectId: number, task_id: number, users): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/projects/');
     const payload = {
-      id: projectId,
       name: projectName,
       task_id: task_id,
-      modelweights_id: modelWeights_id
+      users: users
     };
+    url += projectId;
     console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
+  }
+
+  deleteProject(projectId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/projects/');
+    if (projectId != undefined) {
+      url += projectId;
+    }
+    return this.httpClient.delete<any>(url);
   }
 
   //dropdown for swagger-stub
@@ -233,41 +301,6 @@ export class DataService {
       project_id: projectId,
       dropdown_name: dropdownName
     };
-    return this.httpClient.post<any>(url, payload, { observe: 'response' });
-  }
-
-  // getDropDownDetails(projectId, dropdownName: string): Observable<HttpResponse<any>> {
-  //   let url = this.apiUrl.concat('/dropDownDetails?project_id=');
-  //   url += projectId;
-  //   url += '&dropdown_name=';
-  //   url += dropdownName;
-  //   return this.httpClient.get<any>(url);
-  // }
-
-  getDatasets(taskId): Observable<HttpResponse<any>> {
-    let url = this.apiUrl.concat('/datasets');
-    if (taskId != undefined) {
-      url += "?task_id=";
-      url += taskId;
-    }
-    console.log(url);
-    return this.httpClient.get<any>(url);
-  }
-
-  getDatasetById(datasetId): Observable<HttpResponse<any>> {
-    let url = this.apiUrl.concat('/datasets/');
-    url += datasetId;
-    return this.httpClient.get<any>(url);
-  }
-
-  uploadDataset(datasetName, taskId, datasetPath): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat('/datasets');
-    const payload = {
-      name: datasetName,
-      task_id: taskId,
-      path: datasetPath
-    }
-    console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 }

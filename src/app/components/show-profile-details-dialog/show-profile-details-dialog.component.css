@@ -1,0 +1,35 @@
+mat-dialog-content {
+    width: 550px;
+    height: 450px;
+}
+
+mat-dialog-actions {
+    float: right;
+}
+
+.mat-dialog-title {
+    background-color: rgb(101,164,196);
+    text-align: center;
+    color: white;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.div-profile-details {
+    padding: 8px;
+    font-size: 15px;
+    font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+}
+
+input {
+    margin-left: 25px;
+    width: 40%;
+}
+
+.change-password-button {
+    width: 27%;
+    color: white;
+    background-color: rgb(53, 111, 155);
+    margin-top: 20px;
+    display: inline-block;
+    margin: 10px auto;
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
+import { InteractionService } from '../../services/interaction.service';
 
 export interface TrainDialogData {
   dialogTitle: string;
@@ -12,6 +13,7 @@ export interface TrainDialogData {
   process_type;
   inputPlaceHolder: string;
   inputValue: string;
+  datasetImageData: string;
 }
 
 @Component({
@@ -40,8 +42,10 @@ export class ConfirmDialogTrainComponent implements OnInit {
   inputPlaceHolder: string;
   inputValue: string;
 
+  datasetImageData: string;
+
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: TrainDialogData,
+    @Inject(MAT_DIALOG_DATA) public data: TrainDialogData, private _interactionService: InteractionService,
     public translate: TranslateService) {
     this.dialogTitle = data.dialogTitle;
     this.dialogContent = data.dialogContent;
@@ -79,7 +83,6 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.weightColor = "black";
     }
 
-
     if (this.process_type == "inference") {
       this.showMessageModel = true;
       this.showMessageWeight = false;
@@ -107,6 +110,8 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
   save() {
     this.data.inputValue = this.inputValue;
+    this.data.datasetImageData = this._interactionService.projectImageURLSource;
+    //this.data.datasetImageData = this.data.datasetImageData.replace("data:image/jpeg;base64,", "");
     this.dialogRef.close(this.data);
   }
 

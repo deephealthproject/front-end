@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
-import { Project, Model, Weight } from '../components/power-user/power-user.component';
+import { Subject } from 'rxjs';
+import { Project, Model, Weight, User, ProcessingObject } from '../components/power-user/power-user.component';
 import { DataService } from 'src/app/services/data.service';
+import { AuthService } from './auth.service';
 
 export class TabObject {
   name: string;
@@ -14,7 +15,7 @@ export class TabObject {
 })
 export class InteractionService extends TabObject {
 
-  constructor(private _dataService: DataService) {
+  constructor(private _dataService: DataService, private _authService: AuthService) {
     super();
   }
 
@@ -24,14 +25,24 @@ export class InteractionService extends TabObject {
   private _powerUserStateSource = new Subject<boolean>();
   powerUserState$ = this._powerUserStateSource.asObservable();
 
+  private _loginUserStateSource = new Subject<boolean>();
+  loginUserState$ = this._loginUserStateSource.asObservable();
+  private _registerUserStateSource = new Subject<boolean>();
+  registerUserState$ = this._registerUserStateSource.asObservable();
+
   tabs = Array<TabObject>();
 
   projectImagePathSource;
   projectImageURLSource;
   projectInputFiles;
 
-  projectDatasetPath;
-  projectDatasetUrl;
+  datasetImageData: string;
+  projectDatasetDisplayMode;
+
+  modelData: string;
+  uploadModelIsClicked:Boolean;
+  divSendEmail: Boolean;
+  divResetPassword: Boolean;
 
   //project component -> which tab section is shown  
   private _projectDivLeftShowStatusSource = new Subject<boolean>();
@@ -40,38 +51,38 @@ export class InteractionService extends TabObject {
   projectDivMiddleShowStatus$ = this._projectDivMiddleShowStatusSource.asObservable();
   private _projectDivNetworkStatisticsShowStatusSource = new Subject<boolean>();
   projectDivNetworkStatisticsShowStatus$ = this._projectDivNetworkStatisticsShowStatusSource.asObservable();
-  private _projectDivUserScreenShowStatusSource = new Subject<boolean>();
-  projectDivUserScreenShowStatus$ = this._projectDivUserScreenShowStatusSource.asObservable();
   private _projectDivNotificationsShowStatusSource = new Subject<boolean>();
   projectDivNotificationsShowStatus$ = this._projectDivNotificationsShowStatusSource.asObservable();
-  private _projectDivEditShowStatusSource = new Subject<boolean>();
-  projectDivEditShowStatus$ = this._projectDivEditShowStatusSource.asObservable();
+  private _projectDivEditWeightsShowStatusSource = new Subject<boolean>();
+  projectDivEditWeightsShowStatus$ = this._projectDivEditWeightsShowStatusSource.asObservable();
   private _projectDivOutputResultsShowStatusSource = new Subject<boolean>();
   projectDivOutputResultsShowStatus$ = this._projectDivOutputResultsShowStatusSource.asObservable();
+  private _projectDivEditProjectShowStatusSource = new Subject<boolean>();
+  projectDivEditProjectShowStatus$ = this._projectDivEditProjectShowStatusSource.asObservable();
 
   //project component -> right div -> which tab is clicked
   private _projectConfigurationIsClickedSource = new Subject<boolean>();
   projectConfigurationIsClicked$ = this._projectConfigurationIsClickedSource.asObservable();
   private _projectNetworkStatisticsIsClickedSource = new Subject<boolean>();
   projectNetworkStatisticsIsClicked$ = this._projectNetworkStatisticsIsClickedSource.asObservable();
-  private _projectUserScreenIsClickedSource = new Subject<boolean>();
-  projectUserScreenIsClicked$ = this._projectUserScreenIsClickedSource.asObservable();
   private _projectNotificationsIsClickedSource = new Subject<boolean>();
   projectNotificationsIsClicked$ = this._projectNotificationsIsClickedSource.asObservable();
   private _projectEditWeightsIsClickedSource = new Subject<boolean>();
   projectEditWeightsIsClicked$ = this._projectEditWeightsIsClickedSource.asObservable();
   private _projectOutputResultsIsClickedSource = new Subject<boolean>();
   projectOutputResultsIsClicked$ = this._projectOutputResultsIsClickedSource.asObservable();
+  private _projectEditProjectIsClickedSource = new Subject<boolean>();
+  projectEditProjectIsClicked$ = this._projectEditProjectIsClickedSource.asObservable();
 
   //project component -> image input 
   private _projectDivDetailsLeftSideShowStatusSource = new Subject<boolean>();
   projectDivDetailsLeftSideShowStatus$ = this._projectDivDetailsLeftSideShowStatusSource.asObservable();
-  private _projectDisabledProcessImageButtonSource = new Subject<boolean>();
-  projectDisabledProcessImage$ = this._projectDisabledProcessImageButtonSource.asObservable();
 
   //project component -> task radio buttons
   private _checkedTaskSource = new Subject<number>();
   checkedTask$ = this._checkedTaskSource.asObservable();
+
+  selectedTask;
 
   private _changeWeightNameSource = new Subject<string>();
   _changeWeightNameSource$ = this._changeWeightNameSource.asObservable();
@@ -145,7 +156,6 @@ export class InteractionService extends TabObject {
   private _inferenceSingleButtonStateSource = new Subject<boolean>();
   inferenceSingleButtonState$ = this._inferenceSingleButtonStateSource.asObservable();
 
-  //
   private _selectedModelIdSource = new Subject<boolean>();
   selectedModelId$ = this._selectedModelIdSource.asObservable();
   private _selectedDatasetIdSource = new Subject<boolean>();
@@ -159,7 +169,6 @@ export class InteractionService extends TabObject {
 
   unreadNotificationsNumber: number = 0;
 
-  //
   private _currentProjectSource = new Subject<Project>();
   currentProject$ = this._currentProjectSource.asObservable();
   private _projectsListSource = new Subject<Array<Project>>();
@@ -172,6 +181,66 @@ export class InteractionService extends TabObject {
   private propertiesResponseData;
 
   formDataWeight: Weight;
+
+  //register-user component
+  private _userNameValueSource = new Subject<string>();
+  usernameValue$ = this._userNameValueSource.asObservable();
+  private _emailValueSource = new Subject<string>();
+  emailValue$ = this._emailValueSource.asObservable();
+  private _firstNameValueSource = new Subject<string>();
+  firstNameValue$ = this._firstNameValueSource.asObservable();
+  private _lastNameValueSource = new Subject<string>();
+  lastNameValue$ = this._lastNameValueSource.asObservable();
+  private _passwordValueSource = new Subject<string>();
+  passwordValue$ = this._passwordValueSource.asObservable();
+  private _confirmPasswordValueSource = new Subject<string>();
+  confirmPasswordValue$ = this._confirmPasswordValueSource.asObservable();
+
+  //login-user component
+  private _loginButtonStateSource = new Subject<boolean>();
+  loginButtonState$ = this._loginButtonStateSource.asObservable();
+  private _logoutButtonStateSource = new Subject<boolean>();
+  logoutButtonState$ = this._logoutButtonStateSource.asObservable();
+  private _registerButtonStateSource = new Subject<boolean>();
+  registerButtonState$ = this._registerButtonStateSource.asObservable();
+
+  //user profile
+  userProfileDetails: User;
+  private _oldPasswordValueSource = new Subject<string>();
+  oldPasswordValue$ = this._oldPasswordValueSource.asObservable();
+  private _newPasswordValueSource = new Subject<string>();
+  newPasswordValue$ = this._newPasswordValueSource.asObservable();
+  private _confirmNewPasswordValueSource = new Subject<string>();
+  confirmNewPasswordValue$ = this._confirmNewPasswordValueSource.asObservable();
+
+  //edit project
+  private _editProjectButtonStateSource = new Subject<boolean>();
+  editProjectButtonState$ = this._editProjectButtonStateSource.asObservable();
+  private _cancelEditProjectButtonStateSource = new Subject<boolean>();
+  cancelEditProjectButtonState$ = this._cancelEditProjectButtonStateSource.asObservable();
+  projectName;
+  projectOwner;
+  username;
+  currentProject: Project;
+  usersAssociatedArray = [];
+  usersList: Array<User> = [];
+  userLoggedOut: Boolean;
+
+  private _usersListSource = new Subject<Array<User>>();
+  usersList$ = this._usersListSource.asObservable();
+
+  private _usersAssociatedListSource = new Subject<Array<User>>();
+  usersAssociatedList$ = this._usersAssociatedListSource.asObservable();
+
+  runningProcesses: ProcessingObject[] = [];
+  
+  //reset-paswword
+  private _emailValueResetPasswordSource = new Subject<string>();
+  emailValueResetPasswordValue$ = this._emailValueResetPasswordSource.asObservable();
+  private _newResetPasswordValueSource = new Subject<string>();
+  newResetPasswordValue$ = this._newResetPasswordValueSource.asObservable();
+  private _resetCodeValueSource = new Subject<string>();
+  resetCodeValue$ = this._resetCodeValueSource.asObservable();
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
@@ -344,21 +413,18 @@ export class InteractionService extends TabObject {
     this.changeShowStateProjectDivLeft(true);
     this.changeShowStateProjectDivMiddle(true);
     this.changeShowStateProjectDivNetwork(false);
-    this.changeShowStateProjectDivUserScreen(false);
     this.changeShowStateProjectDivNotifications(false);
     this.changeShowStateProjectDivEditWeights(false);
     this.changeShowStateProjectDivOutputResults(false);
-
+    this.changeShowStateProjectDivEditProject(false);
     this.changeShowStateProjectDivDetailsLeftSide(false);
 
     this.changeStateProjectConfigurationIsClicked(true);
     this.changeStateProjectNetworkIsClicked(false);
-    this.changeStateProjectUserScreenIsClicked(false);
     this.changeStateProjectNotificationsIsClicked(false);
     this.changeStateProjectEditWeightsIsClicked(false);
     this.changeStateProjectOutputResultsIsClicked(false);
-
-    this.changeStateDisableProcessImageButton(false);
+    this.changeStateProjectEditProjectIsClicked(false);
 
     //this.changeCheckedTask(1);
     this.resetInputType(false);
@@ -418,9 +484,21 @@ export class InteractionService extends TabObject {
   }
 
   changeCheckedStateStopButton(state: boolean) {
-    if(state == true) {
+    if (state == true) {
       this._stopButtonStateSource.next(state);
     }
+  }
+
+  changeCheckedStateLoginButton(state: boolean) {
+    this._loginButtonStateSource.next(state);
+  }
+
+  changeCheckedStateLogoutButton(state: boolean) {
+    this._logoutButtonStateSource.next(state);
+  }
+
+  changeCheckedStateRegisterButton(state: boolean) {
+    this._registerButtonStateSource.next(state);
   }
 
   //deepHealth component -> which component is shown
@@ -430,6 +508,12 @@ export class InteractionService extends TabObject {
   changeShowStatePowerUser(state: boolean) {
     this._powerUserStateSource.next(state);
   }
+  changeShowStateLoginUser(state: boolean) {
+    this._loginUserStateSource.next(state);
+  }
+  changeShowStateRegisterUser(state: boolean) {
+    this._registerUserStateSource.next(state);
+  }
 
   //project component -> which tab section is shown  
   changeShowStateProjectDivLeft(state: boolean) {
@@ -438,9 +522,6 @@ export class InteractionService extends TabObject {
   changeShowStateProjectDivMiddle(state: boolean) {
     this._projectDivMiddleShowStatusSource.next(state);
   }
-  changeShowStateProjectDivUserScreen(state: boolean) {
-    this._projectDivUserScreenShowStatusSource.next(state);
-  }
   changeShowStateProjectDivNetwork(state: boolean) {
     this._projectDivNetworkStatisticsShowStatusSource.next(state);
   }
@@ -448,18 +529,18 @@ export class InteractionService extends TabObject {
     this._projectDivNotificationsShowStatusSource.next(state);
   }
   changeShowStateProjectDivEditWeights(state: boolean) {
-    this._projectDivEditShowStatusSource.next(state);
+    this._projectDivEditWeightsShowStatusSource.next(state);
   }
   changeShowStateProjectDivOutputResults(state: boolean) {
     this._projectDivOutputResultsShowStatusSource.next(state);
+  }
+  changeShowStateProjectDivEditProject(state: boolean) {
+    this._projectDivEditProjectShowStatusSource.next(state);
   }
 
   //project component -> right div -> which tab is clicked
   changeStateProjectConfigurationIsClicked(state: boolean) {
     this._projectConfigurationIsClickedSource.next(state);
-  }
-  changeStateProjectUserScreenIsClicked(state: boolean) {
-    this._projectUserScreenIsClickedSource.next(state);
   }
   changeStateProjectNetworkIsClicked(state: boolean) {
     this._projectNetworkStatisticsIsClickedSource.next(state);
@@ -473,13 +554,13 @@ export class InteractionService extends TabObject {
   changeStateProjectOutputResultsIsClicked(state: boolean) {
     this._projectOutputResultsIsClickedSource.next(state);
   }
+  changeStateProjectEditProjectIsClicked(state: boolean) {
+    this._projectEditProjectIsClickedSource.next(state);
+  }
 
   //project component -> image input
   changeShowStateProjectDivDetailsLeftSide(state: boolean) {
     this._projectDivDetailsLeftSideShowStatusSource.next(state);
-  }
-  changeStateDisableProcessImageButton(state: boolean) {
-    this._projectDisabledProcessImageButtonSource.next(state);
   }
 
   changeSelectedModel(model) {
@@ -492,13 +573,18 @@ export class InteractionService extends TabObject {
 
   //app tabs -> which tab to show/close
   showUserTab(userName: string) {
-    let newTab = new TabObject();
-    newTab.name = userName;
-    newTab.type = "User";
-    this.tabs.push(newTab);
+    if (this.tabs.length == 0) {
+      let newTab = new TabObject();
+      newTab.name = userName;
+      newTab.type = "Home";
+      this.tabs.push(newTab);
+    } else {
+      console.log("The " + userName + " tab is already open");
+    }
   }
 
   showProjectTab(projectName: string) {
+    this.projectName = projectName;
     if (this.tabs.length == 1) {
       let newTab = new TabObject();
       newTab.name = projectName;
@@ -514,23 +600,6 @@ export class InteractionService extends TabObject {
       console.log("The " + projectName + " tab is already open");
     }
   }
-
-  // showProjectIdTab(projectId: number) {
-  //   if (this.tabs.length == 1) {
-  //     let newTab = new TabObject();
-  //     newTab.id = projectId;
-  //     newTab.type = "Project";
-  //     this.tabs.push(newTab);
-  //   }
-  //   else if (this.tabs[1].id != projectId) {
-  //     this.tabs[1].id = projectId;
-  //     this.resetImageData();
-  //     this.resetProject();
-  //   }
-  //   else {
-  //     console.log("The project tab with id " + projectId + " is already open");
-  //   }
-  // }
 
   changeCurrentProject(project: Project) {
     this._currentProjectSource.next(project);
@@ -573,13 +642,84 @@ export class InteractionService extends TabObject {
   }
 
   resetEditWeightsList(contentData) {
-    this.formDataWeight=null;
+    this.formDataWeight = null;
     this.formDataWeight = contentData;
     return this.formDataWeight;
   }
-
+  
   getProjectList() {
     return this._projectsListSource;
   }
 
+  resetUserProfileDetails(contentData) {
+    this.userProfileDetails = null;
+    this.userProfileDetails = contentData;
+    return this.userProfileDetails;
+  }
+
+  getUsername() {
+    this._authService.getCurrentUser().subscribe(data => {
+      if (data != undefined || data != null) {
+        this.initUsername(data);
+      }
+    })
+  }
+
+  initUsername(data) {
+    this.username = data.username;
+  }
+
+  resetUsersList(contentData) {
+    this._usersListSource.next(null);
+    this._usersListSource.next(contentData);
+    return this._usersListSource;
+  }
+
+  resetAssociatedUsersList(contentData) {
+    this._usersAssociatedListSource.next(null);
+    this._usersAssociatedListSource.next(contentData);
+    return this._usersAssociatedListSource;
+  }
+
+  changeProjectTabName(projectName: string) {
+    this.projectName = projectName;
+    if (this.tabs.length == 1) {
+      let newTab = new TabObject();
+      newTab.name = projectName;
+      newTab.type = "Project";
+      this.tabs.push(newTab);
+    }
+    else if (this.tabs[1].name != projectName) {
+      this.tabs[1].name = projectName;
+    }
+    else {
+      console.log("The " + projectName + " tab is already open");
+    }
+  }
+  
+  browseImage(event: any) {
+    this.projectInputFiles = event.target.files;
+    this.datasetImageData = event.target.value;
+    this.modelData = event.target.value;
+    if (this.projectInputFiles.length === 0)
+      return;
+
+    var reader = new FileReader();
+    this.projectImagePathSource = this.projectInputFiles;
+    reader.readAsDataURL(this.projectInputFiles[0]);
+    reader.onload = () => {
+      this.projectImageURLSource = reader.result;
+    }
+  }
+
+  changeStopButton(process) {
+    if (process.process_status == "running") {
+      process.showStopButton = true;
+      process.showDisabledButton = false;
+    }
+    else if (process.process_status == "finished") {
+      process.showDisabledButton = true;
+      process.showStopButton = false;
+    }
+  }
 }

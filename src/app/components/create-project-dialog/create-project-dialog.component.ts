@@ -27,9 +27,8 @@ export class CreateProjectDialogComponent {
   selectedOptionTask: string;
   taskDropdown: TaskProject[];
 
-
-  constructor(public dialogRef: MatDialogRef<CreateProjectDialogComponent>, 
-    @Inject(MAT_DIALOG_DATA) public data: DialogCreateProjectData, 
+  constructor(public dialogRef: MatDialogRef<CreateProjectDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogCreateProjectData,
     public translate: TranslateService) {
     this.dialogTitle = data.dialogTitle;
     this.inputPlaceHolder = data.inputPlaceHolder;
@@ -37,8 +36,8 @@ export class CreateProjectDialogComponent {
     this.taskDropdown = [];
     let taskProject: TaskProject;
     data.taskDropdown.forEach(task => {
-         taskProject = {id : task.id, name : task.name};
-         this.taskDropdown.push(taskProject);
+      taskProject = { id: task.id, name: task.name };
+      this.taskDropdown.push(taskProject);
     });
   }
 

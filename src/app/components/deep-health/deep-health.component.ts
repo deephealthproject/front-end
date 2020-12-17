@@ -8,8 +8,11 @@ import { InteractionService } from 'src/app/services/interaction.service';
   styleUrls: ['./deep-health.component.css']
 })
 export class DeepHealthComponent implements OnInit {
-  powerUserShowStatus = true;
+  loginUserShowStatus = true;
+  registerUserShowStatus = false;
+  powerUserShowStatus = false;
   projectShowStatus = false;
+
 
   constructor(private _interactionService: InteractionService) { }
 
@@ -23,6 +26,18 @@ export class DeepHealthComponent implements OnInit {
     this._interactionService.projectState$.subscribe(
       state => {
         this.projectShowStatus = state;
+      }
+    );
+
+    this._interactionService.loginUserState$.subscribe(
+      state => {
+        this.loginUserShowStatus = state;
+      }
+    );
+
+    this._interactionService.registerUserState$.subscribe(
+      state => {
+        this.registerUserShowStatus = state;
       }
     );
   }

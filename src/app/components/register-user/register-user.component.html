@@ -1,0 +1,44 @@
+<div class="div-main">
+  <mat-card>
+    <mat-card-title style="text-align:center;">{{'register.registerTitle' | translate}}</mat-card-title>
+    <mat-tab-group mat-stretch-tabs class="example-stretched-tabs"></mat-tab-group>
+    <mat-card-content>
+      <form action="" #userForm="ngForm">
+        <mat-form-field #username id="username">
+          <input matInput placeholder="Username" required name="username" ngModel #username="ngModel" value={{userNameValue}} [(ngModel)]="userNameValue">
+          <mat-error *ngIf="username.errors?.required">{{'login.errorUsernameRequired' | translate}}</mat-error>
+        </mat-form-field>
+        <mat-form-field #email id="email">
+            <input matInput placeholder="Email" required email name="email" ngModel #email="ngModel" value={{emailValue}} [(ngModel)]="emailValue">
+            <mat-error *ngIf="email.errors?.required">{{'register.errorEmailRequired' | translate}}</mat-error>
+            <mat-error *ngIf="email.errors?.email">{{'register.errorEmailInvalid' | translate }}</mat-error>
+          </mat-form-field>
+        <mat-form-field #firstName id="firstName">
+          <input matInput placeholder="First name" name="firstName" value={{firstNameValue}} [(ngModel)]="firstNameValue">
+        </mat-form-field>
+        <mat-form-field #lastName id="lastName">
+          <input matInput placeholder="Last Name" name="lastName" value={{lastNameValue}} [(ngModel)]="lastNameValue">
+        </mat-form-field>
+        <mat-form-field #password id="password">
+          <input matInput placeholder="Password" type="password" required minlength="4" name="password" ngModel #password="ngModel"
+            value={{passwordValue}} [(ngModel)]="passwordValue">
+          <mat-error *ngIf="password.errors?.required">{{'login.errorPasswordRequired' | translate}}</mat-error>
+          <mat-error *ngIf="password.errors?.minlength">{{'login.errorPasswordLength' | translate}}</mat-error>
+        </mat-form-field>
+        <mat-form-field #confirmPassword id="confirmPassword">
+          <input matInput placeholder="Confirm the password" type="password" required name="confirmPassword" ngModel #confirmPassword="ngModel"
+            pattern="{{passwordValue}}" value={{confirmPasswordValue}} [(ngModel)]="confirmPasswordValue">
+          <mat-error *ngIf="confirmPassword.errors?.required">{{'register.errorConfirmPasswordRequired' | translate}}</mat-error>
+          <mat-error *ngIf="confirmPassword.errors?.pattern">{{'register.errorPasswordsNotMatch' | translate}}</mat-error>
+        </mat-form-field>
+        <button mat-raised-button class="register-button" (click)="createUser(userNameValue, emailValue, passwordValue, firstNameValue, lastNameValue);"
+          [disabled]="userForm.invalid">
+          {{'register.registerButton' | translate}}
+        </button>
+        <button mat-raised-button class="register-button" (click)="goToLogin('');">
+          {{'register.backToLoginButton' | translate}}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

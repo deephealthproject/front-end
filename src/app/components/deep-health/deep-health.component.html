@@ -1,5 +1,9 @@
 <div class="deep-health-body">
-    <app-app-tabs></app-app-tabs>
+    <!-- <app-app-tabs></app-app-tabs> -->
+
+    <app-login-user [hidden]="!loginUserShowStatus"></app-login-user>
+
+    <app-register-user [hidden]="!registerUserShowStatus"></app-register-user>
 
     <app-power-user [hidden]="!powerUserShowStatus"></app-power-user>
 

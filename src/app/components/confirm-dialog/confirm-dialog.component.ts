@@ -1,10 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
+import { Router } from '../../../../node_modules/@angular/router';
+import { InteractionService } from '../../services/interaction.service';
 
 export interface DialogData {
-  inputPlaceHolder: string;
-  inputValue: string;
   dialogTitle: string;
 }
 
@@ -14,20 +14,20 @@ export interface DialogData {
   styleUrls: ['./confirm-dialog.component.css']
 })
 export class ConfirmDialogComponent {
-  inputPlaceHolder: string;
-  inputValue: string;
   dialogTitle: string;
 
-
   constructor(public dialogRef: MatDialogRef<ConfirmDialogComponent>, 
-    @Inject(MAT_DIALOG_DATA) public data: DialogData, 
-    public translate: TranslateService) {
+    @Inject(MAT_DIALOG_DATA) public data: DialogData, public _interactionService: InteractionService,
+    public translate: TranslateService,
+    private router: Router) {
     this.dialogTitle = data.dialogTitle;
-    this.inputPlaceHolder = data.inputPlaceHolder;
   }
 
   save() {
-    this.data.inputValue = this.inputValue;
+    this._interactionService.userLoggedOut = false;
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    this.router.navigate(['/']);
     this.dialogRef.close(this.data);
   }
 

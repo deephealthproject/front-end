@@ -1,10 +1,15 @@
-version: '3'
+# docker-compose.yml
+version: '2.4'
 services:
-
-  example-prod:
-    container_name: example-prod
-    build:
-      context: .
-      dockerfile: Dockerfile
+  deephealth-ui:
+    mem_limit: 4548m
+    image: deephealth-ui:latest
+    container_name: deephealth-ui
+    build: ./
+    expose:
+      - 4200
     ports:
-      - '80:80'
+      - 4200:4200
+    restart: unless-stopped
+    environment:
+        - JAVA_OPTS="-Xmx4548m -Xss512k"

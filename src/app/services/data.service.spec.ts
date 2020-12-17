@@ -170,9 +170,9 @@ fdescribe('DataService', () => {
   it('addProject should be POST and create a new project', () => {
     const newProject = { name: 'newProjectName', modelweights_id: 1, task_id: 1 };
 
-    service.addProject("newProjectName", 1, 1).subscribe(res => {
-      expect(res).toEqual(newProject, 'should return the project'), fail;
-    });
+    // service.addProject("newProjectName", 1, 1).subscribe(res => {
+    //   expect(res).toEqual(newProject, 'should return the project'), fail;
+    // });
 
     const req = httpMock.expectOne(`${service.apiUrl}/projects`);
     expect(req.request.method).toEqual('POST');

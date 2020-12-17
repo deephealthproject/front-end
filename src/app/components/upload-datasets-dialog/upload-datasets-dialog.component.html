@@ -1,12 +1,12 @@
 <h1 mat-dialog-title>{{dialogTitle}}</h1>
 
 <mat-dialog-content>
-    <div style="padding-left: 10px; padding-right: 10px;">
+    <div>
       <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}">
     </div>
 
     <mat-form-field>
-      <div>
+      <div style="color:#336E9F;">
         {{dialogContent}}
       </div>
       <div #isUrlLink id="isUrlLink" style="padding-top: 5px;">
@@ -16,9 +16,40 @@
       </div>
       <input matInput [(ngModel)]="inputValuePath" placeholder="{{inputPlaceHolderPath}}">
     </mat-form-field>
+    <div *ngIf="!this._interactionService.uploadModelIsClicked">
+      <mat-checkbox color="primary" [checked]="datasetDisplayModeValue" [(ngModel)]="datasetDisplayModeValue" (change)="changeDatasetDisplayModeCheckedState()">
+        {{'upload-dataset-dialog.datasetDisplayMode' | translate}}
+      </mat-checkbox>
+    </div>
+    <div *ngIf="!datasetDisplayModeValue">
+        <mat-form-field style="color:#336E9F;">
+            Select user
+            <mat-select [(value)]=selectedUsername multiple>
+                <mat-option *ngFor="let option of userDropdown" [value]="option.username">
+                    {{option.username}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    <div *ngIf="this._interactionService.uploadModelIsClicked">
+      <div style="color:#336E9F;">{{'project.chooseModel'| translate}}</div>
+      <div style="padding-top: 8px;">
+        <input [disabled]="inputValuePath" #fileInput type="file" accept="image/*" (change)="this._interactionService.browseImage($event)">
+      </div>
+      <div >
+        <mat-form-field style="color:#336E9F;">
+            Select dataset
+            <mat-select [(value)]=selectedDatasetName>
+                <mat-option *ngFor="let option of datasetDropdownForUploadModel" [value]="option.name">
+                    {{option.name}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button mat-dialog-close>{{'upload-dataset-dialog.CancelButton' | translate}}</button>
   <button mat-raised-button (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
+  <button mat-button mat-dialog-close>{{'upload-dataset-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

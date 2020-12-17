@@ -1,19 +1,25 @@
+<app-app-tabs></app-app-tabs>
 <div class="div-main">
     <div class="div-left" [hidden]="!divLeftShowStatus">
         <div class="div-left-section">
             <div class="div-left-section-title">
                 {{'project.uploadDataset' | translate}}
             </div>
-            <div style="padding-top: 10px; padding-bottom: 10px;" class="div-left-section-box">
+            <div style="padding-top: 10px;" class="div-left-section-box">
                 <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadDataset();">
                     {{'project.uploadDataset' | translate}}
+                </button>
+            </div>
+            <div style=" padding-bottom: 10px;" class="div-left-section-box">
+                <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadModel();">
+                    {{'project.uploadModel' | translate}}
                 </button>
             </div>
             <div class="div-left-section-title">
                 {{'project.task' | translate}}
             </div>
             <div class="div-left-section-box">
-                <mat-radio-group label="tasks" [(ngModel)]="selectedTask">
+                <mat-radio-group label="tasks" [(ngModel)]="this._interactionService.selectedTask">
                     <div class="tasks" *ngFor="let task of tasks">
                         <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.id" (click)="resetSelectedOptions(); changeCheckedTask(task)">
                             {{ task.name }}</mat-radio-button>
@@ -229,11 +235,6 @@
                                                 {{ trainMessage }}
                                             </p>
                                         </div>
-                                        <div *ngIf="disabledTrainButton">
-                                            <p>
-                                                {{ trainMessage }}
-                                            </p>
-                                        </div>
                                         <div style="padding-top: 15px;" *ngIf="trainSpinner">
                                             <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
                                         </div>
@@ -401,20 +402,6 @@
                 </mat-tab>
             </mat-tab-group>
         </div>
-        <!-- <div class="div-middle-box">
-            <div class="div-middle-box-top" [hidden]="!divDetailsLeftSideShowStatus">
-                <div class="div-middle-box-title">
-                    {{'project.inputFile' | translate}}
-                </div>
-                <div>
-                    <label class="input-file-button mat-flat-button">
-                        <span>{{'project.chooseImage' | translate}}</span>
-                        <input class="input-file-field" #fileInput type="file" accept="image/*"
-                            (change)="browseImage($event)">
-                    </label>
-                </div>
-            </div>
-        </div> -->
     </div>
 
     <div class="div-right">
@@ -422,8 +409,8 @@
             <button mat-flat-button class="div-right-button" (click)="openConfiguration()" [class.div-right-button-clicked]="configurationIsClicked">
                 {{'project.configuration' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openUserScreen()" [class.div-right-button-clicked]="userScreenIsClicked">
-                {{'project.userScreen' | translate}}
+            <button mat-flat-button class="div-right-button" (click)="openEditProject()" [class.div-right-button-clicked]="editProjectIsClicked">
+                {{'project.editProject' | translate}}
             </button>
             <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()" [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 {{'project.networkStatistics' | translate}}
@@ -442,31 +429,6 @@
                 <mat-form-field>
                     <input matInput type="search" placeholder="search here">
                 </mat-form-field>
-            </div>
-        </div>
-    </div>
-
-    <div class="div-user-screen" [hidden]="!divUserScreenShowStatus">
-        <div class="div-user-screen-top-half">
-            <div class="div-middle-title">
-                {{'project.imageInput' | translate}}
-            </div>
-            <div class="div-user-screen-section-content">
-                <div class="div-user-screen-image-input">
-                    <img [src]="this._interactionService.projectImageURLSource" width=300px height=auto *ngIf="this._interactionService.projectImageURLSource">
-                </div>
-                <div>
-                    <button class="div-user-screen-process-image-button" mat-flat-button (click)="processImage()" [disabled]="!disabledProcessImageButton">
-                        {{'project.processImage' | translate}}
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="div-user-screen-bottom-half">
-            <div class="div-middle-title">
-                {{'project.networkDetails' | translate}}
-            </div>
-            <div class="div-user-screen-section-content">
             </div>
         </div>
     </div>
@@ -490,7 +452,7 @@
                 {{'project.processStatus' | translate}}
             </div>
         </div>
-        <div class="div-notifications-process" *ngFor="let process of runningProcesses" (click)="markNotificationAsRead(process)">
+        <div class="div-notifications-process" *ngFor="let process of this._interactionService.runningProcesses" (click)="markNotificationAsRead(process)">
             <div class="div-notifications-process-section">
                 <div class="div-notifications-icon" *ngIf="process.unread" title="mark as read">
                     <mat-icon svgIcon="markUnread"></mat-icon>
@@ -520,7 +482,6 @@
                         <mat-icon svgIcon="inavailable" style="color: grey;"></mat-icon>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -578,6 +539,9 @@
                         </div>
                         <div style="padding-right: 10px; cursor: pointer;" title="{{'project.viewDetails' | translate }}" (click)="showWeightDetails(row)">
                             <mat-icon svgIcon="viewDetails" style="color: #3180ae;"></mat-icon>
+                        </div>
+                        <div style="padding-right: 10px; cursor: pointer;" title="{{'project.deleteWeight' | translate }}" (click)="deleteWeight(row)">
+                            <mat-icon svgIcon="delete" style="color: #3180ae;"></mat-icon>
                         </div>
                         <div style="cursor: pointer;" title="{{'project.results' | translate }}" (click)="showOutputProcess(row)">
                             <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
@@ -715,8 +679,57 @@
             </div>
         </div>
         <div class="div-middle-box-progress-bar" *ngIf="showProgressBarProcess">
-            <div class="div-middle-box-title" style="color: #3180ae; padding-bottom: 8px;">{{'project.outputStatusInferenceProcess' | translate}} {{outputInference}} {{'project.outputProcentageInferenceProcess' | translate}}</div>
+            <div class="div-middle-box-title" style="color: #3180ae; padding-bottom: 8px;">{{'project.outputStatusInferenceProcess' | translate}} {{outputInference}} {{'project.outputProcentageInferenceProcess'
+                | translate}}</div>
             <mat-progress-bar mode="determinate" [value]="outputInference" max="10000"></mat-progress-bar>
+        </div>
+    </div>
+
+    <div class="div-edit-project" [hidden]="!divEditProjectShowStatus">
+        <div class="div-edit-weights-title">{{'project.editProject' | translate}}</div>
+        <div class="div-edit-project-top-content">
+            <div style="color: #3180ae;">
+                {{'project.projectName' | translate}}
+                <input style="margin-left: 33px;" name="projectName" value={{projectNameValue}} (change)="changeValueProjectName($event)">
+                <button mat-flat-button style="float: right;" color="primary" [disabled]="this._interactionService.username != this._interactionService.projectOwner" (click)="deleteProject(this._interactionService.currentProject.id)">{{ 'project.deleteProjectButton' | translate }}</button>
+            </div>
+            <div style="color: #3180ae; padding-top: 10px;">
+                {{'project.projectOwner' | translate}}
+                <input style="margin-left: 29px; border: none;" readonly="readonly" name="projectOwner" value={{projectOwnerValue}}>
+            </div>
+        </div>
+        <div class="div-edit-project-middle-left-content">
+            <div style="color: #3180ae;">
+                {{'project.selectUsersToProject' | translate}}
+            </div>
+            <div class="div-edit-project-left-list">
+                <mat-selection-list #usersSelection id="usersSelection" [(ngModel)]="selectedUsersData">
+                    <mat-list-option class="mat-primary" *ngFor="let option of this._interactionService.usersList" [value]="option.username">
+                        {{option.username}}
+                    </mat-list-option>
+                </mat-selection-list>
+            </div>
+        </div>
+        <div class="div-edit-project-middle-right-content">
+            <div style="color: #3180ae;">
+                {{'project.associatedUsersToProject' | translate}}
+            </div>
+            <div class="div-edit-project-right-list">
+                <mat-list>
+                    <mat-list-item class="mat-primary" *ngFor="let option of this._interactionService.usersAssociatedArray">
+                        {{option.username}}
+                    </mat-list-item>
+                </mat-list>
+            </div>
+        </div>
+        <div class="div-edit-project-bottom-content">
+            <button mat-flat-button color="primary" style="margin-left: 40%;" [disabled]="disabledSaveUpdateButton && usersSelection.selectedOptions.selected.length == 0 || this._interactionService.username != this._interactionService.projectOwner"
+                (click)="updateProject(projectNameValue);">{{ 'project.saveUpdateProjectButton' | translate }}</button>
+            <button mat-flat-button color="primary" style="margin-left: 60px;" [disabled]="disabledCancelUpdateButton && usersSelection.selectedOptions.selected.length == 0 || this._interactionService.username != this._interactionService.projectOwner"
+                (click)="cancelUpdateProject();">{{ 'project.cancelUpdateProjectButton' | translate }}</button>
+            <div *ngIf="this._interactionService.username != this._interactionService.projectOwner" class="div-edit-project-bottom-message">
+                {{ 'project.errorEditProjectUserPermission' | translate }}
+            </div>
         </div>
     </div>
 </div>

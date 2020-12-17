@@ -1,3 +1,4 @@
+<app-app-tabs></app-app-tabs>
 <div class="div-main">
   <div class="div-left">
     <div class="div-left-content">
@@ -30,12 +31,13 @@
         <span class="left-mat-text">{{'powerUser.myDatasets' | translate}}</span>
       </div>
       <div style="padding-left: 10px;" #datasetsList id="datasetsList">
-        <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)"
-          [ngStyle]="{'background-color': dataset.color}">
+        <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)" [ngStyle]="{'background-color': dataset.color}">
           <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
           <div class="div-left-text-model">
             <span>{{dataset.name}}</span>
           </div>
+          <mat-icon style="float: right; cursor: pointer; color: rgb(137, 202, 235);" title="{{'project.deleteDataset' | translate }}"
+            svgIcon="delete" (click)="deleteDataset(dataset.id)"></mat-icon>
         </div>
       </div>
     </div>
@@ -61,13 +63,39 @@
       </div> -->
       </div>
     </div>
-    <div *ngFor="let project of projects">
-      <div class="div-right-project" (click)="showProject(project); getProjectsById(project.id)">
-        <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
-        <div class="div-right-text-project">
-          <p>{{project.name}}</p>
-        </div>
-      </div>
-    </div>
+    <table>
+      <tr>
+        <th style="border-color: #084A6C; border-right-style: solid;">Owner</th>
+        <th>Project name</th>
+      </tr>
+      <tr>
+        <td>
+          <div *ngFor="let project of projects" class="div-icon-owner">
+            <div *ngFor="let currentProjectUser of project.users">
+              <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
+                style="padding-bottom: 30px;" class="div-icon-checked-owner" svgIcon={{projectOwnerIcon}}></mat-icon>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div *ngFor="let project of projects">
+            <div class="div-right-project" (click)="showProject(project); initialiseCurrentProject(project); getProjectsById(project.id)">
+              <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
+              <div class="div-right-text-project">
+                <p>{{project.name}}</p>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div *ngFor="let project of projects" class="div-right-icon-delete">
+            <div *ngFor="let currentProjectUser of project.users">
+              <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
+                class="div-icon-delete" title="{{'project.deleteProject' | translate }}" svgIcon="delete" (click)="deleteProject(project.id)"></mat-icon>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>

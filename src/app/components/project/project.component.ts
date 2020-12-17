@@ -1,15 +1,17 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { InteractionService } from 'src/app/services/interaction.service';
 import { DataService } from 'src/app/services/data.service';
-import { MatDialogConfig, MatDialog, MatSnackBar, MatTableDataSource, MatSort, MatPaginator } from '@angular/material';
+import { MatDialogConfig, MatDialog, MatSnackBar, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PropertyInstance, Project, Model, Dataset, Weight } from 'src/app/components/power-user/power-user.component';
+import { PropertyInstance, Project, Model, Dataset, Weight, User, PermissionStatus, ProcessingObject, ProcessStatus } from 'src/app/components/power-user/power-user.component';
 import { UploadDatasetsDialogComponent } from '../upload-datasets-dialog/upload-datasets-dialog.component';
 import { UpdateWeightDialogComponent } from '../update-weight-dialog/update-weight-dialog.component';
 import { ShowOutputDetailsDialogComponent } from '../show-output-details-dialog/show-output-details-dialog.component';
+import { Router } from '../../../../node_modules/@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 export class Task {
   id: number;
@@ -17,33 +19,12 @@ export class Task {
   checked: boolean;
 }
 
-export class ProcessingObject {
-  projectId;
-  processId;
-  process_type;
-  process_status: string;
-  process_data: Array<ProcessData>;
-  unread: boolean;
-  showStopButton: boolean;
-  showDisabledButton: boolean;
-  color;
-}
-
-export class ProcessData {
-  epoch;
-  inputWidth;
-  inputHeight;
-  loss;
-  metric;
-  test_accuracy;
-  validation_accuracy;
-}
-
-enum ProcessStatus {
-  none,
-  running,
-  finished,
-  error
+export enum UploadModelStatus {
+  pending,
+  started,
+  retry,
+  failure,
+  success
 }
 
 export class DropdownResponse {
@@ -73,24 +54,21 @@ export class ProjectComponent implements OnInit {
 
   //div-right tabs
   configurationIsClicked = true;
-  userScreenIsClicked = false;
   networkStatisticsIsClicked = false;
   notificationsIsClicked = false;
   editWeightsIsClicked = false;
   outputResultsIsClicked = false;
+  editProjectIsClicked = false;
 
   //divs show status
   divMiddleShowStatus = true;
   divLeftShowStatus = true;
-  divUserScreenShowStatus = false;
   divNetworkStatisticsShowStatus = false;
   divDetailsLeftSideShowStatus = false;
   divNotificationsShowStatus = false;
   divEditWeightsShowStatus = false;
   divOutputResultsShowStatus = false;
-
-  //image input
-  disabledProcessImageButton = false;
+  divEditProjectShowStatus = false;
 
   //Task radio buttons
   tasks: Task[];
@@ -202,21 +180,26 @@ export class ProjectComponent implements OnInit {
   process_type: string;
   trainMessage: string = null;
   inferenceMessage: string = null;
-  runningProcesses: ProcessingObject[] = [];
+  //runningProcesses: ProcessingObject[] = [];
   modelsResponseData: Array<Model>;
   currentProject: Project;
   fullStatusProcess = false;
 
-  selectedTask = null;
   selectedInputType = null;
-
-  datasetImagePath: string;
 
   //upload Dataset
   datasetName: string;
   datasets: Array<Dataset> = [];
   datasetPath: string;
   isUrlLink = false;
+  datasetPublic: Boolean = true;
+
+  //upload Model
+  modelName: string;
+  modelPath: string;
+  datasetId: number;
+  modelData: string;
+  uploadStatusVar;
 
   //updateWeights
   weights: Array<Weight> = [];
@@ -231,6 +214,24 @@ export class ProjectComponent implements OnInit {
   selectedValueEditWeight = undefined;
   weightIdForTitle: any;
   showWeightDetailsTable: boolean = false;
+
+  weightOwners;
+  weightDisplayMode;
+
+  //project users
+  users = [];
+  usersArray: Array<User> = [];
+  usersAssociatedArray = [];
+  disabledSaveUpdateButton = true;
+  disabledCancelUpdateButton = true;
+  projectNameValue = this._interactionService.projectName;
+  projectOwnerValue = this._interactionService.projectOwner;
+  selectedUsersData;
+  projectUsersList = [];
+
+  //inference single
+  datasetImagePath: string;
+  datasetImageData: string;
 
   //output
   outputList: MatTableDataSource<any>;
@@ -279,11 +280,13 @@ export class ProjectComponent implements OnInit {
     console.log('Deactivate', JSON.parse(JSON.stringify(data)));
   }
 
-  constructor(public _interactionService: InteractionService, private _dataService: DataService, public dialog: MatDialog,
+  constructor(public _interactionService: InteractionService, private _dataService: DataService, private _authService: AuthService,
+    public dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private translate: TranslateService,
-    private snackBar: MatSnackBar) {
+    private snackBar: MatSnackBar,
+    private router: Router) {
     this.matIconRegistry.addSvgIcon(
       'search',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-search-24px.svg')
@@ -312,6 +315,10 @@ export class ProjectComponent implements OnInit {
       'edit',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/edit-24px.svg')
     );
+    this.matIconRegistry.addSvgIcon(
+      'delete',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/delete-24px.svg')
+    );
   }
 
   @ViewChild('loss') loss: ElementRef;
@@ -333,13 +340,13 @@ export class ProjectComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
+  @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
+
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
     this.initialiseDivRightClickedButtons();
     this.initialiseTasks();
     this.getTasks();
-
-    this.initialiseCurrentProject();
 
     this.initialiseInputTypes();
     this.initialiseImageInput();
@@ -352,14 +359,22 @@ export class ProjectComponent implements OnInit {
     this.initialiseInferenceSingleButton();
     this.initialiseTrainButton();
 
+    this.getUsers();
+    this.initialiseUsersList();
+    this.initialiseAssociatedUsersList();
+    this.initialiseSaveUpdateButton();
+    this.initialiseCancelUpdateButton();
+
     this.cleanWeightsEditList();
-    //this.insertDummyDataNotif();
+    if (localStorage.getItem('accessToken') == null) {
+      this.router.navigate(['/']);
+    }
   }
 
   initialiseCurrentProject() {
     this._interactionService.currentProject$.subscribe(
       project => {
-        this.currentProject = project;
+        this._interactionService.currentProject = project;
       }
     );
   }
@@ -501,12 +516,6 @@ export class ProjectComponent implements OnInit {
         this.divDetailsLeftSideShowStatus = state;
       }
     );
-
-    this._interactionService.projectDisabledProcessImage$.subscribe(
-      state => {
-        this.disabledProcessImageButton = state;
-      }
-    )
   }
 
   initialiseShowStatusProjectDivs() {
@@ -528,19 +537,13 @@ export class ProjectComponent implements OnInit {
       }
     );
 
-    this._interactionService.projectDivUserScreenShowStatus$.subscribe(
-      state => {
-        this.divUserScreenShowStatus = state;
-      }
-    );
-
     this._interactionService.projectDivNotificationsShowStatus$.subscribe(
       state => {
         this.divNotificationsShowStatus = state;
       }
     );
 
-    this._interactionService.projectDivEditShowStatus$.subscribe(
+    this._interactionService.projectDivEditWeightsShowStatus$.subscribe(
       state => {
         this.divEditWeightsShowStatus = state;
       }
@@ -549,6 +552,12 @@ export class ProjectComponent implements OnInit {
     this._interactionService.projectDivOutputResultsShowStatus$.subscribe(
       state => {
         this.divOutputResultsShowStatus = state;
+      }
+    )
+
+    this._interactionService.projectDivEditProjectShowStatus$.subscribe(
+      state => {
+        this.divEditProjectShowStatus = state;
       }
     )
   }
@@ -582,7 +591,7 @@ export class ProjectComponent implements OnInit {
   initialiseTasks() {
     this._interactionService.checkedTask$.subscribe(
       id => {
-        this.selectedTask = id;
+        this._interactionService.selectedTask = id;
       }
     );
   }
@@ -621,12 +630,6 @@ export class ProjectComponent implements OnInit {
       }
     );
 
-    this._interactionService.projectUserScreenIsClicked$.subscribe(
-      state => {
-        this.userScreenIsClicked = state;
-      }
-    );
-
     this._interactionService.projectNetworkStatisticsIsClicked$.subscribe(
       state => {
         this.networkStatisticsIsClicked = state;
@@ -650,95 +653,244 @@ export class ProjectComponent implements OnInit {
         this.outputResultsIsClicked = state;
       }
     )
+
+    this._interactionService.projectEditProjectIsClicked$.subscribe(
+      state => {
+        this.editProjectIsClicked = state;
+      }
+    )
+  }
+
+  initialiseUsersList() {
+    this._interactionService.usersList$.subscribe(
+      usersArray => {
+        this.usersArray = usersArray;
+      }
+    );
+  }
+
+  initialiseAssociatedUsersList() {
+    this._interactionService.usersAssociatedList$.subscribe(
+      usersAssociatedArray => {
+        this.usersAssociatedArray = usersAssociatedArray;
+      }
+    )
+  }
+
+  initialiseSaveUpdateButton() {
+    this._interactionService.editProjectButtonState$.subscribe(
+      state => {
+        this.disabledSaveUpdateButton = state;
+      }
+    )
+  }
+
+  initialiseCancelUpdateButton() {
+    this._interactionService.cancelEditProjectButtonState$.subscribe(
+      state => {
+        this.disabledCancelUpdateButton = state;
+      }
+    )
   }
 
   resetSelectedOptions() {
     this._interactionService.resetSelectedOptions();
   }
 
-  browseImage(event: any) {
-    this._interactionService.projectInputFiles = event.target.files;
-    this.fileTempLocation = event.target.value;
-    if (this._interactionService.projectInputFiles.length === 0)
-      return;
-
-    var reader = new FileReader();
-    this._interactionService.projectImagePathSource = this._interactionService.projectInputFiles;
-    reader.readAsDataURL(this._interactionService.projectInputFiles[0]);
-    reader.onload = () => {
-      this._interactionService.projectImageURLSource = reader.result;
-    }
-    this.disabledProcessImageButton = true;
-    event.srcElement.value = null;
-  }
-
-  processImage() {
-    this._dataService.processImage(this.fileTempLocation).subscribe(data => {
-      // TODO: de afisat continutul obiectului json primit
-      console.log(data.body);
-    });
-  }
-
   uploadDataset() {
+    this._interactionService.uploadModelIsClicked = false;
     let taskId;
     this.tasks.forEach(task => {
-      taskId = task.id;
+      if (task.id == this._interactionService.currentProject.task_id) {
+        taskId = task.id;
+      }
     })
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.data = {
-      inputValue: this.datasetName,
-      dialogTitle: this.translate.instant('project.uploadDatasetProcess'),
-      dialogContent: this.translate.instant('project.uploadDatasetContent'),
-      inputPlaceHolder: this.translate.instant('project.uploadDatasetName'),
-      isUrlLink: this.isUrlLink,
-      inputValuePath: this.datasetPath
-    }
+    this._authService.getUsers().subscribe(usersData => {
+      const dialogConfig = new MatDialogConfig();
+      dialogConfig.disableClose = true;
+      dialogConfig.autoFocus = true;
+      dialogConfig.data = {
+        inputValue: this.datasetName,
+        dialogTitle: this.translate.instant('project.uploadDatasetProcess'),
+        dialogContent: this.translate.instant('project.uploadDatasetContent'),
+        inputPlaceHolder: this.translate.instant('project.uploadDatasetName'),
+        isUrlLink: this.isUrlLink,
+        inputValuePath: this.datasetPath,
+        datasetDisplayMode: this._interactionService.projectDatasetDisplayMode,
+        selectedUsername: null,
+        userDropdown: usersData
+      }
 
-    let dialogRef = this.dialog.open(UploadDatasetsDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
-      if (result) {
-        if (result.inputValue) {
-          let thatDatasetExist = false;
-          for (let currentDataset of this.datasets) {
-            if (currentDataset.name == result.inputValue) {
-              thatDatasetExist = true;
-            }
-          }
-          if (thatDatasetExist == false) {
-            this.datasetName = result.inputValue;
-            this.isUrlLink = result.isUrlLink;
-            if (this.isUrlLink == true) {
-              this.datasetPath = null;
-              this.datasetPath = result.inputValuePath;
-            }
-            else {
-              this.datasetPath = result.inputValuePath;
-            }
-            this._dataService.uploadDataset(this.datasetName, taskId, this.datasetPath).subscribe(data => {
-              if (data.statusText == "Created") {
-                this.openSnackBar(this.translate.instant('project.uploadDatasetResult'));
-                console.log(data.body);
-                console.log("dataset" + this.datasetName + "upload");
-              } else {
-                this.openSnackBar("Error");
+      let dialogRef = this.dialog.open(UploadDatasetsDialogComponent, dialogConfig);
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The dialog was closed');
+        console.log(result);
+        if (result) {
+          if (result.inputValue) {
+            let thatDatasetExist = false;
+            for (let currentDataset of this.datasets) {
+              if (currentDataset.name == result.inputValue) {
+                thatDatasetExist = true;
               }
-            }, error => {
-              this.openSnackBar("Error: " + error.statusText);
-            });
+            }
+            if (thatDatasetExist == false) {
+              this.datasetName = result.inputValue;
+              this.isUrlLink = result.isUrlLink;
+              this.datasetPublic = result.datasetDisplayMode;
+              if (this.isUrlLink == true) {
+                this.datasetPath = null;
+                this.datasetPath = result.inputValuePath;
+              }
+              else {
+                this.datasetPath = result.inputValuePath;
+              }
+              for (let currentUser of this.usersArray) {
+                if (currentUser.username == this._interactionService.username) {
+                  this.users.push({
+                    "username": currentUser.username,
+                    "permission": PermissionStatus[0]
+                  });
+                }
+              }
+              if (result.selectedUsername != null && result.selectedUsername.length == 1) {
+                this.users.push({
+                  "username": result.selectedUsername,
+                  "permission": PermissionStatus[1]
+                });
+              }
+              else if (result.selectedUsername != null && result.selectedUsername.length > 1) {
+                result.selectedUsername.forEach(selectedUsername => {
+                  this.users.push({
+                    "username": selectedUsername,
+                    "permission": PermissionStatus[1]
+                  });
+                });
+              }
+              this._dataService.uploadDataset(this.datasetName, taskId, this.datasetPath, this.users, this.datasetPublic).subscribe(data => {
+                if (data.statusText == "Created") {
+                  this.openSnackBar(this.translate.instant('project.uploadDatasetResult'));
+                  console.log(data.body);
+                  console.log("dataset " + this.datasetName + " uploaded");
+                }
+              }, error => {
+                this.openSnackBar("Error: " + error.error.error);
+              });
+            }
           }
-          else {
-            console.log("Dataset already exists");
-          }
-        }
-        else {
+        } else {
           console.log('Canceled');
         }
-      }
+      });
     });
+  }
+
+  uploadModel() {
+    this._interactionService.uploadModelIsClicked = true;
+
+    let taskId;
+    this.tasks.forEach(task => {
+      if (task.id == this._interactionService.currentProject.task_id) {
+        taskId = task.id;
+      }
+    })
+    this._dataService.getDatasets(taskId).subscribe(datasetData => {
+      const dialogConfig = new MatDialogConfig();
+      dialogConfig.disableClose = true;
+      dialogConfig.autoFocus = true;
+      dialogConfig.data = {
+        inputValue: this.modelName,
+        dialogTitle: this.translate.instant('project.uploadModelProcess'),
+        dialogContent: this.translate.instant('project.uploadModelContent'),
+        inputPlaceHolder: this.translate.instant('project.uploadModelName'),
+        isUrlLink: this.isUrlLink,
+        inputValuePath: this.modelPath,
+        selectedDatasetName: null,
+        modelData: this.modelData,
+        datasetDropdownForUploadModel: datasetData
+      }
+
+      let dialogRef = this.dialog.open(UploadDatasetsDialogComponent, dialogConfig);
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The dialog was closed');
+        console.log(result);
+        if (result) {
+          if (result.inputValue) {
+            let thatModelExist = false;
+            for (let currentModel of this.modelDropdown) {
+              if (currentModel == result.inputValue) {
+                thatModelExist = true;
+              }
+            }
+            if (thatModelExist == false) {
+              this.modelName = result.inputValue;
+              this.isUrlLink = result.isUrlLink;
+              this.modelData = result.modelData;
+              if (this.isUrlLink == true) {
+                this.modelPath = null;
+                this.modelPath = result.inputValuePath;
+              }
+              else {
+                this.modelPath = result.inputValuePath;
+              }
+              result.datasetDropdownForUploadModel.forEach(element => {
+                if (element.name == result.selectedDatasetName) {
+                  this.datasetId = element.id;
+                }
+              });
+              this._dataService.uploadModel(this.modelName, taskId, this.modelPath, this.modelData, this.datasetId).subscribe(data => {
+                if (data.statusText == "Created") {
+                  this.openSnackBar(this.translate.instant('project.uploadModelResult'));
+                  console.log(data.body);
+                  let process = new ProcessingObject;
+                  process.projectId = this._interactionService.currentProject.id;
+                  process.processId = data.body.process_id;
+                  process.process_status = UploadModelStatus[0];
+                  process.process_type = this.process_type;
+                  process.unread = true;
+                  this._interactionService.changeStopButton(process);
+                  this._interactionService.runningProcesses.push(process);
+                  setTimeout(() => {
+                    this.checkStatusUploadModel(process);
+                  }, 10);
+                }
+              }, error => {
+                this.openSnackBar("Error: " + error.statusText);
+              });
+            } else {
+              this.openSnackBar(this.translate.instant('project.uploadModelExists'));
+            }
+          }
+        } else {
+          console.log('Canceled');
+        }
+      });
+    });
+  }
+
+  checkStatusUploadModel(process) {
+    console.log(process);
+    this._dataService.status(process.processId).subscribe(data => {
+      let status: any = data.status;
+      process.projectId = status.projectId;
+      process.process_data = status.process_data;
+      process.process_type = status.process_type;
+      process.process_status = status.result;
+      this._interactionService.changeStopButton(process);
+      if (process.process_status == "pending") {
+        console.log(process.process_status);
+        setTimeout(() => {
+          this.checkStatusUploadModel(process)
+        }, 10 * 10);
+      }
+      else if (process.process_status == "success") {
+        this.openSnackBar(this.translate.instant('project.finishedUploadModelProcessMessage'));
+        console.log("Model " + this.modelName + " uploaded");
+        this._interactionService.increaseNotificationsNumber();
+      }
+      else if (process.process_status == "failure" || process.process_status == "retry") {
+        this.openSnackBar(this.translate.instant('project.errorUploadModelProcessMessage'));
+      }
+    })
   }
 
   resetDropDownDetails() {
@@ -749,35 +901,18 @@ export class ProjectComponent implements OnInit {
     this.lossDropdown = [];
   }
 
-  openUserScreen() {
-    this._interactionService.changeShowStateProjectDivLeft(false);
-    this._interactionService.changeShowStateProjectDivMiddle(false);
-    this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(true);
-    this._interactionService.changeShowStateProjectDivNotifications(false);
-    this._interactionService.changeShowStateProjectDivEditWeights(false);
-    this._interactionService.changeShowStateProjectDivOutputResults(false);
-
-    this._interactionService.changeStateProjectConfigurationIsClicked(false);
-    this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(true);
-    this._interactionService.changeStateProjectNotificationsIsClicked(false);
-    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
-    this._interactionService.changeStateProjectOutputResultsIsClicked(false);
-  }
-
   openConfiguration() {
     this._interactionService.changeShowStateProjectDivLeft(true);
     this._interactionService.changeShowStateProjectDivMiddle(true);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(true);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
@@ -786,74 +921,73 @@ export class ProjectComponent implements OnInit {
   openNetworkStatistics() {
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(true);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(true);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
-  // insertDummyDataNotif() {
-  //   let process = new ProcessingObject;
-  //   process.projectId = "1234";
-  //   process.processId = "69719416-560f-496e-aec9-1f4a27da5d40";
-  //   process.process_status = ProcessStatus[2];
-  //   process.process_type = "inference";
-  //   process.unread = true;
-  //   this.runningProcesses.push(process);
-  //   this.changeStopButton(process);
-
-  //   let process2 = new ProcessingObject;
-  //   process2.projectId = "1234";
-  //   process2.processId = "fa4ffa5f-63c7-4c1e-9a52-71547a6a9214";
-  //   process2.process_status = ProcessStatus[1];
-  //   process2.process_type = "training";
-  //   process2.unread = true;
-  //   this.runningProcesses.push(process2);
-  //   this.changeStopButton(process2);
-  // }
-
   openNotifications() {
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(true);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
   openEditWeights() {
-    // clean edit weights list
     this.cleanWeightsEditList();
 
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(true);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(true);
+    this._interactionService.changeStateProjectOutputResultsIsClicked(false);
+  }
+
+  openEditProject() {
+    this.cleanProjectEditName();
+    this.cleanProjectUsersEditLists();
+
+    this._interactionService.changeShowStateProjectDivLeft(false);
+    this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(true);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivNotifications(false);
+    this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivOutputResults(false);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(true);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectNotificationsIsClicked(false);
+    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
@@ -870,15 +1004,15 @@ export class ProjectComponent implements OnInit {
 
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
     this._interactionService.changeShowStateProjectDivOutputResults(true);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(true);
@@ -927,20 +1061,29 @@ export class ProjectComponent implements OnInit {
     })
   }
 
-  // checkProcessStatusForOutput(contentData, process) {
   checkProcessStatusForOutput(process) {
     if (process.process_status == "finished") {
-      this.getOutput(process.processId);
-      this.showOutputInferenceSingle = true;
+      if (process.process_type == "training") {
+        this.showGraphicProcess = true;
+        this.showProgressBarProcess = false;
+        this.showOutputRunningTable(process);
+      } else {
+        this.getOutput(process.processId);
+        this.showOutputInferenceSingle = true;
+        this.showGraphicProcess = false;
+        this.showProgressBarProcess = false;
+      }
     }
     else if (process.process_status == "running") {
-     
-      if(process.process_type == "training") {
+      if (process.process_type == "training") {
         this.showGraphicProcess = true;
         this.showProgressBarProcess = false;
       }
-      else if(process.process_type == "inference") {
+      else if (process.process_type == "inference") {
         this.showProgressBarProcess = true;
+        this.showGraphicProcess = false;
+      } else {
+        this.showProgressBarProcess = false;
         this.showGraphicProcess = false;
       }
       this.showOutputRunningTable(process);
@@ -1027,7 +1170,7 @@ export class ProjectComponent implements OnInit {
       });
     }
     else {
-      selectedWeightId =undefined;
+      selectedWeightId = null;
     }
 
     let selectedDatasetId;
@@ -1062,7 +1205,7 @@ export class ProjectComponent implements OnInit {
         console.log('The dialog was closed');
         console.log(result);
         if (result && this.trainProcessStarted == true && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
-          this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, this.currentProject.id).subscribe(data => {
+          this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, this._interactionService.currentProject.id).subscribe(data => {
             // if (data.body.result == "ok") {
             //   this.trainSpinner = false;
             //   this.disabledTrainButton = true;
@@ -1073,15 +1216,19 @@ export class ProjectComponent implements OnInit {
             this.trainProcessStarted = true;
             this.showTrainButton = false;
             let process = new ProcessingObject;
-            process.projectId = this.currentProject.id;
+            process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
             process.process_status = ProcessStatus[1];
             process.process_type = this.process_type;
             process.unread = true;
-            this.runningProcesses.push(process);
-            this.changeStopButton(process);
-            this.checkStatusTrain(process);
-          })
+            this._interactionService.runningProcesses.push(process);
+            this._interactionService.changeStopButton(process);
+            setTimeout(() => {
+              this.checkStatusTrain(process)
+            }, 2000);
+          }, error => {
+            this.openSnackBar("Error: " + error.statusText);
+          });
         }
       });
     }
@@ -1138,22 +1285,26 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
-        this._dataService.inferenceModel(selectedWeightId, selectedDatasetId, this.currentProject.id).subscribe(data => {
+        this._dataService.inferenceModel(selectedWeightId, selectedDatasetId, this._interactionService.currentProject.id).subscribe(data => {
           if (data.body.result == "ok") {
             this.disabledInferenceButton = true;
           }
           this.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
-          process.projectId = this.currentProject.id;
+          process.projectId = this._interactionService.currentProject.id;
           process.processId = data.body.process_id;
           process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
-          this.runningProcesses.push(process);
-          this.changeStopButton(process);
-          this.checkStatusInference(process);
+          this._interactionService.runningProcesses.push(process);
+          this._interactionService.changeStopButton(process);
+          setTimeout(() => {
+            this.checkStatusInference(process)
+          }, 2000);
           this.getOutputResultsOfInference(process);
+        }, error => {
+          this.openSnackBar("Error: " + error.statusText);
         })
       }
       else {
@@ -1182,12 +1333,13 @@ export class ProjectComponent implements OnInit {
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
       inputValue: this.datasetImagePath,
-      dialogTitle: this.translate.instant('project.inference'),
+      dialogTitle: this.translate.instant('project.inferenceSingle'),
       dialogContent: this.translate.instant('project.areYouSureInference'),
       trainingTime: this.translate.instant('project.estimatedTimePreTrain'),
       modelSelected: this.selectedOptionModel,
       datasetSelected: this.selectedOptionDataset,
-      process_type: this.process_type
+      process_type: this.process_type,
+      datasetImageData: this.datasetImageData
     }
 
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
@@ -1196,25 +1348,28 @@ export class ProjectComponent implements OnInit {
       console.log(result);
       if (result && this.selectedOptionModel != null) {
         this.datasetImagePath = result.inputValue;
-        this._dataService.inferenceSingle(selectedWeightId, this.datasetImagePath, this.currentProject.id).subscribe(data => {
+        this.datasetImageData = result.datasetImageData;
+        this._dataService.inferenceSingle(selectedWeightId, this.datasetImagePath, this.datasetImageData, this._interactionService.currentProject.id).subscribe(data => {
           if (data.body.result == "ok") {
             this.disabledInferenceSingleButton = true;
           }
           this.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
-          process.projectId = this.currentProject.id;
+          process.projectId = this._interactionService.currentProject.id;
           process.processId = data.body.process_id;
           process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
-          this.runningProcesses.push(process);
-          this.changeStopButton(process);
+          this._interactionService.runningProcesses.push(process);
+          this._interactionService.changeStopButton(process);
           setTimeout(() => {
             this.checkStatusInference(process)
           }, 2000);
           this.getOutputResultsOfInference(process);
-        })
+        }, error => {
+          this.openSnackBar("Error: " + error.statusText);
+        });
       }
       else {
         this.inferenceProcessStarted = false;
@@ -1231,7 +1386,7 @@ export class ProjectComponent implements OnInit {
       process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
-      this.changeStopButton(process);
+      this._interactionService.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
         // this.disabledStopButton = false;
@@ -1258,7 +1413,7 @@ export class ProjectComponent implements OnInit {
       process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
-      this.changeStopButton(process);
+      this._interactionService.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
         // this.disabledStopButton = false;
@@ -1315,7 +1470,6 @@ export class ProjectComponent implements OnInit {
     }
   }
 
-  //weights functions
   getWeights(modelName: string) {
     let modelId;
     let modelList = this._interactionService.getModelsByTaskArray();
@@ -1325,7 +1479,6 @@ export class ProjectComponent implements OnInit {
       }
     });
     this._dataService.getWeights(modelId).subscribe(data => {
-      // update weight selector
       this.updateWeightsList(data);
     })
   }
@@ -1390,18 +1543,14 @@ export class ProjectComponent implements OnInit {
           if (data.statusText == "OK") {
             this.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
-            // this.disabledStopButton = true;
             this.inferenceProcessStarted = false;
-            // this._interactionService.changeCheckedStateStopButton(true);
             process.showStopButton = false;
             process.showDisabledButton = true;
             process.process_status = ProcessStatus[2];
           }
           else {
             this.trainProcessStarted = true;
-            // this.disabledStopButton = false;
             this.inferenceProcessStarted = true;
-            // this._interactionService.changeCheckedStateStopButton(false);
           }
         });
       }
@@ -1532,10 +1681,14 @@ export class ProjectComponent implements OnInit {
   }
 
   updateProjectsTaskId(taskId) {
-    this._dataService.updateProject(this.currentProject.name, this.currentProject.id,
-      this.currentProject.modelweights_id, taskId).subscribe(data => {
+    this._interactionService.usersAssociatedArray.push({ "username": this._interactionService.projectOwner, "permission": PermissionStatus[0] });
+    this._dataService.updateProject(this._interactionService.currentProject.name, this._interactionService.currentProject.id,
+      taskId, this._interactionService.usersAssociatedArray).subscribe(data => {
         this._interactionService.resetProjectsList(data.body);
+        this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username !== this._interactionService.projectOwner);
         console.log(data.body);
+      }, error => {
+          this.openSnackBar("Error: " + error.error.Error);
       })
   }
 
@@ -1555,7 +1708,7 @@ export class ProjectComponent implements OnInit {
         this.modelIdEditWeight = model.id;
       }
     });
-    this._dataService.getWeights2(this.modelIdEditWeight).subscribe(data => {
+    this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
       this.displayWeightsListByModel(data);
     })
   }
@@ -1568,7 +1721,7 @@ export class ProjectComponent implements OnInit {
         modelId = model.id;
       }
     });
-    this._dataService.getWeights2(modelId).subscribe(data => {
+    this._dataService.getWeightsArray(modelId).subscribe(data => {
       this.weightsList = new MatTableDataSource(data);
     })
   }
@@ -1576,7 +1729,9 @@ export class ProjectComponent implements OnInit {
   displayWeightsListByModel(weightdataList) {
     this.weightsEditData = [];
     weightdataList.forEach(weightdata => {
-      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightCeleryId: weightdata.celery_id, weightDatasetId: weightdata.dataset_id });
+      this.weightDisplayMode = weightdata.public;
+      this.weightOwners = weightdata.owners;
+      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightCeleryId: weightdata.celery_id, weightDatasetId: weightdata.dataset_id, weightPublic: this.weightDisplayMode });
     });
     this.weightsList = new MatTableDataSource(this.weightsEditData);
     this.weightsList.sort = this.sort;
@@ -1595,39 +1750,65 @@ export class ProjectComponent implements OnInit {
 
   onEditWeight(weight) {
     console.log(weight);
+    this.users = [];
     this._interactionService.formDataWeight = weight;
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    dialogConfig.data = {
-      inputValue: weight.weightName,
-      dialogTitle: this.translate.instant('project.updateWeightProcess'),
-      inputPlaceHolder: this.translate.instant('project.updateWeightName')
-    }
-
-    let dialogRef = this.dialog.open(UpdateWeightDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
-      if (result) {
-        this._dataService.updateWeight(weight.weightId, weight.weightDatasetId, weight.weightName, this.modelIdEditWeight, weight.pretrained_on).subscribe(data => {
-          if (data.statusText == "OK") {
-            this._interactionService.resetEditWeightsList(data.body);
-            console.log(data.body);
-            this.openSnackBar(this.translate.instant('project.updateWeightResult'));
-            console.log(data.body);
-            console.log("weight " + weight.weightName + " updated");
-          }
-        }, error => {
-          this.openSnackBar("Error: " + error);
-        });
+    this._authService.getUsers().subscribe(usersData => {
+      const dialogConfig = new MatDialogConfig();
+      dialogConfig.disableClose = true;
+      dialogConfig.autoFocus = true;
+      dialogConfig.data = {
+        inputValue: weight.weightName,
+        dialogTitle: this.translate.instant('project.updateWeightProcess'),
+        inputPlaceHolder: this.translate.instant('project.updateWeightName'),
+        weightDisplayMode: weight.weightPublic,
+        selectedUsername: null,
+        userDropdown: usersData
       }
-    });
+
+      let dialogRef = this.dialog.open(UpdateWeightDialogComponent, dialogConfig);
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The dialog was closed');
+        console.log(result);
+        if (result) {
+          for (let currentUser of this.usersArray) {
+            if (currentUser.username == this._interactionService.username) {
+              this.users.push({
+                "username": currentUser.username
+              });
+            }
+          }
+          if (result.selectedUsername != null && result.selectedUsername.length == 1) {
+            this.users.push({
+              "username": result.selectedUsername
+            });
+          }
+          else if (result.selectedUsername != null && result.selectedUsername.length > 1) {
+            result.selectedUsername.forEach(selectedUsername => {
+              this.users.push({
+                "username": selectedUsername
+              });
+            });
+          }
+          this._dataService.updateWeight(weight.weightId, weight.weightDatasetId, weight.weightName, this.modelIdEditWeight, weight.pretrained_on, weight.weightPublic, this.users).subscribe(data => {
+            if (data.statusText == "OK") {
+              this.openSnackBar(this.translate.instant('project.updateWeightResult'));
+              this._interactionService.resetEditWeightsList(data.body);
+              console.log(data.body);
+              console.log("weight " + weight.weightName + " updated");
+            }
+          }, error => {
+            this.openSnackBar("Error: " + error.statusText);
+          });
+        }
+      });
+    })
   }
 
   showWeightDetails(weight) {
     this._dataService.getWeightById(weight.weightId).subscribe(data => {
       this.updateWeightDetails(data);
+    }, error => {
+      this.openSnackBar("Error: " + error.details);
     });
   }
 
@@ -1661,6 +1842,42 @@ export class ProjectComponent implements OnInit {
     this.weightDetails = new MatTableDataSource(dummyArray);
   }
 
+  deleteWeight(weight) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('project.deleteWeightTile'),
+      dialogContent: this.translate.instant('project.areYouSureDeleteWeight'),
+      trainingTime: ""
+    }
+
+    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result) {
+        this._dataService.deleteWeight(weight.weightId).subscribe(data => {
+          this.openSnackBar(this.translate.instant('project.succesMessageDeleteWeight'));
+          this.showWeightDetailsTable = false;
+          let modelList = this._interactionService.getModelsByTaskArray();
+          modelList.forEach(model => {
+            if (model.name == weight.modelName) {
+              this.modelIdEditWeight = model.id;
+            }
+          });
+          this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
+            this.displayWeightsListByModel(data);
+          })
+        }, error => {
+          this.openSnackBar("Error: " + error.statusText);
+        });
+      } else {
+        console.log('Canceled');
+      }
+    });
+  }
+
   applyFilter(filterValue: string) {
     this.weightsList.filter = filterValue.trim().toLowerCase();
   }
@@ -1672,8 +1889,6 @@ export class ProjectComponent implements OnInit {
 
   onShowOutputDetails(outputResultsRow) {
     const dialogConfig = new MatDialogConfig();
-    /* dialogConfig.disableClose = false;
-    dialogConfig.autoFocus = true; */
     dialogConfig.data = {
       processId: this.outputResultsDetailProcessId,
       dialogTitle: this.translate.instant('output-details-dialog.dialogTitle'),
@@ -1686,17 +1901,6 @@ export class ProjectComponent implements OnInit {
     this.showOutputProcessFromWeights(outputResultsRow);
   }
 
-  changeStopButton(process) {
-    if (process.process_status == "running") {
-      process.showStopButton = true;
-      process.showDisabledButton = false;
-    }
-    else if (process.process_status == "finished") {
-      process.showDisabledButton = true;
-      process.showStopButton = false;
-    }
-  }
-
   showOutputRunningTable(process) {
     this.fullStatusProcess = true;
     this._dataService.statusCompleteForEvolution(process.processId, this.fullStatusProcess).subscribe(data => {
@@ -1704,7 +1908,7 @@ export class ProjectComponent implements OnInit {
       this.showGraphicData(data);
       this.outputResultsDetailProcessId = process.processId;
       this.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
-      this.changeStopButton(process);
+      this._interactionService.changeStopButton(process);
     }), error => {
       this.showOutputRunning = false;
       this.showOutputInferenceSingle = false;
@@ -1803,17 +2007,127 @@ export class ProjectComponent implements OnInit {
         Object.assign(this, { chartValuesList });
       }
       else if (output.indexOf(varBatch) == 0) {
-        if (output.length <= 18) {
+        if (output.substr(output.indexOf("/")).length <= 5) {
           outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 5);
           outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
           this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
         }
-        else if (output.length > 18) {
+        else if (output.substr(output.indexOf("/")).length > 5) {
           outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 6);
           outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
           this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
         }
-      } 
+      }
+    });
+  }
+
+  getUsers() {
+    this._authService.getUsers().subscribe(data => {
+      this.updateUsersArray(data);
+    })
+  }
+
+  updateUsersArray(contentData) {
+    this.usersArray = [];
+    for (let entry of contentData) {
+      this.usersArray.push(entry);
+    }
+  }
+
+  updateUsersList(contentData) {
+    this._interactionService.usersList = [];
+    for (let entry of contentData) {
+      this._interactionService.usersList.push(entry);
+    }
+  }
+
+  updateAssociatedUsersList(contentData) {
+    this.usersAssociatedArray = [];
+    for (let entry of contentData) {
+      this.usersAssociatedArray.push(entry);
+    }
+  }
+
+  cleanProjectEditName() {
+    if (this.projectNameValue != null) {
+      this.projectNameValue = null;
+      this.projectNameValue = this._interactionService.projectName;
+    }
+  }
+
+  cleanProjectUsersEditLists() {
+    this.usersSelection.selectedOptions.clear();
+  }
+
+  changeValueProjectName(event) {
+    this.projectNameValue = event.target.value;
+    if (this._interactionService.username != this._interactionService.projectOwner) {
+      this.disabledSaveUpdateButton = true;
+      this.disabledCancelUpdateButton = true;
+    } else {
+      this.disabledSaveUpdateButton = false;
+      this.disabledCancelUpdateButton = false;
+    }
+  }
+
+  updateProject(projectName) {
+    if (this.selectedUsersData != null) {
+      this.selectedUsersData.forEach(selectedUser => {
+        this._interactionService.usersList = this._interactionService.usersList.filter(item => item.username != selectedUser);
+        this._interactionService.usersAssociatedArray.push({ "username": selectedUser, "permission": PermissionStatus[1] });
+      })
+      this.updateUsersList(this._interactionService.usersList);
+      this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
+    }
+    this._interactionService.usersAssociatedArray.push({ "username": this._interactionService.projectOwner, "permission": PermissionStatus[0] });
+    this._dataService.updateProject(projectName, this._interactionService.currentProject.id, this._interactionService.currentProject.task_id,
+      this._interactionService.usersAssociatedArray).subscribe(data => {
+        if (data.statusText == "OK") {
+          this._interactionService.changeProjectTabName(projectName);
+          this._interactionService.resetProjectsList(data.body);
+          this._interactionService.usersAssociatedArray = data.body.users;
+          this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner)
+          this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
+          this.openSnackBar(this.translate.instant('project.succesMessageUpdateProject'));
+        }
+      }), error => {
+        this.openSnackBar("Error:" + error.statusText);
+      }
+  }
+
+  cancelUpdateProject() {
+    this.usersSelection.selectedOptions.clear();
+    this.projectNameValue = null;
+    this.projectNameValue = this._interactionService.projectName;
+    this.disabledCancelUpdateButton = true;
+    this.disabledSaveUpdateButton = true;
+  }
+
+  deleteProject(projectId) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('project.deleteProjectTile'),
+      dialogContent: this.translate.instant('project.areYouSureDeleteProject'),
+      trainingTime: ""
+    }
+
+    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result) {
+        this._dataService.deleteProject(projectId).subscribe(data => {
+          this.openSnackBar(this.translate.instant('project.succesMessageDeleteProject'));
+          this.router.navigate(['/power-user']);
+          this._interactionService.closeProjectTab();
+        }, error => {
+          this.openSnackBar("Error: " + error.error.Error);
+        });
+      } else {
+        console.log('Canceled');
+      }
     });
   }
 }

@@ -1,26 +1,19 @@
-# Build frontend with npm and Angular-CLI
-FROM node:8 as frontend-build
+FROM node:12
 
-# Create image based on the official Node 10 image from dockerhub
-#FROM node:10
+# Create app directory
+WORKDIR /usr/src/app
 
-# Create a directory where our app will be placed
-RUN mkdir -p /app
+# Install app dependencies
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# where available (npm@5+)
+COPY package*.json ./
 
-# Change directory so that our commands run inside this new directory
-WORKDIR /app
-
-# Copy dependency definitions
-COPY package*.json /app/
-
-# Install dependecies
 RUN npm install
-RUN npm install -g @angular/cli@7.3.9
+# If you are building your code for production
+# RUN npm ci --only=production
 
-# Get all the code needed to run the app
-COPY . /app/
-
-RUN ./node_modules/.bin/ng build --base-href "." --prod 
+# Bundle app source
+COPY . .
 
 # Expose the port the app runs in
 EXPOSE 4200

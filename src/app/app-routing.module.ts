@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { DeepHealthComponent } from './components/deep-health/deep-health.component';
 import { AppTabsComponent } from './components/app-tabs/app-tabs.component';
 import { PowerUserComponent } from './components/power-user/power-user.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import { AppMaterialModule } from './app-material/app-material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProjectComponent } from './components/project/project.component';
@@ -19,14 +19,25 @@ import { CreateProjectDialogComponent } from './components/create-project-dialog
 import { UploadDatasetsDialogComponent } from './components/upload-datasets-dialog/upload-datasets-dialog.component';
 import { UpdateWeightDialogComponent } from './components/update-weight-dialog/update-weight-dialog.component';
 import { ShowOutputDetailsDialogComponent } from './components/show-output-details-dialog/show-output-details-dialog.component';
+import { InterceptorService } from './services/interceptor.service';
+import { AuthService } from './services/auth.service';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import { RegisterUserComponent } from './components/register-user/register-user.component';
+import { LoginUserComponent } from './components/login-user/login-user.component';
+import { ShowProfileDetailsDialogComponent } from './components/show-profile-details-dialog/show-profile-details-dialog.component';
+import { AuthGuard } from './auth.guard';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 const routes: Routes = [
-  { path: '', component: DeepHealthComponent },
-  { path: 'project', component: ProjectComponent }
+  { path: '', component: LoginUserComponent },
+  { path: 'power-user', component: PowerUserComponent, canActivate: [AuthGuard] },
+  { path: 'project', component: ProjectComponent, canActivate: [AuthGuard] },
+  { path: 'register', component: RegisterUserComponent },
+  { path: 'reset-password', component: ResetPasswordComponent }
 ];
 
 @NgModule({
@@ -40,7 +51,11 @@ const routes: Routes = [
     CreateProjectDialogComponent,
     UploadDatasetsDialogComponent,
     UpdateWeightDialogComponent,
-    ShowOutputDetailsDialogComponent
+    ShowOutputDetailsDialogComponent,
+    RegisterUserComponent,
+    LoginUserComponent,
+    ShowProfileDetailsDialogComponent,
+    ResetPasswordComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -56,7 +71,8 @@ const routes: Routes = [
         useFactory: (createTranslateLoader),
         deps: [HttpClient]
       }
-    })
+    }),
+    OAuthModule.forRoot()
   ],
   exports: [RouterModule,
     AppMaterialModule,
@@ -71,7 +87,15 @@ const routes: Routes = [
     CreateProjectDialogComponent,
     UploadDatasetsDialogComponent,
     UpdateWeightDialogComponent,
-    ShowOutputDetailsDialogComponent
+    ShowOutputDetailsDialogComponent,
+    ShowProfileDetailsDialogComponent
+  ],
+  providers: [AuthService, AuthGuard,
+    {
+    provide: HTTP_INTERCEPTORS,
+    useClass: InterceptorService,
+    multi: true
+    }
   ]
 })
 export class AppRoutingModule {

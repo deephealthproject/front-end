@@ -7,7 +7,8 @@
         "projectName": "Project name",
         "errorCreatedNewProject": "This project already exists!",
         "successMessageCreatedNewProject": "Project was created!",
-        "errorMessageNewProject": "Error: Cannot create the project!"
+        "errorMessageNewProject": "Error: Cannot create the project!",
+        "messageProjectOwner": "You are project owner!"
     },
     "project": {
         "task": "Task",
@@ -23,7 +24,7 @@
         "numberOfClasses": "Number of Classes",
         "detailsTitle": "Details",
         "inputFile": "Input file",
-        "chooseImage": "Choose Image",
+        "chooseImage": "Or choose the image from your computer.",
         "reTrainTheModel": "Re-Train the model",
         "model": "Model",
         "weight": "Weight",
@@ -38,13 +39,12 @@
         "optimizer": "Optimizer",
         "useDropout": "Use dropout",
         "configuration": "Configuration",
-        "userScreen": "User Screen",
+        "editProject": "Edit Project Info",
         "networkStatistics": "Network Statistics",
         "notifications": "Notifications",
-        "editWeights": "Edit weights",
+        "editWeights": "Edit Weights",
         "outputResults": "Output Results",
         "imageInput": "Image Input",
-        "processImage": "Process Image",
         "networkDetails": "Network Details",
         "flipping": "Flipping",
         "rotation": "Rotation",
@@ -90,10 +90,20 @@
         "uploadDatasetExists": "This dataset already exists!",
         "isUrlLink": "Url link",
 
+        "uploadModel": "Upload model",
+        "uploadModelProcess": "Upload a model",
+        "uploadModelName": "Model name",
+        "uploadModelContent": "Please enter the location of model",
+        "uploadModelResult": "The upload has started!",
+        "chooseModel": "Or choose the model file from your computer.",
+        "uploadModelExists": "This model already exists!",
+        "errorUploadModelProcessMessage": "The upload model process has failed!",
+        "finishedUploadModelProcessMessage": "The upload model process has finished!",
+
         "updateWeightProcess": "Update weight name",
         "updatWeightId": "Update weight id",
         "updateWeightName": "Weight name",
-        "updateWeightResult": "The weight name was updated!",
+        "updateWeightResult": "The weight data has been updated!",
         "edit": "Edit",
         "weightView": "Weight",
         "detailsView": "details",
@@ -128,15 +138,39 @@
         "outputValidationAugmentations": "Validation augmentations",
         "viewDetails": "View Details",
         "results": "View Results",
-        "outputStatusError": "Error: cannot get output details",
+        "outputStatusError": "Error: Cannot get output details",
         "outputStatusParametersDetails": "Parameters details for process:",
         "outputStatusEvolution": "Evolution details",
         "outputStatusInferenceProcess": "Batch status is in progress ... ",
-        "outputProcentageInferenceProcess": "%"
+        "outputProcentageInferenceProcess": "%",
 
+        "projectName": "Project name:",
+        "projectOwner": "Project owner:",
+        "associatedUsersToProject": "Associated users to this project:",
+        "selectUsersToProject": "Select the users who can have rights to this project.",
+        "succesMessageUpdateProject": "Project info successfully updated!",
+        "errorEditProjectUserPermission": "You do not have owner permission on this project!",
+        "saveUpdateProjectButton": "Update",
+        "cancelUpdateProjectButton": "Cancel",
+
+        "deleteDatasetTile": "Delete dataset",
+        "deleteDataset": "Delete dataset",
+        "areYouSureDeleteDataset": "Are you sure you want to delete this dataset?",
+        "succesMessageDeleteDataset": "Dataset has been successfully deleted!",
+        "deleteWeightTile": "Delete weight",
+        "deleteWeight": "Delete weight",
+        "areYouSureDeleteWeight": "Are you sure you want to delete this weight?",
+        "succesMessageDeleteWeight": "Weight has been successfully deleted!",
+        "deleteProject": "Delete project",
+        "deleteProjectTile": "Delete project",
+        "areYouSureDeleteProject": "Are you sure you want to delete this project?",
+        "succesMessageDeleteProject": "Project has been successfully deleted!",
+        "deleteProjectButton": "Delete project"
     },
     "header": {
-        "headerText": "Training models"
+        "headerText": "Training models",
+        "viewProfileMenuItem": "View profile",
+        "logoutMenuItem": "Logout"
     },
     "footer": {
         "footerText": "This project has received funding from the European Union’s Horizon 2020 research and innovation program under grant agreement No 82511"
@@ -158,11 +192,13 @@
     },
     "upload-dataset-dialog": {
         "OKButton": "OK",
-        "CancelButton": "Cancel"
+        "CancelButton": "Cancel",
+        "datasetDisplayMode": "Public dataset"
     },
     "update-weight-dialog": {
         "weightId": "Weight Id: ",
         "weightName": "Weight Name: ",
+        "weightDisplayMode": "Public weight",
         "OKButton": "OK",
         "CancelButton": "Cancel"
     },
@@ -173,7 +209,66 @@
         "classes": "Output Details",
         "closeButton": "Close",
         "outputStatusOk": "Outputs details get ok",
-        "outputStatusError": "Error: cannot get output details"
+        "outputStatusError": "Error: Cannot get output details"
+    },
+    "register": {
+        "registerTitle": "Signup",
+        "errorConfirmPasswordRequired": "Confirm password is required!",
+        "errorEmailRequired": "Email is required!",
+        "errorEmailInvalid": "Email is invalid!",
+        "errorPasswordsNotMatch": "Password and confirm password do not match!",
+        "registerButton": "Register",
+        "backToLoginButton": "Back to login",
+        "successMessageCreatedNewUser": "User has been successfully created!",
+        "errorMessageCreatedNewUser": "Error: A user with that username already exists!",
+        "errorFieldsAreIncomplete": "Please complete the required data!"
+    },
+    "login": {
+        "loginTitle": "Login",
+        "errorUsernameRequired": "Username is required!",
+        "errorPasswordRequired": "Password is required!",
+        "errorPasswordLength": "Password must be of length 4",
+        "loginButton": "Login",
+        "registerButton": "Register",
+        "errorBadCredentialsLogin": "Wrong username or password!",
+        "errorMessageSessionExpired": "The session expired! Please login again!",
+        "forgotPassword": "Forgot password?"
+    },
+    "reset-password": {
+        "resetPasswordTitle": "Reset password",
+        "resetPasswordButton": "Reset password",
+        "cancelResetPassword": "Cancel",
+        "successMeessageResetPassword": "Password has been successfully changed!",
+        "errorMessageResetPassword": "Error: Cannot change the password!",
+        "errorEmailRequired" : "Email is required!",
+        "errorResetCodeRequired": "Reset code is required!",
+        "sendMailButton": "Send email",
+        "messageResetCode": "Please enter the validation code sent by email and the new password."
+    },
+    "profile-details-dialog": {
+        "dialogTitle": "Profile account",
+        "username": "Username:",
+        "firstName": "First Name:",
+        "lastName": "Last Name:",
+        "email": "Email:",
+        "changePasswordButton": "Change password",
+        "updateProfileButton": "Update profile",
+        "oldPassword": "Old password:",
+        "newPassword": "New password:",
+        "confirmNewPassword": "Confirm new password:",
+        "savePasswordButton": "Save password",
+        "cancelChangePassword": "Cancel",
+        "successMeessageChangePassword": "Password successfully changed!",
+        "errorMessageChangePassword": "The two password didn't match!",
+        "errorMessageOldPassword": "Your old password was entered incorrectly. Please enter it again.",
+        "errorMessageInvalidNewPassword": "Your password is not strong enough. It must contain numbers and letters.",
+        "errorPasswordLength": "Your password should contain at least 8 characters!",
+        "saveUpdateProfileButton": "Update",
+        "succesMessageUpdateProfile": "Profile successfully updated!",
+        "deleteAccountButton": "Delete account",
+        "deleteAccountDialogTitle": "Delete account",
+        "areYouSureDeleteAccount": "Are you sure you want to delete your account? Projects and all your processes will be deleted too.",
+        "succesMessageDeleteAccount": "Your account has been successfully deleted!"
     }
 
 }

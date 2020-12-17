@@ -1,0 +1,30 @@
+{
+    "My models": {
+        "componenta 1": {
+            "nume": "My DeepLab 1"
+        },
+        "componenta 2": {
+            "nume": "My DeepLab 2"
+        },
+        "componenta 3": {
+            "nume": "My DeepLab 3",
+            "subcomponente": {
+                "subcomponenta 1": "DeepLab.ckpt"
+            }
+        },
+        "componenta 4": {
+            "nume": "My ResNet-101"
+        }
+    },
+    "My Datasets": {
+        "componenta 1": {
+            "nume": "Brain 2017"
+        },
+        "componenta 2": {
+            "nume": "Brain 2018"
+        },
+        "componenta 3": {
+            "nume": "Lungs 2018"
+        }
+    }
+}

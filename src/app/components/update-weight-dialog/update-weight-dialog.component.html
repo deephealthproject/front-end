@@ -12,12 +12,27 @@
     </div>
     {{'update-weight-dialog.weightName' | translate}}
     <div style="padding-top: 8px;">
-      <input matInput [(ngModel)]="_interactionService.formDataWeight.weightName" >
+      <input matInput [(ngModel)]="_interactionService.formDataWeight.weightName">
     </div>
   </mat-form-field>
+  <div>
+    <mat-checkbox color="primary" [checked]="weightDisplayModeValue" [(ngModel)]="weightDisplayModeValue" (change)="changeWeightDisplayModeCheckedState()">
+      {{'update-weight-dialog.weightDisplayMode' | translate}}
+    </mat-checkbox>
+  </div>
+  <div *ngIf="!weightDisplayModeValue">
+      <mat-form-field>
+          Select user
+          <mat-select [(value)]=selectedUsername multiple>
+              <mat-option *ngFor="let option of userDropdown" [value]="option.username">
+                  {{option.username}}
+              </mat-option>
+          </mat-select>
+      </mat-form-field>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button (click)="close()">{{'update-weight-dialog.CancelButton' | translate}}</button>
   <button mat-raised-button (click)="save()">{{'update-weight-dialog.OKButton' | translate}}</button>
+  <button mat-button (click)="close()">{{'update-weight-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

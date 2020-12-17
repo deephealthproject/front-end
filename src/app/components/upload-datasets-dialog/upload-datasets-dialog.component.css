@@ -1,0 +1,12 @@
+.mat-dialog-container {
+    width: 100%;
+    height: 100%;
+}
+
+mat-dialog-content {
+    display: inline;
+}
+
+.mat-form-field {
+    width: 650px;
+}

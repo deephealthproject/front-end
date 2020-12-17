@@ -1,12 +1,12 @@
 /* The default window */
 
 .div-main {
-    height: calc(100% - 39px);
-    height: -o-calc(100% - 39px);
+    height: calc(100% - 140px);
+    height: -o-calc(100% - 140px);
     /* opera */
-    height: -webkit-calc(100% - 39px);
+    height: -webkit-calc(100% - 140px);
     /* google, safari */
-    height: -moz-calc(100% - 39px);
+    height: -moz-calc(100% - 140px);
     /* firefox */
 }
 
@@ -106,25 +106,12 @@
     background-color: #65A4C4;
 }
 
-/* .div-middle-box {
-    width: 100%;
-    display: inline-block;
-    font-size: 14px;
-    color: rgb(4, 36, 53);
-    background-color: #ECEFF1;
-} */
-
 .div-middle-box-title {
     width: 100%;
     display: inline-block;
     font-size: 15px;
     color: rgb(4, 36, 53);
 }
-
-/* .div-middle-box-top {
-    width: calc(50% - 40.5px);
-    padding: 20px;
-} */
 
 .div-middle-box-content {
     display: inline-block;
@@ -227,59 +214,6 @@
 
 [hidden] {
     display: none !important;
-}
-
-.div-user-screen {
-    width: calc(100% - 18% - 2px);
-    float: left;
-    height: 100%;
-    overflow: auto;
-    border-right-color: #1A759D;
-    border-right-width: 2px;
-    border-right-style: solid;
-}
-
-.div-user-screen-top-half {
-    width: 100%;
-    height: 50%;
-    display: inline-block;
-}
-
-.div-user-screen-bottom-half {
-    width: 100%;
-    height: 50%;
-    display: inline-block;
-}
-
-.div-user-screen-section-title {
-    width: 100%;
-    display: inline-block;
-    font-size: 14px;
-    color: #65A4C4;
-    background-color: #D7E6E8;
-    text-align: center;
-    font-family: serif;
-    padding-top: 7px;
-    padding-bottom: 7px;
-}
-
-.div-user-screen-section-content {
-    display: flex;
-}
-
-.div-user-screen-image-input {
-    display: inline-block;
-}
-
-.div-user-screen-process-image-button {
-    background-color: #2DB5D3;
-    color: white;
-    float: right;
-}
-
-.div-user-screen-search {
-    padding: 10px;
-    display: inline-flex;
 }
 
 .div-network-statistics {
@@ -429,4 +363,73 @@ textarea {
 
 input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button {
     opacity: 1;
+}
+
+.div-edit-project {
+    width: calc(100% - 18% - 2px);
+    float: left;
+    height: 100%;
+    overflow: auto;
+    border-right-color: #1A759D;
+    border-right-width: 2px;
+    border-right-style: solid;
+}
+
+.div-edit-project-top-content {
+    width: calc(100% - 28px);
+    height: calc(14% - 38px);
+    padding: 14px;
+    display: inline-block;
+}
+
+.div-edit-project-middle-left-content {
+    width: calc(100% / 2 - 28px);
+    height: calc(72% - 28px);
+    float: left;
+    padding: 14px;
+}
+
+.div-edit-project-left-list {
+    width: 100%;
+    height: calc(100% - 38px);
+    padding-top: 10px;
+    overflow: auto;
+    border: #778ba3;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.div-edit-project-middle-right-content {
+    width: calc(100% / 2 - 28px);
+    height: calc(72% - 28px);
+    float: right;
+    padding: 14px;
+}
+
+.div-edit-project-right-list {
+    width: 100%;
+    height: calc(100% - 38px);
+    padding-top: 10px;
+    overflow: auto;
+    border: #778ba3;
+    border-style: solid;
+    border-width: 1px;
+}
+
+.div-edit-project-bottom-content {
+    width: calc(100% - 28px);
+    height: calc(14% - 28px);
+    padding-left: 14px;
+    display: inline-block;
+}
+
+.div-edit-project-bottom-message {
+    font-size: 14px;
+    color: red;
+    padding-left: 38%;
+    padding-top: 8px;
+}
+
+mat-selection-list {
+    width: fit-content;
 }

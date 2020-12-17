@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { InteractionService } from 'src/app/services/interaction.service';
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '../../../../node_modules/@angular/router';
 
 @Component({
   selector: 'app-app-tabs',
@@ -10,7 +11,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class AppTabsComponent implements OnInit {
 
-  constructor(private _interactionService: InteractionService, private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
+  constructor(private _interactionService: InteractionService, private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
+    private router: Router) {
     this.matIconRegistry.addSvgIcon(
       'notification',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/notifications-24px.svg')
@@ -29,18 +31,16 @@ export class AppTabsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._interactionService.showUserTab("Power User");
+    this._interactionService.showUserTab("Home Page");
     this.initialiseUnreadNotificationsNumber();
   }
 
   returnToUser() {
-    this._interactionService.changeShowStateProject(false);
-    this._interactionService.changeShowStatePowerUser(true);
+    this.router.navigate(['/power-user']);
   }
 
   returnToProject() {
-    this._interactionService.changeShowStateProject(true);
-    this._interactionService.changeShowStatePowerUser(false);
+    this.router.navigate(['/project']);
   }
 
   openNotifications() {
@@ -49,15 +49,15 @@ export class AppTabsComponent implements OnInit {
 
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivUserScreen(false);
     this._interactionService.changeShowStateProjectDivNotifications(true);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
     this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectUserScreenIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);

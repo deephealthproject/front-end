@@ -1,6 +1,6 @@
 <div class="div-top">
     <div class="div-tabs" *ngFor="let tab of tabs" [ngSwitch]="tab.type">
-        <div class="div-open-tab" *ngSwitchCase="'User'" (click)="returnToUser()">
+        <div class="div-open-tab" *ngSwitchCase="'Home'" (click)="returnToUser()">
             {{tab.name}}
         </div>
         <div class="div-open-tab" *ngSwitchCase="'Project'" (click)="returnToProject()">

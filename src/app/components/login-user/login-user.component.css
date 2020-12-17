@@ -1,0 +1,59 @@
+.div-main {
+    height: calc(100% - 101px);
+    height: -o-calc(100% - 101px);
+    /* opera */
+    height: -webkit-calc(100% - 101px);
+    /* google, safari */
+    height: -moz-calc(100% - 101px);
+    /* firefox */
+    display: flex;
+    top: 0;
+    margin: 0;
+    padding: 0;
+    display: block;
+    background-color: rgb(215, 234, 245);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: auto;
+}
+
+.div-main-text {
+    font-size: 20px;
+    display: inline-block;
+    color: #084A6C;
+    border: black;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+  
+mat-card {
+    width: 30%;
+    margin: 4% auto;
+    border-radius: 8px;
+}
+
+mat-form-field, mat-checkbox {
+    width: 80%;
+    display: block;
+    margin: auto;
+}
+
+mat-card-content {
+    margin-top: 20px;
+}
+  
+.register-button {
+    width: 30%;
+    color: white;
+    background-color: rgb(53, 111, 155);
+    margin-top: 20px;
+    display: inline-block;
+    margin: 20px auto;
+}
+
+.div-forgot-password {
+    color: rgb(53, 111, 155);
+    cursor: pointer;
+    margin-left: 38%;
+}
+  

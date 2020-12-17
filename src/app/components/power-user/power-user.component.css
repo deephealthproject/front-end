@@ -1,16 +1,15 @@
 .div-main {
-  height: calc(100% - 39px);
-  height: -o-calc(100% - 39px);
+  height: calc(100% - 140px);
+  height: -o-calc(100% - 140px);
   /* opera */
-  height: -webkit-calc(100% - 39px);
+  height: -webkit-calc(100% - 140px);
   /* google, safari */
-  height: -moz-calc(100% - 39px);
+  height: -moz-calc(100% - 140px);
   /* firefox */
   display: flex;
 }
 
 .div-left {
-  /*width: 19.29vw;*/
   width: 18%;
   display: inline-block;
   height: 100%;
@@ -20,7 +19,6 @@
 
 .div-right {
   width: calc(100% - 18%);
-  /*width: 97.4vw;*/
   height: 100%;
   display: inline-block;
   vertical-align: top;
@@ -78,15 +76,29 @@
   display: inline-block;
   width: calc(100%-25%);
   cursor: pointer;
-  padding-left: 25px;
+  padding-left: 18px;
 }
 
 .div-right-icon-project {
   transform: scale(1.5);
-  padding-left: 15px;
-  padding-right: 15px;
+  padding: 9px;
   color: #1a759d;
   vertical-align: middle;
+}
+
+.div-right-icon-delete {
+  height: 28px;
+  width: 28px;
+  margin-bottom: 14px;
+}
+
+.div-icon-delete {
+  transform: scale(1);
+  padding-left: 10px;
+  cursor: pointer;
+  color: #1a759d;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .div-right-text-project {
@@ -94,7 +106,15 @@
   display: inline-block;
   color: black;
   vertical-align: middle;
+}
 
+.div-right-text-project-owner {
+  display: inline-block;
+  padding: 6px; 
+  padding-left: 15px;
+  font-size: 14px;
+  font-style: italic;
+  color: rgb(75, 209, 133);
 }
 
 .left-mat-icon {
@@ -132,4 +152,34 @@
 
 .div-left-content {
   padding-top: 5px;
+}
+
+table {
+  padding-top: 6px;
+}
+
+th {
+  font-size: 16px;
+  color: #084A6C;
+  font-family: 'Segoe UI';
+}
+
+.div-icon-owner {
+  height: 28px;
+  width: 28px;
+  border: #778ba3;
+  border-style: solid;
+  border-width: 1px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  margin-right: 26px;
+  margin-left: 26px;
+}
+
+.div-icon-checked-owner {
+  transform: scale(1.3);
+  padding: 3px;
+  padding-top: 5px;
+  color: #1a759d;
+  vertical-align: middle;
 }

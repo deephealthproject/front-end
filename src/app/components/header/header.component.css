@@ -25,3 +25,19 @@
   float: right;
   font-size: 20px;
 }
+
+.text-user-logged {
+  color: white;
+  font-size: 15px;
+  text-align: end;
+  float: right;
+  padding-top: 5px;
+}
+
+.mat-icon{
+  color: white;
+  padding-top: 18px;
+  padding: 6px;
+  padding-left: 24px;
+  cursor: pointer;
+}
