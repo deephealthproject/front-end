@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { InteractionService } from '../../services/interaction.service';
-import { DomSanitizer } from '../../../../node_modules/@angular/platform-browser';
-import { MatIconRegistry, MatDialogConfig, MatDialog } from '../../../../node_modules/@angular/material';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MatIconRegistry, MatDialogConfig, MatDialog } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { ShowProfileDetailsDialogComponent } from '../show-profile-details-dialog/show-profile-details-dialog.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -56,6 +56,7 @@ export class HeaderComponent implements OnInit {
 
   viewProfile(data) {
     this._interactionService.userProfileDetails = data;
+    this._interactionService.showDeleteInput = false;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;

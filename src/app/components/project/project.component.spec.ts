@@ -1,8 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProjectComponent } from './project.component';
-import { DebugElement } from '../../../../node_modules/@angular/core';
-import { By } from '../../../../node_modules/@angular/platform-browser';
 import { DataService } from '../../services/data.service';
 
 describe('ProjectComponent', () => {

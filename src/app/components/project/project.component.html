@@ -33,16 +33,16 @@
             </div>
             <div class="div-left-section-box">
                 <mat-radio-group aria-label="input-types" [(ngModel)]="selectedInputType">
-                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Image" checked={{checkedStateImageInputType}}>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Image" [disabled]="true" checked={{checkedStateImageInputType}}>
                         {{'project.image' | translate}}
                     </mat-radio-button>
-                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Text" checked={{checkedStateTextInputType}}>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Text" [disabled]="true" checked={{checkedStateTextInputType}}>
                         {{'project.text' | translate}}
                     </mat-radio-button>
-                    <mat-radio-button class="div-left-section-box-button" color="primary" value="3D" checked={{checkedState3DInputType}}>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="3D" [disabled]="true" checked={{checkedState3DInputType}}>
                         {{'project.3DVolumes(Slices)' | translate}}
                     </mat-radio-button>
-                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Video" checked={{checkedStateVideoInputType}}>
+                    <mat-radio-button class="div-left-section-box-button" color="primary" value="Video" [disabled]="true" checked={{checkedStateVideoInputType}}>
                         {{'project.video' | translate}}
                     </mat-radio-button>
                 </mat-radio-group>
@@ -54,7 +54,7 @@
             </div>
             <div class="div-left-section-box">
                 <mat-form-field style="padding-left: 15%;">
-                    <input matInput type="number">
+                    <input matInput type="number" disabled>
                 </mat-form-field>
             </div>
         </div>
@@ -147,7 +147,7 @@
                                                 {{'project.epochs' | translate}}
                                             </div>
                                             <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{epochsValue}} step=1>
+                                                <input matInput type="number" value={{epochsValue}} step=1 disabled>
                                             </mat-form-field>
                                         </div>
                                     </div>
@@ -157,7 +157,7 @@
                                                 {{'project.batchSize' | translate}}
                                             </div>
                                             <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{batchSizeValue}} step=1>
+                                                <input matInput type="number" value={{batchSizeValue}} step=1 disabled>
                                             </mat-form-field>
                                         </div>
                                     </div>
@@ -169,7 +169,7 @@
                                                 {{'project.inputHeight' | translate}}
                                             </div>
                                             <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{inputHeightValue}} step=1>
+                                                <input matInput type="number" value={{inputHeightValue}} step=1 disabled>
                                             </mat-form-field>
                                         </div>
                                     </div>
@@ -179,12 +179,11 @@
                                                 {{'project.inputWidth' | translate}}
                                             </div>
                                             <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{inputWidthValue}} step=1>
+                                                <input matInput type="number" value={{inputWidthValue}} step=1 disabled>
                                             </mat-form-field>
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- <div #loss id="loss">
                                         <div class="div-middle-box-title">
                                             {{'project.loss' | translate}}
@@ -213,7 +212,7 @@
                                     <div class="div-middle-box-left-col1">
                                         <div #useDropout id="useDropout">
                                             <div class="div-middle-box-content">
-                                                <mat-checkbox color="primary" [checked]=false (change)="changeUseDropoutCheckedState()">
+                                                <mat-checkbox color="primary" [checked]=false [disabled]="true" (change)="changeUseDropoutCheckedState()">
                                                     {{'project.useDropout' | translate}}
                                                 </mat-checkbox>
                                             </div>
@@ -246,7 +245,7 @@
                             <div style="color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
                                 <div>{{'project.dataAugumentation' | translate}}</div>
                                 <div class="data-augmentation" *ngFor="let entry of dataAugmentation">
-                                    <mat-checkbox color="primary" [(ngModel)]="entry.selected">{{ entry.label }}
+                                    <mat-checkbox color="primary" [disabled]="true" [(ngModel)]="entry.selected">{{ entry.label }}
                                     </mat-checkbox>
                                 </div>
                             </div>
@@ -256,7 +255,7 @@
                                     {{'project.trainingAugmentations' | translate}}
                                 </div>
                                 <mat-form-field appearance="none" class="div-middle-box-content">
-                                    <textarea matInput rows="4" value={{trainingAugmentationsValue}}></textarea>
+                                    <textarea matInput rows="4" value={{trainingAugmentationsValue}} disabled></textarea>
                                 </mat-form-field>
                             </div>
                             <div #validationAugmentations id="validationAugmentations">
@@ -264,7 +263,7 @@
                                     {{'project.validationAugmentations' | translate}}
                                 </div>
                                 <mat-form-field appearance="none" class="div-middle-box-content">
-                                    <textarea matInput rows="4" value={{validationAugmentationsValue}}></textarea>
+                                    <textarea matInput rows="4" value={{validationAugmentationsValue}} disabled></textarea>
                                 </mat-form-field>
                             </div>
                             <!-- <div #testAugmentations id="testAugmentations" style="padding-top: 10px;">
@@ -424,12 +423,6 @@
             <button mat-flat-button class="div-right-button" (click)="openOutputResults();" [class.div-right-button-clicked]="outputResultsIsClicked">
                 {{'project.outputResults' | translate}}
             </button>
-            <div class="div-user-screen-search">
-                <mat-icon class="left-mat-icon" svgIcon={{searchIcon}}></mat-icon>
-                <mat-form-field>
-                    <input matInput type="search" placeholder="search here">
-                </mat-form-field>
-            </div>
         </div>
     </div>
 
@@ -691,7 +684,11 @@
             <div style="color: #3180ae;">
                 {{'project.projectName' | translate}}
                 <input style="margin-left: 33px;" name="projectName" value={{projectNameValue}} (change)="changeValueProjectName($event)">
-                <button mat-flat-button style="float: right;" color="primary" [disabled]="this._interactionService.username != this._interactionService.projectOwner" (click)="deleteProject(this._interactionService.currentProject.id)">{{ 'project.deleteProjectButton' | translate }}</button>
+                <button mat-icon-button style="float: right;" [disabled]="this._interactionService.username != this._interactionService.projectOwner"
+                    (click)="deleteProject(this._interactionService.currentProject.id)">
+                    <mat-icon [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner}" class="div-icon-delete"
+                        title="{{'project.deleteProject' | translate }}" svgIcon="delete"></mat-icon>
+                </button>
             </div>
             <div style="color: #3180ae; padding-top: 10px;">
                 {{'project.projectOwner' | translate}}
@@ -703,8 +700,12 @@
                 {{'project.selectUsersToProject' | translate}}
             </div>
             <div class="div-edit-project-left-list">
+                <div>
+                    <mat-icon class="div-edit-project-left-list-search" svgIcon={{searchIcon}}></mat-icon>
+                    <input matInput class="div-edit-project-left-list-search-text" type="search" id="search-text" [(ngModel)]="searchText" placeholder="Enter text to search">
+                </div>
                 <mat-selection-list #usersSelection id="usersSelection" [(ngModel)]="selectedUsersData">
-                    <mat-list-option class="mat-primary" *ngFor="let option of this._interactionService.usersList" [value]="option.username">
+                    <mat-list-option class="mat-primary" *ngFor="let option of this._interactionService.usersList | userFilter: searchText" [value]="option.username">
                         {{option.username}}
                     </mat-list-option>
                 </mat-selection-list>
@@ -715,11 +716,20 @@
                 {{'project.associatedUsersToProject' | translate}}
             </div>
             <div class="div-edit-project-right-list">
-                <mat-list>
-                    <mat-list-item class="mat-primary" *ngFor="let option of this._interactionService.usersAssociatedArray">
-                        {{option.username}}
-                    </mat-list-item>
-                </mat-list>
+                <div class="div-edit-project-right-list-left-content">
+                    <mat-selection-list #associatedUsersSelection id="associatedUsersSelection" [(ngModel)]="selectedAssociatedUsers">
+                        <mat-list-option class="mat-primary" *ngFor="let option of this._interactionService.usersAssociatedArray" [value]="option.username">
+                            {{option.username}}
+                        </mat-list-option>
+                    </mat-selection-list>
+                </div>
+                <div class="div-edit-project-right-list-right-content">
+                    <button mat-icon-button [disabled]="this._interactionService.username != this._interactionService.projectOwner || associatedUsersSelection.selectedOptions.selected.length == 0"
+                        (click)="deleteUser(projectNameValue);">
+                        <mat-icon [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner || associatedUsersSelection.selectedOptions.selected.length == 0}"
+                            class="div-icon-delete" title="{{'project.deleteUsers' | translate }}" svgIcon="delete"></mat-icon>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="div-edit-project-bottom-content">

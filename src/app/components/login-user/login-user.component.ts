@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InteractionService } from '../../services/interaction.service';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
+import { TranslateService } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material';
 
 @Component({
   selector: 'app-login-user',

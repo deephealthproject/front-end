@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '../../../../node_modules/@angular/material';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
 import { User } from '../power-user/power-user.component';

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '../../../node_modules/@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { throwError, empty } from '../../../node_modules/rxjs';
+import { throwError, empty } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { Router } from '../../../node_modules/@angular/router';
-import { MatDialogConfig, MatDialog } from '../../../node_modules/@angular/material';
-import { TranslateService } from '../../../node_modules/@ngx-translate/core';
+import { Router } from '@angular/router';
+import { MatDialogConfig, MatDialog } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 
 @Injectable()

@@ -1,10 +1,10 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatDialogConfig, MatDialog } from '../../../../node_modules/@angular/material';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatDialogConfig, MatDialog } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 
 export interface ProfileDetailsData {
   dialogTitle: string;

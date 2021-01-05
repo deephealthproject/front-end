@@ -1,8 +1,16 @@
-<h1 mat-dialog-title>{{dialogTitle}}</h1>
+<h1 mat-dialog-title>{{dialogTitle}} {{dialogDeletedItem}} </h1>
 
 <mat-dialog-content>
   <div>
-    {{dialogContent}}
+    <div *ngIf="this._interactionService.showDeleteInput">
+      {{'confirm-dialog-train.deleteItemMessage' | translate}}
+      <div style="padding-top: 8px;">
+        <input style="width: 70%; padding-top: 9px; padding-bottom: 9px;" [(ngModel)]="dialogDeletedItemInputValue" placeholder="{{deletedItemInputPlaceHolder}}">
+      </div>
+    </div>
+    <div style="padding-top: 8px;">
+      {{dialogContent}}
+    </div>
     <span>{{trainingTime}}</span>
   </div>
   <div *ngIf="showMessageModel" style="padding-top: 15px" [ngStyle]="{'color': modelColor}">{{messageModel}}</div>
@@ -10,13 +18,13 @@
   <div *ngIf="showMessageWeight" style="padding-top: 15px" [ngStyle]="{'color': weightColor}">{{messageWeight}}</div>
   <div *ngIf="showDatasetInputPath">
     <div>
-      <div style="padding-top: 10px; color:#336E9F;">{{'project.inferenceSingleImageUrlMessage'| translate}}</div>
+      <div style="padding-top: 10px; color:#336E9F;">{{'project.inferenceSingleImageUrlMessage' | translate}}</div>
       <div class="div-image-url">
-        <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}" >
+        <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}">
       </div>
     </div>
     <div>
-      <div style="padding-top: 10px; color:#336E9F;">{{'project.chooseImage'| translate}}</div>
+      <div style="padding-top: 10px; color:#336E9F;">{{'project.chooseImage' | translate}}</div>
       <div style="padding-top: 8px;">
         <input [disabled]="inputValue" #fileInput type="file" accept="image/*" (change)="this._interactionService.browseImage($event)">
       </div>

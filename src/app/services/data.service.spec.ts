@@ -1,14 +1,14 @@
 import { TestBed, getTestBed, async } from '@angular/core/testing';
 
 import { DataService } from './data.service';
-import { RouterTestingModule } from '../../../node_modules/@angular/router/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { of } from '../../../node_modules/rxjs';
-import { HttpResponse, HttpParams } from '../../../node_modules/@angular/common/http';
-import { ExpectedConditions } from '../../../node_modules/protractor';
-import { inject } from '../../../node_modules/@angular/core';
-import { HttpClient } from '../../../node_modules/@types/selenium-webdriver/http';
-import { HttpClientTestingBackend } from '../../../node_modules/@angular/common/http/testing/src/backend';
+import { of } from 'rxjs';
+import { HttpResponse, HttpParams } from '@angular/common/http';
+import { ExpectedConditions } from 'protractor';
+import { inject } from '@angular/core';
+import { HttpClient } from 'selenium-webdriver/http';
+import { HttpClientTestingBackend } from '@angular/common/http/testing/src/backend';
 
 fdescribe('DataService', () => {
   let injector: TestBed;

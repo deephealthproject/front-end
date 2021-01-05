@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
+import { MatSnackBar } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 
 @Component({
@@ -16,7 +16,7 @@ export class ResetPasswordComponent implements OnInit {
   resetCodeValue;
 
 
-  constructor(public _authService: AuthService, private _interactionService: InteractionService, private router: Router, private snackBar: MatSnackBar,
+  constructor(public _authService: AuthService, public _interactionService: InteractionService, private router: Router, private snackBar: MatSnackBar,
     private translate: TranslateService) { }
 
   ngOnInit() {
@@ -56,10 +56,10 @@ export class ResetPasswordComponent implements OnInit {
     this._interactionService.divResetPassword = false;
   }
 
-  resetPassword(newPassword, confirmNewPassword) {
+  resetPassword(resetCode, newPassword) {
     // this._interactionService.divSendEmail = false;
     // this._interactionService.divResetPassword = true;
-    this._authService.resetPassword(newPassword, confirmNewPassword).subscribe(data => {
+    this._authService.resetPassword(resetCode, newPassword).subscribe(data => {
       if (data.statusText == "OK") {
         this.openSnackBar(this.translate.instant('reset-password.successMeessageResetPassword'));
         this.router.navigate(['']);

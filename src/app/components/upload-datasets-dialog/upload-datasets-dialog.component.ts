@@ -36,7 +36,7 @@ export class UploadDatasetsDialogComponent {
   inputValuePath: string;
   inputPlaceHolderPath: string;
 
-  datasetDisplayModeValue: boolean = true;
+  datasetDisplayModeValue: Boolean = true;
   selectedUsername;
   userDropdown: User[];
   selectedDatasetName;
@@ -57,6 +57,7 @@ export class UploadDatasetsDialogComponent {
     this.dialogContent = data.dialogContent;
     this.inputPlaceHolder = data.inputPlaceHolder;
     this.inputPlaceHolderPath = data.inputPlaceHolderPath;
+    this.datasetDisplayModeValue = data.datasetDisplayMode;
     this.selectedUsername = data.selectedUsername;
     this.userDropdown = [];
     this.selectedDatasetName = data.selectedDatasetName;

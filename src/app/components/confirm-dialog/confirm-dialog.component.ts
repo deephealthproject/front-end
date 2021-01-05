@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { InteractionService } from '../../services/interaction.service';
 
 export interface DialogData {

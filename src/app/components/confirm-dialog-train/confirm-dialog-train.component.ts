@@ -5,6 +5,7 @@ import { InteractionService } from '../../services/interaction.service';
 
 export interface TrainDialogData {
   dialogTitle: string;
+  dialogDeletedItem: string;
   dialogContent: string;
   trainingTime: string;
   modelSelected;
@@ -14,6 +15,8 @@ export interface TrainDialogData {
   inputPlaceHolder: string;
   inputValue: string;
   datasetImageData: string;
+  dialogDeletedItemInputValue: string;
+  deletedItemInputPlaceHolder: string;
 }
 
 @Component({
@@ -23,6 +26,7 @@ export interface TrainDialogData {
 })
 export class ConfirmDialogTrainComponent implements OnInit {
   dialogTitle: string;
+  dialogDeletedItem: string;
   dialogContent: string;
   trainingTime: string;
   messageModel: string;
@@ -43,11 +47,15 @@ export class ConfirmDialogTrainComponent implements OnInit {
   inputValue: string;
 
   datasetImageData: string;
+  dialogDeletedItemInputValue: string;
+  deletedItemInputPlaceHolder: string;
+  showDeleteInput: boolean = true;
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData, private _interactionService: InteractionService,
     public translate: TranslateService) {
     this.dialogTitle = data.dialogTitle;
+    this.dialogDeletedItem = data.dialogDeletedItem;
     this.dialogContent = data.dialogContent;
     this.trainingTime = data.trainingTime;
     this.selectedModel = data.modelSelected;
@@ -55,6 +63,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.selectedWeight = data.weightSelected;
     this.process_type = data.process_type;
     this.inputPlaceHolder = data.inputPlaceHolder;
+    this.deletedItemInputPlaceHolder = data.deletedItemInputPlaceHolder;
 
     if (!this.selectedModel) {
       this.messageModel = this.translate.instant('confirm-dialog-train.errorModel');
@@ -88,6 +97,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.showMessageWeight = false;
       this.showMessageDataset = true;
       this.showDatasetInputPath = false;
+      this._interactionService.showDeleteInput = false;
     }
 
     if (this.process_type == "training") {
@@ -95,6 +105,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.showMessageWeight = true;
       this.showMessageDataset = true;
       this.showDatasetInputPath = false;
+      this._interactionService.showDeleteInput = false;
     }
 
     if (this.process_type == "inferenceSingle") {
@@ -102,6 +113,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
       this.showMessageWeight = false;
       this.showMessageDataset = false;
       this.showDatasetInputPath = true;
+      this._interactionService.showDeleteInput = false;
     }
   }
 
@@ -112,6 +124,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.data.inputValue = this.inputValue;
     this.data.datasetImageData = this._interactionService.projectImageURLSource;
     //this.data.datasetImageData = this.data.datasetImageData.replace("data:image/jpeg;base64,", "");
+    this.data.dialogDeletedItemInputValue = this.dialogDeletedItemInputValue;
     this.dialogRef.close(this.data);
   }
 

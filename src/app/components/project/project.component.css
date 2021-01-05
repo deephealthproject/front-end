@@ -399,6 +399,17 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
     border-width: 1px;
 }
 
+.div-edit-project-left-list-search{
+    width: 10%;
+    color: #084A6C;
+}
+
+.div-edit-project-left-list-search-text{
+    width: 90%;
+    color: #084A6C;
+    padding-bottom: 4px;
+}
+
 .div-edit-project-middle-right-content {
     width: calc(100% / 2 - 28px);
     height: calc(72% - 28px);
@@ -432,4 +443,26 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
 
 mat-selection-list {
     width: fit-content;
+}
+
+.div-icon-delete {
+    transform: scale(1.3);
+    cursor: pointer;
+    color: #1a759d;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+.div-edit-project-right-list-left-content {
+    width: 90%;
+    float: left;
+}
+
+.div-edit-project-right-list-right-content {
+    width: 10%;
+    float: right;
+}
+
+ .disabledIcon{
+    cursor: not-allowed;
 }

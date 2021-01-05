@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { InteractionService } from 'src/app/services/interaction.service';
+import { InteractionService } from '../../services/interaction.service';
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-app-tabs',

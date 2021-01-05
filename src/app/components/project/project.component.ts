@@ -1,16 +1,16 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { InteractionService } from 'src/app/services/interaction.service';
-import { DataService } from 'src/app/services/data.service';
+import { InteractionService } from '../../services/interaction.service';
+import { DataService } from '../../services/data.service';
 import { MatDialogConfig, MatDialog, MatSnackBar, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PropertyInstance, Project, Model, Dataset, Weight, User, PermissionStatus, ProcessingObject, ProcessStatus } from 'src/app/components/power-user/power-user.component';
+import { PropertyInstance, Project, Model, Dataset, Weight, User, PermissionStatus, ProcessingObject, ProcessStatus } from '../power-user/power-user.component';
 import { UploadDatasetsDialogComponent } from '../upload-datasets-dialog/upload-datasets-dialog.component';
 import { UpdateWeightDialogComponent } from '../update-weight-dialog/update-weight-dialog.component';
 import { ShowOutputDetailsDialogComponent } from '../show-output-details-dialog/show-output-details-dialog.component';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 export class Task {
@@ -167,6 +167,7 @@ export class ProjectComponent implements OnInit {
   searchIcon = "search";
   markUnreadIcon = "markUnread";
   stopProcessIcon = "stopProcess";
+  inputProcessId: string;
 
   trainProcessStarted = false;
   inferenceProcessStarted = false;
@@ -217,6 +218,7 @@ export class ProjectComponent implements OnInit {
 
   weightOwners;
   weightDisplayMode;
+  inputWeightName: string;
 
   //project users
   users = [];
@@ -227,7 +229,13 @@ export class ProjectComponent implements OnInit {
   projectNameValue = this._interactionService.projectName;
   projectOwnerValue = this._interactionService.projectOwner;
   selectedUsersData;
+  selectedAssociatedUsers;
+  disabledDeleteUsersButton = true;
   projectUsersList = [];
+  inputProjectName: string;
+  inputUsersName: string;
+
+  searchText = '';
 
   //inference single
   datasetImagePath: string;
@@ -341,6 +349,7 @@ export class ProjectComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
+  @ViewChild(MatSelectionList) associatedUsersSelection: MatSelectionList;
 
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
@@ -693,6 +702,14 @@ export class ProjectComponent implements OnInit {
     )
   }
 
+  initialiseDeleteProjectUsersButton() {
+    this._interactionService.deleteProjectUsersButtonState$.subscribe(
+      state => {
+        this.disabledDeleteUsersButton = state;
+      }
+    )
+  }
+
   resetSelectedOptions() {
     this._interactionService.resetSelectedOptions();
   }
@@ -754,7 +771,7 @@ export class ProjectComponent implements OnInit {
               }
               if (result.selectedUsername != null && result.selectedUsername.length == 1) {
                 this.users.push({
-                  "username": result.selectedUsername,
+                  "username": result.selectedUsername[0],
                   "permission": PermissionStatus[1]
                 });
               }
@@ -769,7 +786,6 @@ export class ProjectComponent implements OnInit {
               this._dataService.uploadDataset(this.datasetName, taskId, this.datasetPath, this.users, this.datasetPublic).subscribe(data => {
                 if (data.statusText == "Created") {
                   this.openSnackBar(this.translate.instant('project.uploadDatasetResult'));
-                  console.log(data.body);
                   console.log("dataset " + this.datasetName + " uploaded");
                 }
               }, error => {
@@ -1382,7 +1398,7 @@ export class ProjectComponent implements OnInit {
     console.log(process);
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
-      process.projectId = status.projectId;
+      process.projectId = process.projectId;
       process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
@@ -1409,7 +1425,7 @@ export class ProjectComponent implements OnInit {
     console.log(process);
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
-      process.projectId = status.projectId;
+      process.projectId = process.projectId;
       process.process_data = status.process_data;
       process.process_type = status.process_type;
       process.process_status = status.process_status;
@@ -1525,13 +1541,16 @@ export class ProjectComponent implements OnInit {
   }
 
   stopProcess(process) {
+    this._interactionService.showDeleteInput = true;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
       dialogTitle: this.translate.instant('project.stopTraining'),
       dialogContent: this.translate.instant('project.areYouSureStop'),
-      trainingTime: ""
+      dialogDeletedItemInputValue: this.inputProcessId,
+      dialogDeletedItem: process.processId,
+      deletedItemInputPlaceHolder: this.translate.instant('project.processIdStopped'),
     }
 
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
@@ -1539,20 +1558,25 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this._dataService.stopProcess(process.processId).subscribe(data => {
-          if (data.statusText == "OK") {
-            this.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
-            this.trainProcessStarted = false;
-            this.inferenceProcessStarted = false;
-            process.showStopButton = false;
-            process.showDisabledButton = true;
-            process.process_status = ProcessStatus[2];
-          }
-          else {
-            this.trainProcessStarted = true;
-            this.inferenceProcessStarted = true;
-          }
-        });
+        this.inputProcessId = result.dialogDeletedItemInputValue;
+        if (this.inputProcessId == process.processId) {
+          this._dataService.stopProcess(process.processId).subscribe(data => {
+            if (data.statusText == "OK") {
+              this.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
+              this.trainProcessStarted = false;
+              this.inferenceProcessStarted = false;
+              process.showStopButton = false;
+              process.showDisabledButton = true;
+              process.process_status = ProcessStatus[2];
+            }
+            else {
+              this.trainProcessStarted = true;
+              this.inferenceProcessStarted = true;
+            }
+          });
+        } else {
+          this.openSnackBar(this.translate.instant('project.errorMessageStopProcess'));
+        }
       }
       else {
         console.log('Canceled');
@@ -1688,7 +1712,7 @@ export class ProjectComponent implements OnInit {
         this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username !== this._interactionService.projectOwner);
         console.log(data.body);
       }, error => {
-          this.openSnackBar("Error: " + error.error.Error);
+        this.openSnackBar("Error: " + error.error.Error);
       })
   }
 
@@ -1843,13 +1867,16 @@ export class ProjectComponent implements OnInit {
   }
 
   deleteWeight(weight) {
+    this._interactionService.showDeleteInput = true;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
-      dialogTitle: this.translate.instant('project.deleteWeightTile'),
-      dialogContent: this.translate.instant('project.areYouSureDeleteWeight'),
-      trainingTime: ""
+      dialogTitle: this.translate.instant('project.deleteWeightTitle'),
+      dialogDeletedItemInputValue: this.inputWeightName,
+      dialogDeletedItem: weight.weightName,
+      deletedItemInputPlaceHolder: this.translate.instant('project.weightName'),
+      dialogContent: this.translate.instant('project.areYouSureDeleteWeight')
     }
 
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
@@ -1857,21 +1884,26 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this._dataService.deleteWeight(weight.weightId).subscribe(data => {
-          this.openSnackBar(this.translate.instant('project.succesMessageDeleteWeight'));
-          this.showWeightDetailsTable = false;
-          let modelList = this._interactionService.getModelsByTaskArray();
-          modelList.forEach(model => {
-            if (model.name == weight.modelName) {
-              this.modelIdEditWeight = model.id;
-            }
+        this.inputWeightName = result.dialogDeletedItemInputValue;
+        if (this.inputWeightName == weight.weightName) {
+          this._dataService.deleteWeight(weight.weightId).subscribe(data => {
+            this.openSnackBar(this.translate.instant('project.succesMessageDeleteWeight'));
+            this.showWeightDetailsTable = false;
+            let modelList = this._interactionService.getModelsByTaskArray();
+            modelList.forEach(model => {
+              if (model.name == weight.modelName) {
+                this.modelIdEditWeight = model.id;
+              }
+            });
+            this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
+              this.displayWeightsListByModel(data);
+            })
+          }, error => {
+            this.openSnackBar("Error: " + error.statusText);
           });
-          this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
-            this.displayWeightsListByModel(data);
-          })
-        }, error => {
-          this.openSnackBar("Error: " + error.statusText);
-        });
+        } else {
+          this.openSnackBar(this.translate.instant('project.errorMessageDeleteWeight'));
+        }
       } else {
         console.log('Canceled');
       }
@@ -2095,6 +2127,62 @@ export class ProjectComponent implements OnInit {
       }
   }
 
+  deleteUser(projectName) {
+    this._interactionService.showDeleteInput = true;
+    let nrOfSelectedUsers;
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('project.deleteUsersTitle'),
+      dialogDeletedItemInputValue: this.inputUsersName,
+      dialogDeletedItem: this.selectedAssociatedUsers,
+      deletedItemInputPlaceHolder: this.translate.instant('project.inputPlaceHolderUsersName'),
+      dialogContent: this.translate.instant('project.areYouSureDeleteUsers')
+    }
+
+    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result && this.selectedAssociatedUsers != null) {
+        this._interactionService.usersAssociatedArray.push({ "username": this._interactionService.projectOwner, "permission": PermissionStatus[0] });
+        this.selectedAssociatedUsers.forEach(selectedAssociatedUser => {
+          this.inputUsersName = result.dialogDeletedItemInputValue;
+          if (this.inputUsersName == this.selectedAssociatedUsers) {
+            this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != selectedAssociatedUser)
+            if (this.selectedAssociatedUsers.length == 1) {
+              nrOfSelectedUsers = 0;
+            } else {
+              nrOfSelectedUsers = 1;
+            }
+            this._dataService.updateProject(projectName, this._interactionService.currentProject.id, this._interactionService.currentProject.task_id,
+              this._interactionService.usersAssociatedArray).subscribe(data => {
+                if (nrOfSelectedUsers == 0) {
+                  this.openSnackBar(this.translate.instant('project.succesMessageDeleteAssociatedUser'));
+                } else {
+                  this.openSnackBar(this.translate.instant('project.succesMessageDeleteAssociatedUsers'));
+                }
+                this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner);
+                this._interactionService.usersList.push({ "username": selectedAssociatedUser, "permission": PermissionStatus[1] });
+                this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
+                this.updateUsersList(this._interactionService.usersList);
+                this._interactionService.resetProjectsList(data.body);
+              }, error => {
+                this._interactionService.usersAssociatedArray.push({ "username": selectedAssociatedUser, "permission": PermissionStatus[1] });
+                this.openSnackBar("Error: " + error.statusText);
+              });
+          } else {
+            this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner);
+            this.openSnackBar(this.translate.instant('project.errorMessageDeleteAssociatedUsers'));
+          }
+        })
+      } else {
+        console.log('Canceled');
+      }
+    });
+  }
+
   cancelUpdateProject() {
     this.usersSelection.selectedOptions.clear();
     this.projectNameValue = null;
@@ -2104,13 +2192,16 @@ export class ProjectComponent implements OnInit {
   }
 
   deleteProject(projectId) {
+    this._interactionService.showDeleteInput = true;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
-      dialogTitle: this.translate.instant('project.deleteProjectTile'),
-      dialogContent: this.translate.instant('project.areYouSureDeleteProject'),
-      trainingTime: ""
+      dialogTitle: this.translate.instant('project.deleteProjectTitle'),
+      dialogDeletedItemInputValue: this.inputProjectName,
+      dialogDeletedItem: this.projectNameValue,
+      deletedItemInputPlaceHolder: this.translate.instant('powerUser.projectName'),
+      dialogContent: this.translate.instant('project.areYouSureDeleteProject')
     }
 
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
@@ -2118,13 +2209,18 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this._dataService.deleteProject(projectId).subscribe(data => {
-          this.openSnackBar(this.translate.instant('project.succesMessageDeleteProject'));
-          this.router.navigate(['/power-user']);
-          this._interactionService.closeProjectTab();
-        }, error => {
-          this.openSnackBar("Error: " + error.error.Error);
-        });
+        this.inputProjectName = result.dialogDeletedItemInputValue;
+        if (this.inputProjectName == this.projectNameValue) {
+          this._dataService.deleteProject(projectId).subscribe(data => {
+            this.openSnackBar(this.translate.instant('project.succesMessageDeleteProject'));
+            this.router.navigate(['/power-user']);
+            this._interactionService.closeProjectTab();
+          }, error => {
+            this.openSnackBar("Error: " + error.error.Error);
+          });
+        } else {
+          this.openSnackBar(this.translate.instant('project.errorMessageDeleteProject'));
+        }
       } else {
         console.log('Canceled');
       }

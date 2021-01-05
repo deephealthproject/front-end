@@ -27,6 +27,7 @@ import { LoginUserComponent } from './components/login-user/login-user.component
 import { ShowProfileDetailsDialogComponent } from './components/show-profile-details-dialog/show-profile-details-dialog.component';
 import { AuthGuard } from './auth.guard';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { FilterPipe } from './components/pipes/filter.pipe';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -55,7 +56,8 @@ const routes: Routes = [
     RegisterUserComponent,
     LoginUserComponent,
     ShowProfileDetailsDialogComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    FilterPipe
   ],
   imports: [
     RouterModule.forRoot(routes),

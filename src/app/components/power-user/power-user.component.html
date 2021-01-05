@@ -36,8 +36,10 @@
           <div class="div-left-text-model">
             <span>{{dataset.name}}</span>
           </div>
-          <mat-icon style="float: right; cursor: pointer; color: rgb(137, 202, 235);" title="{{'project.deleteDataset' | translate }}"
-            svgIcon="delete" (click)="deleteDataset(dataset.id)"></mat-icon>
+          <span *ngFor="let datasetUser of dataset.users">
+            <mat-icon *ngIf="datasetUser.username == this._interactionService.username && datasetUser.permission == 'OWN'" style="float: right; cursor: pointer; color: rgb(137, 202, 235);"
+              title="{{'project.deleteDataset' | translate }}" svgIcon="delete" (click)="deleteDataset(dataset.id, dataset.name)"></mat-icon>
+          </span>
         </div>
       </div>
     </div>
@@ -91,7 +93,7 @@
           <div *ngFor="let project of projects" class="div-right-icon-delete">
             <div *ngFor="let currentProjectUser of project.users">
               <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
-                class="div-icon-delete" title="{{'project.deleteProject' | translate }}" svgIcon="delete" (click)="deleteProject(project.id)"></mat-icon>
+                class="div-icon-delete" title="{{'project.deleteProject' | translate }}" svgIcon="delete" (click)="deleteProject(project.id, project.name)"></mat-icon>
             </div>
           </div>
         </td>

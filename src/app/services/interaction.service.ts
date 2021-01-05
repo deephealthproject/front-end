@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Project, Model, Weight, User, ProcessingObject } from '../components/power-user/power-user.component';
-import { DataService } from 'src/app/services/data.service';
+import { DataService } from './data.service';
 import { AuthService } from './auth.service';
 
 export class TabObject {
@@ -37,7 +37,7 @@ export class InteractionService extends TabObject {
   projectInputFiles;
 
   datasetImageData: string;
-  projectDatasetDisplayMode;
+  projectDatasetDisplayMode = true;
 
   modelData: string;
   uploadModelIsClicked:Boolean;
@@ -218,12 +218,14 @@ export class InteractionService extends TabObject {
   editProjectButtonState$ = this._editProjectButtonStateSource.asObservable();
   private _cancelEditProjectButtonStateSource = new Subject<boolean>();
   cancelEditProjectButtonState$ = this._cancelEditProjectButtonStateSource.asObservable();
+  private _deleteProjectUsersButtonStateSource = new Subject<boolean>();
+  deleteProjectUsersButtonState$ = this._deleteProjectUsersButtonStateSource.asObservable();
   projectName;
   projectOwner;
   username;
   currentProject: Project;
   usersAssociatedArray = [];
-  usersList: Array<User> = [];
+  usersList = [];
   userLoggedOut: Boolean;
 
   private _usersListSource = new Subject<Array<User>>();
@@ -233,6 +235,7 @@ export class InteractionService extends TabObject {
   usersAssociatedList$ = this._usersAssociatedListSource.asObservable();
 
   runningProcesses: ProcessingObject[] = [];
+  showDeleteInput: Boolean = true;
   
   //reset-paswword
   private _emailValueResetPasswordSource = new Subject<string>();

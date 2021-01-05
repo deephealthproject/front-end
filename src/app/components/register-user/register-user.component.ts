@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { MatSnackBar } from '../../../../node_modules/@angular/material';
-import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
+import { MatSnackBar } from '@angular/material';
+import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
-import { Router } from '../../../../node_modules/@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../power-user/power-user.component';
 
@@ -108,8 +108,8 @@ export class RegisterUserComponent implements OnInit {
               this.username = data.body.username;
               this.email = data.body.email;
               this.password = data.body.password;
-              this.firstName = data.body.firstName;
-              this.lastName = data.body.lastName;
+              this.firstName = data.body.first_name;
+              this.lastName = data.body.last_name;
               console.log(data.body);
               console.log("User " + this.username + " was created");
               this.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
