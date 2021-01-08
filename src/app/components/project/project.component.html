@@ -685,7 +685,7 @@
                 {{'project.projectName' | translate}}
                 <input style="margin-left: 33px;" name="projectName" value={{projectNameValue}} (change)="changeValueProjectName($event)">
                 <button mat-icon-button style="float: right;" [disabled]="this._interactionService.username != this._interactionService.projectOwner"
-                    (click)="deleteProject(this._interactionService.currentProject.id)">
+                    (click)="deleteProject(this._interactionService.currentProject)">
                     <mat-icon [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner}" class="div-icon-delete"
                         title="{{'project.deleteProject' | translate }}" svgIcon="delete"></mat-icon>
                 </button>

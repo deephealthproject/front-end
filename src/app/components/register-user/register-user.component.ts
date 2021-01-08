@@ -23,7 +23,6 @@ export class RegisterUserComponent implements OnInit {
   registerButton = false;
 
   constructor(private _authService: AuthService, private _interactionService: InteractionService,
-    private snackBar: MatSnackBar,
     private translate: TranslateService,
     private router: Router) {
   }
@@ -81,19 +80,13 @@ export class RegisterUserComponent implements OnInit {
     )
   }
 
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 5000,
-    });
-  }
-
   goToLogin(pageName: string) {
     this.router.navigate([`${pageName}`]);
   }
 
   createUser(username, email, password, firstName, lastName) {
-    if(username == null || username == undefined || password == null || password == undefined || email == null || email == undefined) {
-      this.openSnackBar(this.translate.instant('register.errorFieldsAreIncomplete'));
+    if (username == null || username == undefined || password == null || password == undefined || email == null || email == undefined) {
+      this._interactionService.openSnackBar(this.translate.instant('register.errorFieldsAreIncomplete'));
     }
     else {
       this._authService.createUser(username, email, password, firstName, lastName).subscribe(data => {
@@ -112,16 +105,16 @@ export class RegisterUserComponent implements OnInit {
               this.lastName = data.body.last_name;
               console.log(data.body);
               console.log("User " + this.username + " was created");
-              this.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
+              this._interactionService.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
             } else {
               console.log('User already exists');
-              this.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
+              this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
             }
           }
         }
       }, error => {
-        this.openSnackBar("Error: " + error.statusText);
-        this.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
+        this._interactionService.openSnackBar("Error: " + error.statusText);
+        this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
       });
     }
   }

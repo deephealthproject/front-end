@@ -56,7 +56,6 @@ export class HeaderComponent implements OnInit {
 
   viewProfile(data) {
     this._interactionService.userProfileDetails = data;
-    this._interactionService.showDeleteInput = false;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;

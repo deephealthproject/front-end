@@ -8,7 +8,7 @@ import { DataService } from '../../services/data.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
+import { DeleteDialogComponent } from '../delete-dialog/delete-dialog.component';
 
 export class Project {
   id: number;
@@ -109,6 +109,11 @@ export class ProcessData {
   validation_accuracy;
 }
 
+export class ItemToDelete {
+  type: string;
+  deletedItem: any;
+}
+
 @Component({
   selector: 'app-power-user',
   templateUrl: './power-user.component.html',
@@ -141,8 +146,6 @@ export class PowerUserComponent implements OnInit {
   users = [];
   usersArray: Array<User> = [];
   projectOwnerIcon = "checkedOwner";
-  inputProjectName: string;
-  inputDatasetName: string;
 
   constructor(private _interactionService: InteractionService, public _authService: AuthService,
     private matIconRegistry: MatIconRegistry,
@@ -150,7 +153,6 @@ export class PowerUserComponent implements OnInit {
     public dialog: MatDialog,
     private _dataService: DataService,
     public translate: TranslateService,
-    private snackBar: MatSnackBar,
     private router: Router) {
     this.matIconRegistry.addSvgIcon(
       'folder',
@@ -262,12 +264,12 @@ export class PowerUserComponent implements OnInit {
           }
           else
             console.log('Project already exists');
-          this.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
+          this._interactionService.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
         }
       }
       else {
         console.log('Canceled');
-        this.openSnackBar(this.translate.instant('powerUser.errorMessageNewProject'));
+        this._interactionService.openSnackBar(this.translate.instant('powerUser.errorMessageNewProject'));
       }
     });
   }
@@ -317,9 +319,34 @@ export class PowerUserComponent implements OnInit {
         this._interactionService.changeStopButton(trainingProcess);
         this._interactionService.runningProcesses.push(trainingProcess);
       }
-      console.log(this._interactionService.runningProcesses);
       //id: 50, celery_id: "0883b0a5-2333-401d-a78e-d362183784ed", project_id: 79, modelweights_id: 443}
     })
+    this._dataService.pastInferenceProcesses(currentProject.id).subscribe(data => {
+      contentData = data;
+      for (let process of contentData) {
+        let inferenceProcess = new ProcessingObject;
+        inferenceProcess.projectId = process.project_id;
+        inferenceProcess.processId = process.id;
+        inferenceProcess.process_status = ProcessStatus[2];
+        inferenceProcess.process_type = "inference";
+        inferenceProcess.unread = false;
+        this._interactionService.changeStopButton(inferenceProcess);
+        this._interactionService.runningProcesses.push(inferenceProcess);
+      }
+    });
+    this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
+      contentData = data;
+      for (let process of contentData) {
+        let inferenceSingleProcess = new ProcessingObject;
+        inferenceSingleProcess.projectId = process.project_id;
+        inferenceSingleProcess.processId = process.id;
+        inferenceSingleProcess.process_status = ProcessStatus[2];
+        inferenceSingleProcess.process_type = "inferenceSingle";
+        inferenceSingleProcess.unread = false;
+        this._interactionService.changeStopButton(inferenceSingleProcess);
+        this._interactionService.runningProcesses.push(inferenceSingleProcess);
+      }
+    });
   }
 
   showProject(selectedProject: Project) {
@@ -386,42 +413,32 @@ export class PowerUserComponent implements OnInit {
     p.inference_id = contentData.inference_id;
     p.users = contentData.users;
     this.projects.push(p);
-    this.openSnackBar(this.translate.instant('powerUser.successMessageCreatedNewProject'));
+    this._interactionService.openSnackBar(this.translate.instant('powerUser.successMessageCreatedNewProject'));
   };
 
-  deleteProject(projectId, projectName) {
-    this._interactionService.showDeleteInput = true;
+  deleteProject(project) {
+    let itemToDelete = new ItemToDelete();
+    itemToDelete.type = "project";
+    itemToDelete.deletedItem = project;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
-      dialogTitle: this.translate.instant('project.deleteProjectTitle'),
-      dialogDeletedItemInputValue: this.inputProjectName,
-      dialogDeletedItem: projectName,
+      dialogTitle: this.translate.instant('delete-dialog.deleteProjectTitle'),
+      dialogDeletedItem: itemToDelete.deletedItem.name,
       deletedItemInputPlaceHolder: this.translate.instant('powerUser.projectName'),
-      dialogContent: this.translate.instant('project.areYouSureDeleteProject')
+      dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteProject'),
+      deleteObject: itemToDelete
     }
 
-    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    let dialogRef = this.dialog.open(DeleteDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this.inputProjectName = result.dialogDeletedItemInputValue;
-        if (this.inputProjectName == projectName) {
-          this._dataService.deleteProject(projectId).subscribe(data => {
-            this.openSnackBar(this.translate.instant('project.succesMessageDeleteProject'));
-            this._dataService.projects().subscribe(data => {
-              this.updateProjectsList(data);
-            })
-          }, error => {
-            this.openSnackBar("Error: " + error.error.Error);
-          });
-        } else {
-          this.openSnackBar(this.translate.instant('project.errorMessageDeleteProject'));
-        }
-      } else {
-        console.log('Canceled');
+        this._dataService.projects().subscribe(data => {
+          this.updateProjectsList(data);
+        })
       }
     });
   }
@@ -505,42 +522,32 @@ export class PowerUserComponent implements OnInit {
     }
   }
 
-  deleteDataset(datasetId, datasetName) {
-    this._interactionService.showDeleteInput = true;
+  deleteDataset(dataset) {
+    let itemToDelete = new ItemToDelete();
+    itemToDelete.type = "dataset";
+    itemToDelete.deletedItem = dataset;
     let taskId;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.data = {
-      dialogTitle: this.translate.instant('project.deleteDatasetTitle'),
-      dialogDeletedItemInputValue: this.inputDatasetName,
-      dialogDeletedItem: datasetName,
+      dialogTitle: this.translate.instant('delete-dialog.deleteDatasetTitle'),
+      dialogDeletedItem: itemToDelete.deletedItem.name,
       deletedItemInputPlaceHolder: this.translate.instant('project.datasetName'),
-      dialogContent: this.translate.instant('project.areYouSureDeleteDataset')
+      dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteDataset'),
+      deleteObject: itemToDelete
     }
 
-    let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
+    let dialogRef = this.dialog.open(DeleteDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
-        this.inputDatasetName = result.dialogDeletedItemInputValue;
-        if (this.inputDatasetName == datasetName) {
-          this._dataService.deleteDataset(datasetId).subscribe(data => {
-            this.openSnackBar(this.translate.instant('project.succesMessageDeleteDataset'));
-            this._dataService.getDatasets(taskId).subscribe(data => {
-              this.updateDatasetsList(data);
-            })
-          }, error => {
-            this.openSnackBar("Error: " + error.statusText);
-          });
-        } else {
-          this.openSnackBar(this.translate.instant('project.errorMessageDeleteDataset'));
-        }
-      } else {
-        console.log('Canceled');
+        this._dataService.getDatasets(taskId).subscribe(data => {
+          this.updateDatasetsList(data);
+        });
       }
-    });
+    })
   }
 
   //models functions
@@ -586,12 +593,6 @@ export class PowerUserComponent implements OnInit {
         }
       }
     }
-  }
-
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 5000,
-    });
   }
 
   getUsers() {

@@ -28,6 +28,7 @@ import { ShowProfileDetailsDialogComponent } from './components/show-profile-det
 import { AuthGuard } from './auth.guard';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { FilterPipe } from './components/pipes/filter.pipe';
+import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -57,7 +58,8 @@ const routes: Routes = [
     LoginUserComponent,
     ShowProfileDetailsDialogComponent,
     ResetPasswordComponent,
-    FilterPipe
+    FilterPipe,
+    DeleteDialogComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -90,7 +92,8 @@ const routes: Routes = [
     UploadDatasetsDialogComponent,
     UpdateWeightDialogComponent,
     ShowOutputDetailsDialogComponent,
-    ShowProfileDetailsDialogComponent
+    ShowProfileDetailsDialogComponent,
+    DeleteDialogComponent
   ],
   providers: [AuthService, AuthGuard,
     {

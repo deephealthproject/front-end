@@ -21,7 +21,7 @@
         {{'upload-dataset-dialog.datasetDisplayMode' | translate}}
       </mat-checkbox>
     </div>
-    <div *ngIf="!datasetDisplayModeValue">
+    <div *ngIf="!datasetDisplayModeValue && !this._interactionService.uploadModelIsClicked">
         <mat-form-field style="color:#336E9F;">
             Select user
             <mat-select [(value)]=selectedUsername multiple>

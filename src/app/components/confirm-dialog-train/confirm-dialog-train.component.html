@@ -1,13 +1,7 @@
-<h1 mat-dialog-title>{{dialogTitle}} {{dialogDeletedItem}} </h1>
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
 
 <mat-dialog-content>
   <div>
-    <div *ngIf="this._interactionService.showDeleteInput">
-      {{'confirm-dialog-train.deleteItemMessage' | translate}}
-      <div style="padding-top: 8px;">
-        <input style="width: 70%; padding-top: 9px; padding-bottom: 9px;" [(ngModel)]="dialogDeletedItemInputValue" placeholder="{{deletedItemInputPlaceHolder}}">
-      </div>
-    </div>
     <div style="padding-top: 8px;">
       {{dialogContent}}
     </div>

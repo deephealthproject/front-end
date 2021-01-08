@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { Project, Model, Weight, User, ProcessingObject } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
+import { MatSnackBar } from '../../../node_modules/@angular/material';
 
 export class TabObject {
   name: string;
@@ -15,7 +16,7 @@ export class TabObject {
 })
 export class InteractionService extends TabObject {
 
-  constructor(private _dataService: DataService, private _authService: AuthService) {
+  constructor(private _dataService: DataService, private _authService: AuthService, private snackBar: MatSnackBar) {
     super();
   }
 
@@ -235,7 +236,6 @@ export class InteractionService extends TabObject {
   usersAssociatedList$ = this._usersAssociatedListSource.asObservable();
 
   runningProcesses: ProcessingObject[] = [];
-  showDeleteInput: Boolean = true;
   
   //reset-paswword
   private _emailValueResetPasswordSource = new Subject<string>();
@@ -724,5 +724,11 @@ export class InteractionService extends TabObject {
       process.showDisabledButton = true;
       process.showStopButton = false;
     }
+  }
+
+  openSnackBar(message) {
+    this.snackBar.open(message, "close", {
+      duration: 5000,
+    });
   }
 }

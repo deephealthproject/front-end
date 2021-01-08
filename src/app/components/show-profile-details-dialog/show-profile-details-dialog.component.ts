@@ -38,7 +38,6 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
   constructor(public dialogRef: MatDialogRef<ShowProfileDetailsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ProfileDetailsData, public _authService: AuthService, public _interactionService: InteractionService,
     public translate: TranslateService,
-    private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private router: Router) {
     this.dialogTitle = data.dialogTitle;
@@ -85,16 +84,10 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
     this.disabledActionButton = true;
   }
 
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 5000,
-    });
-  }
-
   savePassword(oldPassword, newPassword, confirmNewPassword) {
     this._authService.changePassword(oldPassword, newPassword, confirmNewPassword).subscribe(data => {
       if (data.statusText == "OK") {
-        this.openSnackBar(this.translate.instant('profile-details-dialog.successMeessageChangePassword'));
+        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.successMeessageChangePassword'));
         this.isChangePasswordClicked = false;
         this.disabledChangePasswordButton = false;
         this.disabledDeleteAccountButton = false;
@@ -104,12 +97,12 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
         this.confirmNewPasswordValue = null;
       }
     }, error => {
-        if (error.error.old_password) {
-          this.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageOldPassword'));
-        }
-        if (error.error.non_field_errors) {
-          this.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageInvalidNewPassword'));
-        }
+      if (error.error.old_password) {
+        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageOldPassword'));
+      }
+      if (error.error.non_field_errors) {
+        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageInvalidNewPassword'));
+      }
 
     });
   }
@@ -141,14 +134,14 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
     this._authService.updateUserData(username, email, firstName, lastName).subscribe(data => {
       if (data.statusText == "OK") {
         this._interactionService.resetUserProfileDetails(data.body);
-        this.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
+        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
         this.isUpdateProfileClicked = false;
         this.disabledUpdateProfileButton = false;
         this.disabledDeleteAccountButton = false;
         this.disabledActionButton = false;
       }
     }), error => {
-      this.openSnackBar("Error:" + error.statusText);
+      this._interactionService.openSnackBar("Error:" + error.statusText);
     }
   }
 
@@ -187,7 +180,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
         this._authService.deleteUser().subscribe(data => {
           if (data.status == 204) {
             console.log(data);
-            this.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageDeleteAccount'));
+            this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageDeleteAccount'));
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('username');

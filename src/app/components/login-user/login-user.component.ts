@@ -18,7 +18,6 @@ export class LoginUserComponent implements OnInit {
   disabledLoginButton = false;
 
   constructor(private _authService: AuthService, private _interactionService: InteractionService,
-    private snackBar: MatSnackBar,
     private router: Router,
     private translate: TranslateService) {
   }
@@ -62,12 +61,6 @@ export class LoginUserComponent implements OnInit {
     this.router.navigate([`${pageName}`]);
   }
 
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 5000,
-    });
-  }
-
   login(username, password) {
     this._authService.login(username, password).subscribe(data => {
       if (data.statusText == "OK") {
@@ -78,10 +71,10 @@ export class LoginUserComponent implements OnInit {
         this._interactionService.username = username;
         this._interactionService.showUserTab("Home Page");
         this._interactionService.showProjectTab(null);
-       this._interactionService.changeCheckedStateLogoutButton(true);
+        this._interactionService.changeCheckedStateLogoutButton(true);
       }
     }, error => {
-      this.openSnackBar(this.translate.instant('login.errorBadCredentialsLogin'));
+      this._interactionService.openSnackBar(this.translate.instant('login.errorBadCredentialsLogin'));
     });
   }
 }

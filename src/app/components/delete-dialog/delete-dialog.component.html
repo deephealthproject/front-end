@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>{{dialogTitle}} {{dialogDeletedItem}} </h1>
+
+<mat-dialog-content>
+  <div>
+    {{'delete-dialog.deleteItemMessage' | translate}}
+    <div style="padding-top: 8px;">
+      <input style="width: 70%; padding-top: 9px; padding-bottom: 9px;" [(ngModel)]="dialogDeletedItemInputValue" placeholder="{{deletedItemInputPlaceHolder}}">
+    </div>
+    <div style="padding-top: 8px;">
+      {{dialogContent}}
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-raised-button (click)="deleteItem()">{{'delete-dialog.OKButton' | translate}}</button>
+  <button mat-button mat-dialog-close>{{'delete-dialog.CancelButton' | translate}}</button>
+</mat-dialog-actions>

@@ -16,7 +16,7 @@ export class ResetPasswordComponent implements OnInit {
   resetCodeValue;
 
 
-  constructor(public _authService: AuthService, public _interactionService: InteractionService, private router: Router, private snackBar: MatSnackBar,
+  constructor(public _authService: AuthService, public _interactionService: InteractionService, private router: Router,
     private translate: TranslateService) { }
 
   ngOnInit() {
@@ -41,12 +41,6 @@ export class ResetPasswordComponent implements OnInit {
     );
   }
 
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 5000,
-    });
-  }
-
   goToLogin(pageName: string) {
     this.router.navigate([`${pageName}`]);
   }
@@ -61,11 +55,11 @@ export class ResetPasswordComponent implements OnInit {
     // this._interactionService.divResetPassword = true;
     this._authService.resetPassword(resetCode, newPassword).subscribe(data => {
       if (data.statusText == "OK") {
-        this.openSnackBar(this.translate.instant('reset-password.successMeessageResetPassword'));
+        this._interactionService.openSnackBar(this.translate.instant('reset-password.successMeessageResetPassword'));
         this.router.navigate(['']);
       }
     }, error => {
-      this.openSnackBar(this.translate.instant('reset-password.errorMessageResetPassword'));
+      this._interactionService.openSnackBar(this.translate.instant('reset-password.errorMessageResetPassword'));
     });
   }
 }

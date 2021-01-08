@@ -91,7 +91,6 @@
         "uploadDatasetResult": "The upload was completed!",
         "uploadDatasetExists": "This dataset already exists!",
         "isUrlLink": "Url link",
-
         "uploadModel": "Upload model",
         "uploadModelProcess": "Upload a model",
         "uploadModelName": "Model name",
@@ -101,7 +100,6 @@
         "uploadModelExists": "This model already exists!",
         "errorUploadModelProcessMessage": "The upload model process has failed!",
         "finishedUploadModelProcessMessage": "The upload model process has finished!",
-
         "updateWeightProcess": "Update weight name",
         "updatWeightId": "Update weight id",
         "updateWeightName": "Weight name",
@@ -118,7 +116,6 @@
         "modelName": "Model Name",
         "pretrainedOn": "Pretrained On",
         "celeryId": "Celery Id",
-
         "outputResultList": "Output results detail list for process: ",
         "inferenceSingleImageUrlMessage": "Please enter the location of the image to process.",
         "viewOutputDetails": "View details",
@@ -145,7 +142,6 @@
         "outputStatusEvolution": "Evolution details",
         "outputStatusInferenceProcess": "Batch status is in progress ... ",
         "outputProcentageInferenceProcess": "%",
-
         "projectName": "Project name:",
         "projectOwner": "Project owner:",
         "associatedUsersToProject": "Associated users to this project:",
@@ -153,30 +149,7 @@
         "succesMessageUpdateProject": "Project info successfully updated!",
         "errorEditProjectUserPermission": "You do not have owner permission on this project!",
         "saveUpdateProjectButton": "Update",
-        "cancelUpdateProjectButton": "Cancel",
-        "deleteUsersTitle": "Delete user/s:",
-        "deleteUsers": "Delete users",
-        "inputPlaceHolderUsersName": "Users name",
-        "areYouSureDeleteUsers": "Are you sure that you want to permanently delete the selected user/users?",
-        "succesMessageDeleteAssociatedUser": "Associated user has been successfully deleted!",
-        "succesMessageDeleteAssociatedUsers": "Associated users have been successfully deleted!",
-        "errorMessageDeleteAssociatedUsers": "User/s could not be deleted because the name you entered is incorrect!",
-
-        "deleteDatasetTitle": "Delete dataset:",
-        "deleteDataset": "Delete dataset",
-        "areYouSureDeleteDataset": "Are you sure that you want to permanently delete the selected dataset?",
-        "succesMessageDeleteDataset": "Dataset has been successfully deleted!",
-        "errorMessageDeleteDataset": "The dataset could not be deleted because the name you entered is incorrect!",
-        "deleteWeightTitle": "Delete weight:",
-        "deleteWeight": "Delete weight",
-        "areYouSureDeleteWeight": "Are you sure that you want to permanently delete the selected weight?",
-        "succesMessageDeleteWeight": "Weight has been successfully deleted!",
-        "errorMessageDeleteWeight": "The weight could not be deleted because the name you entered is incorrect!",
-        "deleteProject": "Delete project",
-        "deleteProjectTitle": "Delete project:",
-        "areYouSureDeleteProject": "Are you sure that you want to permanently delete the selected project?",
-        "succesMessageDeleteProject": "Project has been successfully deleted!",
-        "errorMessageDeleteProject": "The project could not be deleted because the name you entered is incorrect!"
+        "cancelUpdateProjectButton": "Cancel"
     },
     "header": {
         "headerText": "Training models",
@@ -198,7 +171,6 @@
         "selectedWeight": " Selected weight: ",
         "errorDataset": "Please select a dataset.",
         "selectedDataset": "Selected dataset: ",
-        "deleteItemMessage": "Please enter the name of the item you want to delete.",
         "OKButton": "OK",
         "CancelButton": "Cancel"
     },
@@ -214,7 +186,7 @@
         "OKButton": "OK",
         "CancelButton": "Cancel"
     },
-    "output-details-dialog" : {
+    "output-details-dialog": {
         "dialogTitle": "Output detail for inference process",
         "proccessId": "Process id: ",
         "image": "Output Image",
@@ -252,7 +224,7 @@
         "cancelResetPassword": "Cancel",
         "successMeessageResetPassword": "Password has been successfully changed!",
         "errorMessageResetPassword": "Error: Cannot change the password!",
-        "errorEmailRequired" : "Email is required!",
+        "errorEmailRequired": "Email is required!",
         "errorResetCodeRequired": "Reset code is required!",
         "sendMailButton": "Send email",
         "messageResetCode": "Please enter the validation code sent by email and the new password."
@@ -281,6 +253,25 @@
         "deleteAccountDialogTitle": "Delete account",
         "areYouSureDeleteAccount": "Are you sure that you want to permanently delete your account? Projects and all your processes will be deleted too.",
         "succesMessageDeleteAccount": "Your account has been successfully deleted!"
+    },
+    "delete-dialog": {
+        "deleteItemMessage": "Please enter the name of the item you want to delete.",
+        "OKButton": "OK",
+        "CancelButton": "Cancel",
+        "deleteProjectTitle": "Delete project:",
+        "areYouSureDeleteProject": "Are you sure that you want to permanently delete the selected project?",
+        "succesMessageDeleteProject": "Project has been successfully deleted!",
+        "deleteDatasetTitle": "Delete dataset:",
+        "areYouSureDeleteDataset": "Are you sure that you want to permanently delete the selected dataset?",
+        "succesMessageDeleteDataset": "Dataset has been successfully deleted!",
+        "deleteWeightTitle": "Delete weight:",
+        "areYouSureDeleteWeight": "Are you sure that you want to permanently delete the selected weight?",
+        "succesMessageDeleteWeight": "Weight has been successfully deleted!",
+        "deleteUsersTitle": "Delete user/s:",
+        "inputPlaceHolderUsersName": "Users name",
+        "areYouSureDeleteUsers": "Are you sure that you want to permanently delete the selected user/users?",
+        "succesMessageDeleteAssociatedUser": "Associated user has been successfully deleted!",
+        "succesMessageDeleteAssociatedUsers": "Associated users have been successfully deleted!",
+        "errorMessageDeleteItem": "The selected element could not be deleted because the name you entered is incorrect!"
     }
-
 }

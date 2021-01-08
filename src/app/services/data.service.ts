@@ -206,6 +206,12 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
+  pastInferenceProcesses(project_id) : Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/inference?project_id=');
+    url += project_id;
+    return this.httpClient.get<any>(url);
+  }
+
   inferenceSingle(selectedWeightId, datasetImagePath, datasetImageData, selectedProjectId): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/inferenceSingle');
     const payload = {
@@ -216,6 +222,12 @@ export class DataService {
     }
     console.log(payload);
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  pastInferenceSingleProcesses(project_id) : Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/inferenceSingle?project_id=');
+    url += project_id;
+    return this.httpClient.get<any>(url);
   }
 
   status(processId): Observable<HttpResponse<any>> {
