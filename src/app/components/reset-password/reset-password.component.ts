@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { MatSnackBar } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 
@@ -46,19 +45,28 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   sendEmailToResetPassword(email) {
-    this._interactionService.divSendEmail = true;
-    this._interactionService.divResetPassword = false;
+    this._authService.resetPassword(email).subscribe(data => {
+      this._interactionService.divSendEmail = true;
+      this._interactionService.divResetPassword = false;
+      this._interactionService.openSnackBar(this.translate.instant('reset-password.successSendEmailForResetPassword'));
+    }, error => {
+      this._interactionService.divSendEmail = false;
+      this._interactionService.divResetPassword = true;
+      this._interactionService.openSnackBar(this.translate.instant('reset-password.errorMessageEmailForResetPassword'));
+    });
   }
 
-  resetPassword(resetCode, newPassword) {
-    // this._interactionService.divSendEmail = false;
-    // this._interactionService.divResetPassword = true;
-    this._authService.resetPassword(resetCode, newPassword).subscribe(data => {
+  resetPassword(newPassword, resetToken) {
+    this._authService.resetPasswordConfirm(newPassword, resetToken).subscribe(data => {
       if (data.statusText == "OK") {
-        this._interactionService.openSnackBar(this.translate.instant('reset-password.successMeessageResetPassword'));
+        this._interactionService.openSnackBar(this.translate.instant('reset-password.successMessageResetPassword'));
+        this._interactionService.divSendEmail = false;
+        this._interactionService.divResetPassword = true;
         this.router.navigate(['']);
       }
     }, error => {
+      this._interactionService.divSendEmail = true;
+      this._interactionService.divResetPassword = false;
       this._interactionService.openSnackBar(this.translate.instant('reset-password.errorMessageResetPassword'));
     });
   }

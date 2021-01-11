@@ -29,6 +29,7 @@ import { AuthGuard } from './auth.guard';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { FilterPipe } from './components/pipes/filter.pipe';
 import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
+import { ProgressSpinnerDialogComponent } from './components/progress-spinner-dialog/progress-spinner-dialog.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -59,7 +60,8 @@ const routes: Routes = [
     ShowProfileDetailsDialogComponent,
     ResetPasswordComponent,
     FilterPipe,
-    DeleteDialogComponent
+    DeleteDialogComponent,
+    ProgressSpinnerDialogComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -93,7 +95,8 @@ const routes: Routes = [
     UpdateWeightDialogComponent,
     ShowOutputDetailsDialogComponent,
     ShowProfileDetailsDialogComponent,
-    DeleteDialogComponent
+    DeleteDialogComponent,
+    ProgressSpinnerDialogComponent
   ],
   providers: [AuthService, AuthGuard,
     {

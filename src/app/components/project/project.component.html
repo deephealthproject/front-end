@@ -234,9 +234,6 @@
                                                 {{ trainMessage }}
                                             </p>
                                         </div>
-                                        <div style="padding-top: 15px;" *ngIf="trainSpinner">
-                                            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -533,7 +530,7 @@
                         <div style="padding-right: 10px; cursor: pointer;" title="{{'project.viewDetails' | translate }}" (click)="showWeightDetails(row)">
                             <mat-icon svgIcon="viewDetails" style="color: #3180ae;"></mat-icon>
                         </div>
-                        <div style="padding-right: 10px; cursor: pointer;" title="{{'project.deleteWeight' | translate }}" (click)="deleteWeight(row)">
+                        <div style="padding-right: 10px; cursor: pointer;" title="{{'delete-dialog.deleteWeight' | translate }}" (click)="deleteWeight(row)">
                             <mat-icon svgIcon="delete" style="color: #3180ae;"></mat-icon>
                         </div>
                         <div style="cursor: pointer;" title="{{'project.results' | translate }}" (click)="showOutputProcess(row)">
@@ -687,7 +684,7 @@
                 <button mat-icon-button style="float: right;" [disabled]="this._interactionService.username != this._interactionService.projectOwner"
                     (click)="deleteProject(this._interactionService.currentProject)">
                     <mat-icon [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner}" class="div-icon-delete"
-                        title="{{'project.deleteProject' | translate }}" svgIcon="delete"></mat-icon>
+                        title="{{'delete-dialog.deleteProject' | translate }}" svgIcon="delete"></mat-icon>
                 </button>
             </div>
             <div style="color: #3180ae; padding-top: 10px;">
@@ -727,7 +724,7 @@
                     <button mat-icon-button [disabled]="this._interactionService.username != this._interactionService.projectOwner || associatedUsersSelection.selectedOptions.selected.length == 0"
                         (click)="deleteUser(projectNameValue);">
                         <mat-icon [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner || associatedUsersSelection.selectedOptions.selected.length == 0}"
-                            class="div-icon-delete" title="{{'project.deleteUsers' | translate }}" svgIcon="delete"></mat-icon>
+                            class="div-icon-delete" title="{{'delete-dialog.deleteUsers' | translate }}" svgIcon="delete"></mat-icon>
                     </button>
                 </div>
             </div>

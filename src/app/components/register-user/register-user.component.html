@@ -5,28 +5,28 @@
     <mat-card-content>
       <form action="" #userForm="ngForm">
         <mat-form-field #username id="username">
-          <input matInput placeholder="Username" required name="username" ngModel #username="ngModel" value={{userNameValue}} [(ngModel)]="userNameValue">
+          <input matInput placeholder="{{'login.usernamePlaceholder' | translate}}" required name="username" ngModel #username="ngModel" value={{userNameValue}} [(ngModel)]="userNameValue">
           <mat-error *ngIf="username.errors?.required">{{'login.errorUsernameRequired' | translate}}</mat-error>
         </mat-form-field>
         <mat-form-field #email id="email">
-            <input matInput placeholder="Email" required email name="email" ngModel #email="ngModel" value={{emailValue}} [(ngModel)]="emailValue">
+            <input matInput placeholder="{{'register.emailPlaceholder' | translate}}" required email name="email" ngModel #email="ngModel" value={{emailValue}} [(ngModel)]="emailValue">
             <mat-error *ngIf="email.errors?.required">{{'register.errorEmailRequired' | translate}}</mat-error>
             <mat-error *ngIf="email.errors?.email">{{'register.errorEmailInvalid' | translate }}</mat-error>
           </mat-form-field>
         <mat-form-field #firstName id="firstName">
-          <input matInput placeholder="First name" name="firstName" value={{firstNameValue}} [(ngModel)]="firstNameValue">
+          <input matInput placeholder="{{'register.firstNamePlaceHolder' | translate}}" name="firstName" value={{firstNameValue}} [(ngModel)]="firstNameValue">
         </mat-form-field>
         <mat-form-field #lastName id="lastName">
-          <input matInput placeholder="Last Name" name="lastName" value={{lastNameValue}} [(ngModel)]="lastNameValue">
+          <input matInput placeholder="{{'register.lastNamePlaceHolder' | translate}}" name="lastName" value={{lastNameValue}} [(ngModel)]="lastNameValue">
         </mat-form-field>
         <mat-form-field #password id="password">
-          <input matInput placeholder="Password" type="password" required minlength="4" name="password" ngModel #password="ngModel"
+          <input matInput placeholder="{{'login.passwordPlaceholder' | translate}}" type="password" required minlength="4" name="password" ngModel #password="ngModel"
             value={{passwordValue}} [(ngModel)]="passwordValue">
           <mat-error *ngIf="password.errors?.required">{{'login.errorPasswordRequired' | translate}}</mat-error>
           <mat-error *ngIf="password.errors?.minlength">{{'login.errorPasswordLength' | translate}}</mat-error>
         </mat-form-field>
         <mat-form-field #confirmPassword id="confirmPassword">
-          <input matInput placeholder="Confirm the password" type="password" required name="confirmPassword" ngModel #confirmPassword="ngModel"
+          <input matInput placeholder="{{'register.confirmPasswordPlaceholder' | translate}}" type="password" required name="confirmPassword" ngModel #confirmPassword="ngModel"
             pattern="{{passwordValue}}" value={{confirmPasswordValue}} [(ngModel)]="confirmPasswordValue">
           <mat-error *ngIf="confirmPassword.errors?.required">{{'register.errorConfirmPasswordRequired' | translate}}</mat-error>
           <mat-error *ngIf="confirmPassword.errors?.pattern">{{'register.errorPasswordsNotMatch' | translate}}</mat-error>

@@ -22,7 +22,7 @@
   </div>
   <div *ngIf="!weightDisplayModeValue">
       <mat-form-field>
-          Select user
+          {{'update-weight-dialog.selectUsers' | translate}}
           <mat-select [(value)]=selectedUsername multiple>
               <mat-option *ngFor="let option of userDropdown" [value]="option.username">
                   {{option.username}}

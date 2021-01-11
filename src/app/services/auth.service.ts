@@ -73,13 +73,21 @@ export class AuthService {
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
   }
 
-  resetPassword(newPassword: string, confirmNewPassword: string): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat("/auth/change-password/");
+  resetPassword(userEmail: string): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat("/auth/password_reset/");
     const payload = {
-      new_password1: newPassword,
-      new_password2: confirmNewPassword
+      email: userEmail
     };
-    return this.httpClient.patch<any>(url, payload, { observe: 'response' });
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+  }
+
+  resetPasswordConfirm(newPassword: string, resetToken: string): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat("/auth/password_reset/confirm/");
+    const payload = {
+      password: newPassword,
+      token: resetToken
+    };
+    return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
   updateUserData(username: string, email: string, firstName: string, lastName: string): Observable<HttpResponse<any>> {

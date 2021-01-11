@@ -5,10 +5,13 @@
         "projects": "Projects",
         "createNewProject": "Create new project",
         "projectName": "Project name",
-        "errorCreatedNewProject": "This project already exists!",
+        "errorCreatedNewProject": "Error: This project already exists!",
         "successMessageCreatedNewProject": "Project was created!",
         "errorMessageNewProject": "Error: Cannot create the project!",
-        "messageProjectOwner": "You are project owner!"
+        "messageProjectOwner": "You are project owner!",
+        "ownerColumn": "Owner",
+        "projectColumn": "Project name"
+
     },
     "project": {
         "task": "Task",
@@ -66,7 +69,6 @@
         "stopTraining": "Stop the process:",
         "areYouSureStop": "Are you sure you want to stop the process?",
         "processIdStopped": "Process ID",
-        "errorMessageStopProcess": "The process could not be stopped because the ID you entered is incorrect!",
         "inference": "Inference",
         "inferenceSingle": "Inference Single",
         "areYouSureInference": "Are you sure you want to start the inference using a pre-train model? The inference will take approximately: ",
@@ -82,7 +84,7 @@
         "finishedTrainProcessMessage": "The train process has finished!",
         "finishedInferenceProcessMessage": "The inference process has finished!",
         "finishedProcessMessage": "The process has finished!",
-        "errorStartedTrainProcessMessage": "Please select a learning rate value between 0 and 0.99999!",
+        "errorStartedTrainProcessMessage": "Error: Please select a learning rate value between 0 and 0.99999!",
         "stoppedProcessMessage": "The process stopped!",
         "uploadDatasetProcess": "Upload a dataset",
         "uploadDataset": "Upload dataset",
@@ -98,7 +100,7 @@
         "uploadModelResult": "The upload has started!",
         "chooseModel": "Or choose the model file from your computer.",
         "uploadModelExists": "This model already exists!",
-        "errorUploadModelProcessMessage": "The upload model process has failed!",
+        "errorUploadModelProcessMessage": "Error: The upload model process has failed!",
         "finishedUploadModelProcessMessage": "The upload model process has finished!",
         "updateWeightProcess": "Update weight name",
         "updatWeightId": "Update weight id",
@@ -149,7 +151,8 @@
         "succesMessageUpdateProject": "Project info successfully updated!",
         "errorEditProjectUserPermission": "You do not have owner permission on this project!",
         "saveUpdateProjectButton": "Update",
-        "cancelUpdateProjectButton": "Cancel"
+        "cancelUpdateProjectButton": "Cancel",
+        "selectTask": "Select task"
     },
     "header": {
         "headerText": "Training models",
@@ -177,12 +180,15 @@
     "upload-dataset-dialog": {
         "OKButton": "OK",
         "CancelButton": "Cancel",
-        "datasetDisplayMode": "Public dataset"
+        "datasetDisplayMode": "Public dataset",
+        "selectUsers": "Select user",
+        "selectDataset": "Select dataset"
     },
     "update-weight-dialog": {
         "weightId": "Weight Id: ",
         "weightName": "Weight Name: ",
         "weightDisplayMode": "Public weight",
+        "selectUsers": "Select user",
         "OKButton": "OK",
         "CancelButton": "Cancel"
     },
@@ -197,6 +203,10 @@
     },
     "register": {
         "registerTitle": "Signup",
+        "emailPlaceholder": "Email",
+        "firstNamePlaceHolder": "First Name",
+        "lastNamePlaceHolder": "Last Name",
+        "confirmPasswordPlaceholder": "Confirm the password",
         "errorConfirmPasswordRequired": "Confirm password is required!",
         "errorEmailRequired": "Email is required!",
         "errorEmailInvalid": "Email is invalid!",
@@ -205,16 +215,18 @@
         "backToLoginButton": "Back to login",
         "successMessageCreatedNewUser": "User has been successfully created!",
         "errorMessageCreatedNewUser": "Error: A user with that username already exists!",
-        "errorFieldsAreIncomplete": "Please complete the required data!"
+        "errorFieldsAreIncomplete": "Error: Please complete the required data!"
     },
     "login": {
         "loginTitle": "Login",
+        "usernamePlaceholder": "Username",
+        "passwordPlaceholder": "Password",
         "errorUsernameRequired": "Username is required!",
         "errorPasswordRequired": "Password is required!",
-        "errorPasswordLength": "Password must be of length 4",
+        "errorPasswordLength": "Your password should contain at least 8 characters!",
         "loginButton": "Login",
         "registerButton": "Register",
-        "errorBadCredentialsLogin": "Wrong username or password!",
+        "errorBadCredentialsLogin": "Error: Wrong username or password!",
         "errorMessageSessionExpired": "The session expired! Please login again!",
         "forgotPassword": "Forgot password?"
     },
@@ -222,12 +234,17 @@
         "resetPasswordTitle": "Reset password",
         "resetPasswordButton": "Reset password",
         "cancelResetPassword": "Cancel",
-        "successMeessageResetPassword": "Password has been successfully changed!",
-        "errorMessageResetPassword": "Error: Cannot change the password!",
+        "enterEmailPlaceholder": "Enter your email",
         "errorEmailRequired": "Email is required!",
-        "errorResetCodeRequired": "Reset code is required!",
+        "errorResetCodeRequired": "Reset token is required!",
         "sendMailButton": "Send email",
-        "messageResetCode": "Please enter the validation code sent by email and the new password."
+        "successMessageResetPassword": "Password has been successfully changed!",
+        "errorMessageResetPassword": "Error: Your password is not strong enough. It must contain numbers and letters.",
+        "messageResetCode": "Please enter the reset token sent by email and the new password.",
+        "enterResetTokenPlacehoder": "Reset token",
+        "newPasswordPlaceHolder": "New password",
+        "errorMessageEmailForResetPassword": "Error: There is no active user associated with this e-mail address!",
+        "successSendEmailForResetPassword": "An e-mail has been sent to your adress. Please verify your inbox in order to get the reset token!"
     },
     "profile-details-dialog": {
         "dialogTitle": "Profile account",
@@ -244,8 +261,8 @@
         "cancelChangePassword": "Cancel",
         "successMeessageChangePassword": "Password successfully changed!",
         "errorMessageChangePassword": "The two password didn't match!",
-        "errorMessageOldPassword": "Your old password was entered incorrectly. Please enter it again.",
-        "errorMessageInvalidNewPassword": "Your password is not strong enough. It must contain numbers and letters.",
+        "errorMessageOldPassword": "Error: Your old password was entered incorrectly. Please enter it again.",
+        "errorMessageInvalidNewPassword": "Error: Your password is not strong enough. It must contain numbers and letters.",
         "errorPasswordLength": "Your password should contain at least 8 characters!",
         "saveUpdateProfileButton": "Update",
         "succesMessageUpdateProfile": "Profile successfully updated!",
@@ -259,19 +276,23 @@
         "OKButton": "OK",
         "CancelButton": "Cancel",
         "deleteProjectTitle": "Delete project:",
+        "deleteProject": "Delete project",
         "areYouSureDeleteProject": "Are you sure that you want to permanently delete the selected project?",
         "succesMessageDeleteProject": "Project has been successfully deleted!",
         "deleteDatasetTitle": "Delete dataset:",
+        "deleteDataset": "Delete dataset",
         "areYouSureDeleteDataset": "Are you sure that you want to permanently delete the selected dataset?",
         "succesMessageDeleteDataset": "Dataset has been successfully deleted!",
         "deleteWeightTitle": "Delete weight:",
+        "deleteWeight": "Delete weight",
         "areYouSureDeleteWeight": "Are you sure that you want to permanently delete the selected weight?",
         "succesMessageDeleteWeight": "Weight has been successfully deleted!",
         "deleteUsersTitle": "Delete user/s:",
+        "deleteUsers": "Delete users",
         "inputPlaceHolderUsersName": "Users name",
         "areYouSureDeleteUsers": "Are you sure that you want to permanently delete the selected user/users?",
         "succesMessageDeleteAssociatedUser": "Associated user has been successfully deleted!",
         "succesMessageDeleteAssociatedUsers": "Associated users have been successfully deleted!",
-        "errorMessageDeleteItem": "The selected element could not be deleted because the name you entered is incorrect!"
+        "errorMessageDeleteItem": "Error: The selected element could not be deleted because the name you entered is incorrect!"
     }
 }

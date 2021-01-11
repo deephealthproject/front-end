@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
-import { MatDialogConfig, MatDialog, MatSnackBar, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
+import { MatDialogConfig, MatDialog, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -13,6 +13,7 @@ import { ShowOutputDetailsDialogComponent } from '../show-output-details-dialog/
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DeleteDialogComponent } from '../delete-dialog/delete-dialog.component';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 export class Task {
   id: number;
@@ -175,13 +176,11 @@ export class ProjectComponent implements OnInit {
   disabledInferenceButton = false;
   disabledInferenceSingleButton = false;
   showInference = false;
-  trainSpinner = false;
   showTrainButton = true;
   disabledStopButton = false;
   process_type: string;
   trainMessage: string = null;
   inferenceMessage: string = null;
-  //runningProcesses: ProcessingObject[] = [];
   modelsResponseData: Array<Model>;
   currentProject: Project;
   fullStatusProcess = false;
@@ -1122,7 +1121,6 @@ export class ProjectComponent implements OnInit {
   trainModel() {
     this.process_type = "training";
     this.trainProcessStarted = true;
-    this.trainSpinner = false;
 
     let selectedProperties: PropertyInstance[] = [];
     let learning = new PropertyInstance;
@@ -1219,12 +1217,11 @@ export class ProjectComponent implements OnInit {
         console.log(result);
         if (result && this.trainProcessStarted == true && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
           this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, this._interactionService.currentProject.id).subscribe(data => {
-            // if (data.body.result == "ok") {
-            //   this.trainSpinner = false;
-            //   this.disabledTrainButton = true;
-            // }
+            //open spinner
+            if (data.body.result == "ok") {
+              //close spinner
+            }
             this._interactionService.openSnackBar(this.translate.instant('project.startedTrainProcessMessage'));
-            this.trainSpinner = false;
             this.disabledTrainButton = true;
             this.trainProcessStarted = true;
             this.showTrainButton = false;
@@ -1240,6 +1237,7 @@ export class ProjectComponent implements OnInit {
               this.checkStatusTrain(process)
             }, 2000);
           }, error => {
+            //close spinner
             this._interactionService.openSnackBar("Error: " + error.statusText);
           });
         }
@@ -1248,7 +1246,7 @@ export class ProjectComponent implements OnInit {
     else {
       this._interactionService.openSnackBar(this.translate.instant('project.errorStartedTrainProcessMessage'));
       this.trainProcessStarted = false;
-      this.trainSpinner = false;
+      //close spinner
       this.showTrainButton = true;
       console.log('Canceled');
     }
@@ -1299,8 +1297,10 @@ export class ProjectComponent implements OnInit {
       console.log(result);
       if (result && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
         this._dataService.inferenceModel(selectedWeightId, selectedDatasetId, this._interactionService.currentProject.id).subscribe(data => {
+          //open spinner
           if (data.body.result == "ok") {
             this.disabledInferenceButton = true;
+            //close spinner
           }
           this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
@@ -1317,11 +1317,13 @@ export class ProjectComponent implements OnInit {
           }, 2000);
           this.getOutputResultsOfInference(process);
         }, error => {
+          //close spinner
           this._interactionService.openSnackBar("Error: " + error.statusText);
         })
       }
       else {
         this.inferenceProcessStarted = false;
+        //close spinner
         console.log('Canceled');
       }
     });
@@ -1363,8 +1365,10 @@ export class ProjectComponent implements OnInit {
         this.datasetImagePath = result.inputValue;
         this.datasetImageData = result.datasetImageData;
         this._dataService.inferenceSingle(selectedWeightId, this.datasetImagePath, this.datasetImageData, this._interactionService.currentProject.id).subscribe(data => {
+          //open spinner
           if (data.body.result == "ok") {
             this.disabledInferenceSingleButton = true;
+            //close spinner
           }
           this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
@@ -1381,11 +1385,13 @@ export class ProjectComponent implements OnInit {
           }, 2000);
           this.getOutputResultsOfInference(process);
         }, error => {
+          //close spinner
           this._interactionService.openSnackBar("Error: " + error.statusText);
         });
       }
       else {
         this.inferenceProcessStarted = false;
+        //close spinner
         console.log('Canceled');
       }
     });
@@ -1402,7 +1408,6 @@ export class ProjectComponent implements OnInit {
       this._interactionService.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
-        // this.disabledStopButton = false;
         setTimeout(() => {
           this.checkStatusTrain(process)
         }, 10 * 1000);
@@ -1410,8 +1415,6 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this._interactionService.openSnackBar(this.translate.instant('project.finishedTrainProcessMessage'));
         this.trainProcessStarted = false;
-        // this.disabledStopButton = true;
-        this.trainSpinner = false;
         this._interactionService.increaseNotificationsNumber();
       }
       this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
@@ -1429,7 +1432,6 @@ export class ProjectComponent implements OnInit {
       this._interactionService.changeStopButton(process);
       if (process.process_status == "running") {
         console.log(process.process_status);
-        // this.disabledStopButton = false;
         setTimeout(() => {
           this.checkStatusInference(process)
         }, 10 * 1000);
@@ -1437,8 +1439,6 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this._interactionService.openSnackBar(this.translate.instant('project.finishedInferenceProcessMessage'));
         this.inferenceProcessStarted = false;
-        // this.disabledStopButton = true;
-        this.trainSpinner = false;
         this._interactionService.increaseNotificationsNumber();
       }
       this.inferenceMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
@@ -2075,6 +2075,10 @@ export class ProjectComponent implements OnInit {
   }
 
   updateProject(projectName) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
     if (this.selectedUsersData != null) {
       this.selectedUsersData.forEach(selectedUser => {
         this._interactionService.usersList = this._interactionService.usersList.filter(item => item.username != selectedUser);
@@ -2083,16 +2087,20 @@ export class ProjectComponent implements OnInit {
       this.updateUsersList(this._interactionService.usersList);
       this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
     }
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._interactionService.usersAssociatedArray.push({ "username": this._interactionService.projectOwner, "permission": PermissionStatus[0] });
     this._dataService.updateProject(projectName, this._interactionService.currentProject.id, this._interactionService.currentProject.task_id,
       this._interactionService.usersAssociatedArray).subscribe(data => {
         if (data.statusText == "OK") {
+          dialogRef.close();
+          this._interactionService.changeProjectTabName(projectName);
           this._interactionService.openSnackBar(this.translate.instant('project.succesMessageUpdateProject'));
           this._interactionService.usersAssociatedArray = data.body.users;
           this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner)
           this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
         }
       }), error => {
+        dialogRef.close();
         this._interactionService.openSnackBar("Error:" + error.statusText);
       }
   }

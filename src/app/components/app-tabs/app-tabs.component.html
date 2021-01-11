@@ -3,7 +3,7 @@
         <div class="div-open-tab" *ngSwitchCase="'Home'" (click)="returnToUser()">
             {{tab.name}}
         </div>
-        <div class="div-open-tab" *ngSwitchCase="'Project'" (click)="returnToProject()">
+        <div class="div-open-tab" *ngSwitchCase="'Project'" (click)="returnToProject(tab.name)">
             {{tab.name}}
         </div>
         <div class="div-open-tab" *ngSwitchDefault>

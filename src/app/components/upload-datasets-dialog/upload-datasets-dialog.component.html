@@ -23,7 +23,7 @@
     </div>
     <div *ngIf="!datasetDisplayModeValue && !this._interactionService.uploadModelIsClicked">
         <mat-form-field style="color:#336E9F;">
-            Select user
+            {{'upload-dataset-dialog.selectUsers' | translate}}
             <mat-select [(value)]=selectedUsername multiple>
                 <mat-option *ngFor="let option of userDropdown" [value]="option.username">
                     {{option.username}}
@@ -38,7 +38,7 @@
       </div>
       <div >
         <mat-form-field style="color:#336E9F;">
-            Select dataset
+            {{'upload-dataset-dialog.selectDataset' | translate}}
             <mat-select [(value)]=selectedDatasetName>
                 <mat-option *ngFor="let option of datasetDropdownForUploadModel" [value]="option.name">
                     {{option.name}}

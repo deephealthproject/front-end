@@ -42,8 +42,8 @@ export class InteractionService extends TabObject {
 
   modelData: string;
   uploadModelIsClicked:Boolean;
-  divSendEmail: Boolean;
-  divResetPassword: Boolean;
+  divSendEmail: Boolean = false;
+  divResetPassword: Boolean = true;
 
   //project component -> which tab section is shown  
   private _projectDivLeftShowStatusSource = new Subject<boolean>();

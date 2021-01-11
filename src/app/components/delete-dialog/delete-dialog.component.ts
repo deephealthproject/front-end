@@ -1,9 +1,10 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '../../../../node_modules/@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatDialogConfig, MatDialog } from '../../../../node_modules/@angular/material';
 import { DataService } from '../../services/data.service';
 import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
 import { ItemToDelete } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 export interface DeleteDialogData {
   dialogTitle: string;
@@ -34,7 +35,8 @@ export class DeleteDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<DeleteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DeleteDialogComponent, private _dataService: DataService, public _interactionService: InteractionService,
-    public translate: TranslateService) {
+    public translate: TranslateService,
+    public dialog: MatDialog) {
     this.dialogTitle = data.dialogTitle;
     this.dialogDeletedItem = data.dialogDeletedItem;
     this.dialogContent = data.dialogContent;
@@ -47,29 +49,40 @@ export class DeleteDialogComponent implements OnInit {
   }
 
   deleteItem() {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
     if (this.dialogDeletedItem == this.dialogDeletedItemInputValue) {
+      let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
       switch (this.deleteObject.type) {
         case "project":
           this._dataService.deleteProject(this.deleteObject.deletedItem.id).subscribe(data => {
+            dialogRef.close();
             this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteProject'));
             this.dialogRef.close(this.data);
           }, error => {
+            dialogRef.close();
             this._interactionService.openSnackBar("Error: " + error.error.Error);
           });
           break;
         case "dataset":
           this._dataService.deleteDataset(this.deleteObject.deletedItem.id).subscribe(data => {
+            dialogRef.close();
             this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteDataset'));
             this.dialogRef.close(this.data);
           }, error => {
+            dialogRef.close();
             this._interactionService.openSnackBar("Error: " + error.statusText);
           });
           break;
         case "weight":
           this._dataService.deleteWeight(this.deleteObject.deletedItem.weightId).subscribe(data => {
+            dialogRef.close();
             this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteWeight'));
             this.dialogRef.close(this.data);
           }, error => {
+            dialogRef.close();
             this._interactionService.openSnackBar("Error: " + error.statusText);
           });
           break;
@@ -79,6 +92,7 @@ export class DeleteDialogComponent implements OnInit {
             this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != selectedAssociatedUser)
             this._dataService.updateProject(this.deleteObject.deletedItem, this._interactionService.currentProject.id, this._interactionService.currentProject.task_id,
               this._interactionService.usersAssociatedArray).subscribe(data => {
+                dialogRef.close();
                 switch (this.dialogDeletedItem.length) {
                   case 1:
                     this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteAssociatedUser'));
@@ -91,6 +105,7 @@ export class DeleteDialogComponent implements OnInit {
                 this._interactionService.usersList.push({ "username": selectedAssociatedUser, "permission": PermissionStatus[1] });
                 this.dialogRef.close(this.data);
               }, error => {
+                dialogRef.close();
                 this._interactionService.usersAssociatedArray.push({ "username": selectedAssociatedUser, "permission": PermissionStatus[1] });
                 this._interactionService.openSnackBar("Error: " + error.statusText);
               });
