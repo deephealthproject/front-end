@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatDialog, MatDialogConfig, MatSnackBar } from '@angular/material';
+import { MatDialog, MatDialogConfig } from '@angular/material';
 import { CreateProjectDialogComponent } from '../create-project-dialog/create-project-dialog.component';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { DeleteDialogComponent } from '../delete-dialog/delete-dialog.component';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 export class Project {
   id: number;
@@ -235,10 +236,15 @@ export class PowerUserComponent implements OnInit {
       taskDropdown: data
     };
 
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     let dialogRef = this.dialog.open(CreateProjectDialogComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
+      let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
       if (result) {
         if (result.inputValue) {
           let thatProjectExist = false;
@@ -261,13 +267,17 @@ export class PowerUserComponent implements OnInit {
             console.log("Project " + this.projectName + " created");
             this.addProject(this.projectName, null, this.projectTaskId, this.users);
             this._interactionService.projectName = this.projectName;
+            dialogRefSpinner.close();
           }
-          else
+          else {
+            dialogRefSpinner.close();
             console.log('Project already exists');
-          this._interactionService.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
+            this._interactionService.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
+          }
         }
       }
       else {
+        dialogRefSpinner.close();
         console.log('Canceled');
         this._interactionService.openSnackBar(this.translate.instant('powerUser.errorMessageNewProject'));
       }

@@ -728,7 +728,7 @@ export class InteractionService extends TabObject {
 
   openSnackBar(message) {
     this.snackBar.open(message, "close", {
-      duration: 5000,
+      duration: 10000,
     });
   }
 }

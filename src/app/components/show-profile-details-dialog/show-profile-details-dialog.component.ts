@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatDialogConfig, MatDialog } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig, MatDialog } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { Router } from '@angular/router';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 export interface ProfileDetailsData {
   dialogTitle: string;
@@ -85,8 +86,14 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
   }
 
   savePassword(oldPassword, newPassword, confirmNewPassword) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._authService.changePassword(oldPassword, newPassword, confirmNewPassword).subscribe(data => {
       if (data.statusText == "OK") {
+        dialogRef.close();
         this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.successMeessageChangePassword'));
         this.isChangePasswordClicked = false;
         this.disabledChangePasswordButton = false;
@@ -97,13 +104,13 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
         this.confirmNewPasswordValue = null;
       }
     }, error => {
+      dialogRef.close();
       if (error.error.old_password) {
         this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageOldPassword'));
       }
       if (error.error.non_field_errors) {
         this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageInvalidNewPassword'));
       }
-
     });
   }
 
@@ -131,8 +138,15 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
   }
 
   saveUpdateProfile(username, email, firstName, lastName) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
+
     this._authService.updateUserData(username, email, firstName, lastName).subscribe(data => {
       if (data.statusText == "OK") {
+        dialogRef.close();
         this._interactionService.resetUserProfileDetails(data.body);
         this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
         this.isUpdateProfileClicked = false;
@@ -141,6 +155,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
         this.disabledActionButton = false;
       }
     }), error => {
+      dialogRef.close();
       this._interactionService.openSnackBar("Error:" + error.statusText);
     }
   }
@@ -172,14 +187,20 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
       trainingTime: ""
     }
 
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
+        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
         this._authService.deleteUser().subscribe(data => {
           if (data.status == 204) {
             console.log(data);
+            dialogRefSpinner.close();
             this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageDeleteAccount'));
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
@@ -188,6 +209,9 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
             this.dialog.closeAll();
             this.router.navigate(['/']);
           }
+        }, error => {
+          dialogRefSpinner.close();
+          this._interactionService.openSnackBar("Error:" + error.statusText);
         })
       }
       else {

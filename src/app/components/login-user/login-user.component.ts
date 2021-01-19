@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InteractionService } from '../../services/interaction.service';
 import { TranslateService } from '@ngx-translate/core';
-import { MatSnackBar } from '@angular/material';
+import { MatDialogConfig, MatDialog } from '@angular/material';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
+import { HttpUrlEncodingCodec } from '../../../../node_modules/@angular/common/http';
 
 @Component({
   selector: 'app-login-user',
@@ -19,6 +21,7 @@ export class LoginUserComponent implements OnInit {
 
   constructor(private _authService: AuthService, private _interactionService: InteractionService,
     private router: Router,
+    public dialog: MatDialog,
     private translate: TranslateService) {
   }
 
@@ -62,8 +65,15 @@ export class LoginUserComponent implements OnInit {
   }
 
   login(username, password) {
-    this._authService.login(username, password).subscribe(data => {
+    let encodedPassword = encodeURIComponent(password);
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
+    this._authService.login(username, encodedPassword).subscribe(data => {
       if (data.statusText == "OK") {
+        dialogRef.close();
         localStorage.setItem('accessToken', data.body.access_token);
         localStorage.setItem('refreshToken', data.body.refresh_token);
         localStorage.setItem('username', username);
@@ -74,6 +84,7 @@ export class LoginUserComponent implements OnInit {
         this._interactionService.changeCheckedStateLogoutButton(true);
       }
     }, error => {
+      dialogRef.close();
       this._interactionService.openSnackBar(this.translate.instant('login.errorBadCredentialsLogin'));
     });
   }

@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialogConfig, MatDialog } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../power-user/power-user.component';
+import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 @Component({
   selector: 'app-register-user',
@@ -18,12 +19,11 @@ export class RegisterUserComponent implements OnInit {
   lastNameValue;
   passwordValue;
   confirmPasswordValue;
-  users: Array<User> = [];
-  currentUser: User;
   registerButton = false;
 
   constructor(private _authService: AuthService, private _interactionService: InteractionService,
     private translate: TranslateService,
+    public dialog: MatDialog,
     private router: Router) {
   }
 
@@ -85,36 +85,34 @@ export class RegisterUserComponent implements OnInit {
   }
 
   createUser(username, email, password, firstName, lastName) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
     if (username == null || username == undefined || password == null || password == undefined || email == null || email == undefined) {
       this._interactionService.openSnackBar(this.translate.instant('register.errorFieldsAreIncomplete'));
     }
     else {
+      let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
       this._authService.createUser(username, email, password, firstName, lastName).subscribe(data => {
         if (data.statusText == "Created") {
-          if (data.body.username) {
-            let thatUserExist = false;
-            for (let currentUser of this.users) {
-              if (currentUser.username == data.body.username)
-                thatUserExist = true;
-            }
-            if (thatUserExist == false) {
-              this.username = data.body.username;
-              this.email = data.body.email;
-              this.password = data.body.password;
-              this.firstName = data.body.first_name;
-              this.lastName = data.body.last_name;
-              console.log(data.body);
-              console.log("User " + this.username + " was created");
-              this._interactionService.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
-            } else {
-              console.log('User already exists');
-              this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
-            }
-          }
+          this.username = data.body.username;
+          this.email = data.body.email;
+          this.password = data.body.password;
+          this.firstName = data.body.first_name;
+          this.lastName = data.body.last_name;
+          console.log(data.body);
+          console.log("User " + this.username + " was created");
+          dialogRef.close();
+          this._interactionService.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
         }
       }, error => {
-        this._interactionService.openSnackBar("Error: " + error.statusText);
-        this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
+        dialogRef.close();
+        if (error.error.username) {
+          this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
+        } else {
+          this._interactionService.openSnackBar("Error: " + error.error.Error);
+        }
       });
     }
   }

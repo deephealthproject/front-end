@@ -30,7 +30,7 @@ export class AuthService {
     const url = this.apiUrl.concat("/auth/token/");
     const clientId = this.clientID;
     const data = "grant_type=password" + "&username="+ username + "&password=" + password + "&client_id=" + clientId;
-    const reqHeader = new HttpHeaders({ 'Content-Type':'application/x-www-form-urlencoded'});
+    const reqHeader = new HttpHeaders({ 'Content-Type':'application/x-www-form-urlencoded; charset=utf-8'});
     return this.httpClient.post<any>(url, data, { headers: reqHeader, observe: 'response' });
   }
 

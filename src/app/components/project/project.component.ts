@@ -718,6 +718,10 @@ export class ProjectComponent implements OnInit {
         taskId = task.id;
       }
     })
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     this._authService.getUsers().subscribe(usersData => {
       const dialogConfig = new MatDialogConfig();
       dialogConfig.disableClose = true;
@@ -779,12 +783,15 @@ export class ProjectComponent implements OnInit {
                   });
                 });
               }
+              let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
               this._dataService.uploadDataset(this.datasetName, taskId, this.datasetPath, this.users, this.datasetPublic).subscribe(data => {
                 if (data.statusText == "Created") {
+                  dialogRefSpinner.close();
                   this._interactionService.openSnackBar(this.translate.instant('project.uploadDatasetResult'));
                   console.log("dataset " + this.datasetName + " uploaded");
                 }
               }, error => {
+                dialogRefSpinner.close();
                 this._interactionService.openSnackBar("Error: " + error.error.error);
               });
             }
@@ -805,6 +812,11 @@ export class ProjectComponent implements OnInit {
         taskId = task.id;
       }
     })
+
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     this._dataService.getDatasets(taskId).subscribe(datasetData => {
       const dialogConfig = new MatDialogConfig();
       dialogConfig.disableClose = true;
@@ -849,8 +861,10 @@ export class ProjectComponent implements OnInit {
                   this.datasetId = element.id;
                 }
               });
+              let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
               this._dataService.uploadModel(this.modelName, taskId, this.modelPath, this.modelData, this.datasetId).subscribe(data => {
                 if (data.statusText == "Created") {
+                  dialogRefSpinner.close();
                   this._interactionService.openSnackBar(this.translate.instant('project.uploadModelResult'));
                   console.log(data.body);
                   let process = new ProcessingObject;
@@ -866,6 +880,7 @@ export class ProjectComponent implements OnInit {
                   }, 10);
                 }
               }, error => {
+                dialogRefSpinner.close();
                 this._interactionService.openSnackBar("Error: " + error.statusText);
               });
             } else {
@@ -1053,6 +1068,10 @@ export class ProjectComponent implements OnInit {
   }
 
   getOutput(processId) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.getOutput(processId).subscribe(data => {
       this.outputResultsDetailProcessId = processId;
       var outputsResults = data.outputs;
@@ -1067,8 +1086,10 @@ export class ProjectComponent implements OnInit {
       this.outputList = new MatTableDataSource(this.outputResultsData);
       this.outputList.sort = this.sort;
       this.outputList.paginator = this.paginator;
+      dialogRef.close();
       this._interactionService.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
     }, error => {
+      dialogRef.close();
       this._interactionService.openSnackBar(this.translate.instant('output-details-dialog.outputStatusError'));
     })
   }
@@ -1197,6 +1218,10 @@ export class ProjectComponent implements OnInit {
       selectedDatasetId = undefined;
     }
 
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     if (this.trainProcessStarted == true) {
       const dialogConfig = new MatDialogConfig();
       dialogConfig.disableClose = true;
@@ -1216,10 +1241,10 @@ export class ProjectComponent implements OnInit {
         console.log('The dialog was closed');
         console.log(result);
         if (result && this.trainProcessStarted == true && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
+          let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
           this._dataService.trainModel(selectedDatasetId, selectedModelId, selectedWeightId, selectedProperties, this._interactionService.currentProject.id).subscribe(data => {
-            //open spinner
             if (data.body.result == "ok") {
-              //close spinner
+              dialogRefSpinner.close();
             }
             this._interactionService.openSnackBar(this.translate.instant('project.startedTrainProcessMessage'));
             this.disabledTrainButton = true;
@@ -1237,7 +1262,7 @@ export class ProjectComponent implements OnInit {
               this.checkStatusTrain(process)
             }, 2000);
           }, error => {
-            //close spinner
+            dialogRefSpinner.close();
             this._interactionService.openSnackBar("Error: " + error.statusText);
           });
         }
@@ -1246,7 +1271,6 @@ export class ProjectComponent implements OnInit {
     else {
       this._interactionService.openSnackBar(this.translate.instant('project.errorStartedTrainProcessMessage'));
       this.trainProcessStarted = false;
-      //close spinner
       this.showTrainButton = true;
       console.log('Canceled');
     }
@@ -1278,6 +1302,9 @@ export class ProjectComponent implements OnInit {
     else {
       selectedDatasetId = undefined;
     }
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -1296,11 +1323,11 @@ export class ProjectComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
+        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
         this._dataService.inferenceModel(selectedWeightId, selectedDatasetId, this._interactionService.currentProject.id).subscribe(data => {
-          //open spinner
           if (data.body.result == "ok") {
             this.disabledInferenceButton = true;
-            //close spinner
+            dialogRefSpinner.close();
           }
           this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
@@ -1317,13 +1344,12 @@ export class ProjectComponent implements OnInit {
           }, 2000);
           this.getOutputResultsOfInference(process);
         }, error => {
-          //close spinner
+          dialogRefSpinner.close();
           this._interactionService.openSnackBar("Error: " + error.statusText);
         })
       }
       else {
         this.inferenceProcessStarted = false;
-        //close spinner
         console.log('Canceled');
       }
     });
@@ -1342,6 +1368,9 @@ export class ProjectComponent implements OnInit {
         }
       });
     }
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
 
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -1364,11 +1393,11 @@ export class ProjectComponent implements OnInit {
       if (result && this.selectedOptionModel != null) {
         this.datasetImagePath = result.inputValue;
         this.datasetImageData = result.datasetImageData;
+        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
         this._dataService.inferenceSingle(selectedWeightId, this.datasetImagePath, this.datasetImageData, this._interactionService.currentProject.id).subscribe(data => {
-          //open spinner
           if (data.body.result == "ok") {
             this.disabledInferenceSingleButton = true;
-            //close spinner
+            dialogRefSpinner.close();
           }
           this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
@@ -1385,13 +1414,12 @@ export class ProjectComponent implements OnInit {
           }, 2000);
           this.getOutputResultsOfInference(process);
         }, error => {
-          //close spinner
+          dialogRefSpinner.close();
           this._interactionService.openSnackBar("Error: " + error.statusText);
         });
       }
       else {
         this.inferenceProcessStarted = false;
-        //close spinner
         console.log('Canceled');
       }
     });
@@ -1546,13 +1574,19 @@ export class ProjectComponent implements OnInit {
       dialogContent: this.translate.instant('project.areYouSureStop'),
     }
 
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     let dialogRef = this.dialog.open(ConfirmDialogTrainComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
+        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
         this._dataService.stopProcess(process.processId).subscribe(data => {
           if (data.statusText == "OK") {
+            dialogRefSpinner.close();
             this._interactionService.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
             this.inferenceProcessStarted = false;
@@ -1561,6 +1595,7 @@ export class ProjectComponent implements OnInit {
             process.process_status = ProcessStatus[2];
           }
           else {
+            dialogRefSpinner.close();
             this.trainProcessStarted = true;
             this.inferenceProcessStarted = true;
           }
@@ -1714,8 +1749,20 @@ export class ProjectComponent implements OnInit {
         this.modelIdEditWeight = model.id;
       }
     });
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
-      this.displayWeightsListByModel(data);
+      if (data.length != 0) {
+        dialogRef.close();
+        this.displayWeightsListByModel(data);
+      } else {
+        dialogRef.close();
+        this.displayWeightsListByModel(data);
+        this.showWeightDetailsTable = false;
+        this._interactionService.openSnackBar(this.translate.instant('project.errorMessageGetModelWeightList'));
+      }
     })
   }
 
@@ -1758,6 +1805,11 @@ export class ProjectComponent implements OnInit {
     console.log(weight);
     this.users = [];
     this._interactionService.formDataWeight = weight;
+
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
     this._authService.getUsers().subscribe(usersData => {
       const dialogConfig = new MatDialogConfig();
       dialogConfig.disableClose = true;
@@ -1795,14 +1847,17 @@ export class ProjectComponent implements OnInit {
               });
             });
           }
+          let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
           this._dataService.updateWeight(weight.weightId, weight.weightDatasetId, weight.weightName, this.modelIdEditWeight, weight.pretrained_on, weight.weightPublic, this.users).subscribe(data => {
             if (data.statusText == "OK") {
+              dialogRefSpinner.close();
               this._interactionService.openSnackBar(this.translate.instant('project.updateWeightResult'));
               this._interactionService.resetEditWeightsList(data.body);
               console.log(data.body);
               console.log("weight " + weight.weightName + " updated");
             }
           }, error => {
+            dialogRefSpinner.close();
             this._interactionService.openSnackBar("Error: " + error.statusText);
           });
         }
@@ -1811,9 +1866,15 @@ export class ProjectComponent implements OnInit {
   }
 
   showWeightDetails(weight) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.getWeightById(weight.weightId).subscribe(data => {
+      dialogRef.close();
       this.updateWeightDetails(data);
     }, error => {
+      dialogRef.close();
       this._interactionService.openSnackBar("Error: " + error.details);
     });
   }
