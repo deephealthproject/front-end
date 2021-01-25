@@ -103,7 +103,6 @@ export class ProjectComponent implements OnInit {
   selectedOptionLoss = null;
   selectedOptionMetric = null;
   selectedOptionOptimizer = null;
-  selectedOptionEpochs = null;
   selectedOptionBatchSize = null;
   selectedOptionInputHeight = null;
   selectedOptionInputWidth = null;
@@ -460,7 +459,7 @@ export class ProjectComponent implements OnInit {
       }
     );
 
-    this._interactionService.learningRateValue$.subscribe(
+    this._interactionService.learningRateValueSource$.subscribe(
       state => {
         this.learningRateValue = state;
       }
@@ -1138,12 +1137,28 @@ export class ProjectComponent implements OnInit {
     this.learningRateValue = event.target.value;
   }
 
+  changeEpochsValue(event) {
+    this.epochsValue = event.target.value;
+  }
+
+  changeBatchSizeValue(event) {
+    this.batchSizeValue = event.target.value;
+  }
+
   //train & inference functions
   trainModel() {
     this.process_type = "training";
     this.trainProcessStarted = true;
 
     let selectedProperties: PropertyInstance[] = [];
+    let metric = new PropertyInstance;
+    metric.name = "Metric";
+    metric.value = this.selectedOptionMetric;
+    selectedProperties.push(metric);
+    let loss = new PropertyInstance;
+    loss.name = "Loss function";
+    loss.value = this.selectedOptionLoss;
+    selectedProperties.push(loss);
     let learning = new PropertyInstance;
     learning.name = "Learning rate";
     learning.value = this.learningRateValue;
@@ -1153,28 +1168,20 @@ export class ProjectComponent implements OnInit {
     else {
       this.trainProcessStarted = false;
     }
-    let loss = new PropertyInstance;
-    loss.name = "Loss function";
-    loss.value = this.selectedOptionLoss;
-    selectedProperties.push(loss);
-    // let epochs = new PropertyInstance;
-    // epochs.name = "Epochs";
-    // epochs.value = this.selectedOptionEpochs;
-    // selectedProperties.push(epochs);
-    // let batchSize = new PropertyInstance;
-    // batchSize.name = "Batch size";
-    // batchSize.value = this.selectedOptionBatchSize;
-    // selectedProperties.push(batchSize);
-    // let metric = new PropertyInstance;
-    // metric.name = "Metric";
-    // metric.value = this.selectedOptionMetric;
-    // selectedProperties.push(metric);
+    let epochs = new PropertyInstance;
+    epochs.name = "Epochs";
+    epochs.value = this.epochsValue;
+    selectedProperties.push(epochs);
+    let batchSize = new PropertyInstance;
+    batchSize.name = "Batch size";
+    batchSize.value = this.batchSizeValue;
+    selectedProperties.push(batchSize);
     // let inputHeight = new PropertyInstance;
     // inputHeight.name = "Input height";
-    // inputHeight.value = this.selectedOptionInputHeight;
+    // inputHeight.value = this.inputHeightValue;
     // let inputWidth = new PropertyInstance;
     // inputWidth.name = "Input width";
-    // inputWidth.value = this.selectedOptionInputWidth;
+    // inputWidth.value = this.inputWidthValue;
     // let dropout = new PropertyInstance;
     // dropout.name = "Use dropout";
     // if(this.useDropoutCheckedState){
@@ -1756,6 +1763,7 @@ export class ProjectComponent implements OnInit {
     this._dataService.getWeightsArray(this.modelIdEditWeight).subscribe(data => {
       if (data.length != 0) {
         dialogRef.close();
+        this.showWeightDetailsTable = false;
         this.displayWeightsListByModel(data);
       } else {
         dialogRef.close();

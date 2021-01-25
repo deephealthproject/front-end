@@ -14,10 +14,10 @@
             <mat-error *ngIf="email.errors?.email">{{'register.errorEmailInvalid' | translate }}</mat-error>
           </mat-form-field>
         <mat-form-field #firstName id="firstName">
-          <input matInput placeholder="{{'register.firstNamePlaceHolder' | translate}}" name="firstName" value={{firstNameValue}} [(ngModel)]="firstNameValue">
+          <input matInput placeholder="{{'register.firstNamePlaceHolder' | translate}}" required name="firstName" value={{firstNameValue}} [(ngModel)]="firstNameValue">
         </mat-form-field>
         <mat-form-field #lastName id="lastName">
-          <input matInput placeholder="{{'register.lastNamePlaceHolder' | translate}}" name="lastName" value={{lastNameValue}} [(ngModel)]="lastNameValue">
+          <input matInput placeholder="{{'register.lastNamePlaceHolder' | translate}}" required name="lastName" value={{lastNameValue}} [(ngModel)]="lastNameValue">
         </mat-form-field>
         <mat-form-field #password id="password">
           <input matInput placeholder="{{'login.passwordPlaceholder' | translate}}" type="password" required minlength="4" name="password" ngModel #password="ngModel"

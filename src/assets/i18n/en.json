@@ -215,8 +215,7 @@
         "registerButton": "Register",
         "backToLoginButton": "Back to login",
         "successMessageCreatedNewUser": "User has been successfully created!",
-        "errorMessageCreatedNewUser": "Error: A user with that username already exists!",
-        "errorFieldsAreIncomplete": "Error: Please complete the required data!"
+        "errorMessageCreatedNewUser": "Error: A user with that username already exists!"
     },
     "login": {
         "loginTitle": "Login",

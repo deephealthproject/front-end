@@ -89,10 +89,6 @@ export class RegisterUserComponent implements OnInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
-    if (username == null || username == undefined || password == null || password == undefined || email == null || email == undefined) {
-      this._interactionService.openSnackBar(this.translate.instant('register.errorFieldsAreIncomplete'));
-    }
-    else {
       let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
       this._authService.createUser(username, email, password, firstName, lastName).subscribe(data => {
         if (data.statusText == "Created") {
@@ -114,6 +110,5 @@ export class RegisterUserComponent implements OnInit {
           this._interactionService.openSnackBar("Error: " + error.error.Error);
         }
       });
-    }
   }
 }

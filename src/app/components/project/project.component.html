@@ -130,6 +130,22 @@
                                         </div>
                                     </div>
                                     <div class="div-middle-box-left-col2">
+                                        <div #loss id="loss">
+                                            <div class="div-middle-box-title">
+                                                {{'project.loss' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <mat-select [(value)]=selectedOptionLoss>
+                                                    <mat-option *ngFor="let option of lossDropdown" value={{option}}>
+                                                        {{option}}
+                                                    </mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
                                         <div #learningRate id="learningRate">
                                             <div class="div-middle-box-title">
                                                 {{'project.learningRate' | translate}}
@@ -139,31 +155,29 @@
                                             </mat-form-field>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="div-middle-box-left-cols">
-                                    <div class="div-middle-box-left-col1">
+                                    <div class="div-middle-box-left-col2">
                                         <div #epochs id="epochs">
                                             <div class="div-middle-box-title">
                                                 {{'project.epochs' | translate}}
                                             </div>
                                             <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{epochsValue}} step=1 disabled>
-                                            </mat-form-field>
-                                        </div>
-                                    </div>
-                                    <div class="div-middle-box-left-col2">
-                                        <div #batchSize id="batchSize">
-                                            <div class="div-middle-box-title">
-                                                {{'project.batchSize' | translate}}
-                                            </div>
-                                            <mat-form-field class="div-middle-box-content">
-                                                <input matInput type="number" value={{batchSizeValue}} step=1 disabled>
+                                                <input matInput type="number" value={{epochsValue}} step=1 (change)="changeEpochsValue($event)">
                                             </mat-form-field>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="div-middle-box-left-cols">
                                     <div class="div-middle-box-left-col1">
+                                        <div #batchSize id="batchSize">
+                                            <div class="div-middle-box-title">
+                                                {{'project.batchSize' | translate}}
+                                            </div>
+                                            <mat-form-field class="div-middle-box-content">
+                                                <input matInput type="number" value={{batchSizeValue}} step=1 (change)="changeBatchSizeValue($event)">
+                                            </mat-form-field>
+                                        </div>
+                                    </div>
+                                    <div class="div-middle-box-left-col2">
                                         <div #inputHeight id="inputHeight">
                                             <div class="div-middle-box-title">
                                                 {{'project.inputHeight' | translate}}
@@ -173,7 +187,9 @@
                                             </mat-form-field>
                                         </div>
                                     </div>
-                                    <div class="div-middle-box-left-col2">
+                                </div>
+                                <div class="div-middle-box-left-cols">
+                                    <div class="div-middle-box-left-col1">
                                         <div #inputWidth id="inputWidth">
                                             <div class="div-middle-box-title">
                                                 {{'project.inputWidth' | translate}}
@@ -183,19 +199,19 @@
                                             </mat-form-field>
                                         </div>
                                     </div>
-                                </div>
-                                <!-- <div #loss id="loss">
-                                        <div class="div-middle-box-title">
-                                            {{'project.loss' | translate}}
+                                    <div class="div-middle-box-left-col2">
+                                        <div #useDropout id="useDropout">
+                                            <div class="div-middle-box-title">
+
+                                            </div>
+                                            <div class="div-middle-box-content">
+                                                <mat-checkbox color="primary" [checked]=false [disabled]="true" (change)="changeUseDropoutCheckedState()">
+                                                    {{'project.useDropout' | translate}}
+                                                </mat-checkbox>
+                                            </div>
                                         </div>
-                                        <mat-form-field class="div-middle-box-content">
-                                            <mat-select [(value)]=selectedOptionLoss>
-                                                <mat-option *ngFor="let option of lossDropdown" value={{option}}>
-                                                    {{option}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div> -->
+                                    </div>
+                                </div>
                                 <!-- <div #optimizer id="optimizer">
                                         <div class="div-middle-box-title">
                                             {{'project.optimizer' | translate}}
@@ -208,20 +224,6 @@
                                             </mat-select>
                                         </mat-form-field>
                                     </div> -->
-                                <div class="div-middle-box-left-cols">
-                                    <div class="div-middle-box-left-col1">
-                                        <div #useDropout id="useDropout">
-                                            <div class="div-middle-box-content">
-                                                <mat-checkbox color="primary" [checked]=false [disabled]="true" (change)="changeUseDropoutCheckedState()">
-                                                    {{'project.useDropout' | translate}}
-                                                </mat-checkbox>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="div-middle-box-left-col2">
-
-                                    </div>
-                                </div>
                             </form>
                             <div class="div-middle-box-left-cols">
                                 <div class="div-middle-box-left-col1"></div>
@@ -307,7 +309,7 @@
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
-                            <div #metric id="metric">
+                            <!-- <div #metric id="metric">
                                 <div class="div-middle-box-title">
                                     {{'project.metric' | translate}}
                                 </div>
@@ -319,6 +321,18 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+                            <div #loss id="loss">
+                                <div class="div-middle-box-title">
+                                    {{'project.loss' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionLoss>
+                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div> -->
                         </div>
                         <div class="div-middle-box-right">
                             <div #inference id="inference">
@@ -368,7 +382,7 @@
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
-                            <div #metric id="metric">
+                            <!-- <div #metric id="metric">
                                 <div class="div-middle-box-title">
                                     {{'project.metric' | translate}}
                                 </div>
@@ -380,6 +394,18 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+                            <div #loss id="loss">
+                                <div class="div-middle-box-title">
+                                    {{'project.loss' | translate}}
+                                </div>
+                                <mat-form-field class="div-middle-box-content">
+                                    <mat-select [(value)]=selectedOptionLoss>
+                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
+                                            {{option}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div> -->
                         </div>
                         <div class="div-middle-box-right">
                             <div #inferenceSingle id="inferenceSingle">

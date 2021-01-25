@@ -125,7 +125,7 @@ export class InteractionService extends TabObject {
   dropdownModels$ = this._dropdownModelsSource.asObservable();
 
   private _learningRateValueSource = new Subject<number>();
-  learningRateValue$ = this._learningRateValueSource.asObservable();
+  learningRateValueSource$ = this._learningRateValueSource.asObservable();
   private _epochsValueSource = new Subject<number>();
   epochsValueSource$ = this._epochsValueSource.asObservable();
   private _batchSizeValueSource = new Subject<number>();
@@ -292,7 +292,7 @@ export class InteractionService extends TabObject {
           break;
         case "Metric":
           this._dropdownMetricSource.next(valuesArray);
-          this._metricValueSource.next(property.default);
+          this._selectedOptionMetricSource.next(property.default);
           break;
         case "Input height":
           this._inputHeightValueSource.next(property.default);
@@ -385,12 +385,10 @@ export class InteractionService extends TabObject {
     this._selectedOptionMetricSource.next(null);
     this._selectedOptionDatasetSource.next(null);
     this._selectedOptionLossSource.next(null);
-    this._metricValueSource.next(null);
     this._epochsValueSource.next(null);
     this._inputHeightValueSource.next(null);
     this._inputWidthValueSource.next(null);
     this._batchSizeValueSource.next(null);
-    this._dropdownLossSource.next(null);
     this._learningRateValueSource.next(null);
     this._trainingAugmentationsValueSource.next(null);
     this._validationAugmentationsValueSource.next(null);
