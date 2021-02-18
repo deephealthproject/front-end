@@ -143,7 +143,6 @@ export class ProjectComponent implements OnInit {
   lossResponseData = undefined;
   propertiesResponseData: Array<PropertyInstance>;
 
-  selectedTaskId;
   selectedWeight;
 
   dataAugmentation = [
@@ -595,7 +594,7 @@ export class ProjectComponent implements OnInit {
   initialiseTasks() {
     this._interactionService.checkedTask$.subscribe(
       id => {
-        this._interactionService.selectedTask = id;
+        this._interactionService.selectedTaskId = id;
       }
     );
   }
@@ -786,12 +785,12 @@ export class ProjectComponent implements OnInit {
               this._dataService.uploadDataset(this.datasetName, taskId, this.datasetPath, this.users, this.datasetPublic).subscribe(data => {
                 if (data.statusText == "Created") {
                   dialogRefSpinner.close();
-                  this._interactionService.openSnackBar(this.translate.instant('project.uploadDatasetResult'));
+                  this._interactionService.openSnackBarOkRequest(this.translate.instant('project.uploadDatasetResult'));
                   console.log("dataset " + this.datasetName + " uploaded");
                 }
               }, error => {
                 dialogRefSpinner.close();
-                this._interactionService.openSnackBar("Error: " + error.error.error);
+                this._interactionService.openSnackBarBadRequest("Error: " + error.error.error);
               });
             }
           }
@@ -807,8 +806,8 @@ export class ProjectComponent implements OnInit {
 
     let taskId;
     this.tasks.forEach(task => {
-      if (task.id == this._interactionService.currentProject.task_id) {
-        taskId = task.id;
+      if (task.id == this._interactionService.selectedTaskId) {
+        taskId = this._interactionService.selectedTaskId;
       }
     })
 
@@ -864,7 +863,7 @@ export class ProjectComponent implements OnInit {
               this._dataService.uploadModel(this.modelName, taskId, this.modelPath, this.modelData, this.datasetId).subscribe(data => {
                 if (data.statusText == "Created") {
                   dialogRefSpinner.close();
-                  this._interactionService.openSnackBar(this.translate.instant('project.uploadModelResult'));
+                  this._interactionService.openSnackBarOkRequest(this.translate.instant('project.uploadModelResult'));
                   console.log(data.body);
                   let process = new ProcessingObject;
                   process.projectId = this._interactionService.currentProject.id;
@@ -880,10 +879,10 @@ export class ProjectComponent implements OnInit {
                 }
               }, error => {
                 dialogRefSpinner.close();
-                this._interactionService.openSnackBar("Error: " + error.statusText);
+                this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
               });
             } else {
-              this._interactionService.openSnackBar(this.translate.instant('project.uploadModelExists'));
+              this._interactionService.openSnackBarBadRequest(this.translate.instant('project.uploadModelExists'));
             }
           }
         } else {
@@ -909,12 +908,12 @@ export class ProjectComponent implements OnInit {
         }, 10 * 10);
       }
       else if (process.process_status == "success") {
-        this._interactionService.openSnackBar(this.translate.instant('project.finishedUploadModelProcessMessage'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedUploadModelProcessMessage'));
         console.log("Model " + this.modelName + " uploaded");
         this._interactionService.increaseNotificationsNumber();
       }
       else if (process.process_status == "failure" || process.process_status == "retry") {
-        this._interactionService.openSnackBar(this.translate.instant('project.errorUploadModelProcessMessage'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorUploadModelProcessMessage'));
       }
     })
   }
@@ -1086,10 +1085,10 @@ export class ProjectComponent implements OnInit {
       this.outputList.sort = this.sort;
       this.outputList.paginator = this.paginator;
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
+      this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
     }, error => {
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('output-details-dialog.outputStatusError'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.outputStatusError'));
     })
   }
 
@@ -1253,7 +1252,7 @@ export class ProjectComponent implements OnInit {
             if (data.body.result == "ok") {
               dialogRefSpinner.close();
             }
-            this._interactionService.openSnackBar(this.translate.instant('project.startedTrainProcessMessage'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedTrainProcessMessage'));
             this.disabledTrainButton = true;
             this.trainProcessStarted = true;
             this.showTrainButton = false;
@@ -1270,13 +1269,13 @@ export class ProjectComponent implements OnInit {
             }, 2000);
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBar("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
           });
         }
       });
     }
     else {
-      this._interactionService.openSnackBar(this.translate.instant('project.errorStartedTrainProcessMessage'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
       this.trainProcessStarted = false;
       this.showTrainButton = true;
       console.log('Canceled');
@@ -1336,7 +1335,7 @@ export class ProjectComponent implements OnInit {
             this.disabledInferenceButton = true;
             dialogRefSpinner.close();
           }
-          this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
+          this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
           process.projectId = this._interactionService.currentProject.id;
@@ -1352,7 +1351,7 @@ export class ProjectComponent implements OnInit {
           this.getOutputResultsOfInference(process);
         }, error => {
           dialogRefSpinner.close();
-          this._interactionService.openSnackBar("Error: " + error.statusText);
+          this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
         })
       }
       else {
@@ -1406,7 +1405,7 @@ export class ProjectComponent implements OnInit {
             this.disabledInferenceSingleButton = true;
             dialogRefSpinner.close();
           }
-          this._interactionService.openSnackBar(this.translate.instant('project.startedInferenceProcessMessage'));
+          this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
           let process = new ProcessingObject;
           this.inferenceProcessStarted = true;
           process.projectId = this._interactionService.currentProject.id;
@@ -1422,7 +1421,7 @@ export class ProjectComponent implements OnInit {
           this.getOutputResultsOfInference(process);
         }, error => {
           dialogRefSpinner.close();
-          this._interactionService.openSnackBar("Error: " + error.statusText);
+          this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
         });
       }
       else {
@@ -1448,7 +1447,7 @@ export class ProjectComponent implements OnInit {
         }, 10 * 1000);
       }
       if (process.process_status == "finished") {
-        this._interactionService.openSnackBar(this.translate.instant('project.finishedTrainProcessMessage'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedTrainProcessMessage'));
         this.trainProcessStarted = false;
         this._interactionService.increaseNotificationsNumber();
       }
@@ -1472,7 +1471,7 @@ export class ProjectComponent implements OnInit {
         }, 10 * 1000);
       }
       if (process.process_status == "finished") {
-        this._interactionService.openSnackBar(this.translate.instant('project.finishedInferenceProcessMessage'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedInferenceProcessMessage'));
         this.inferenceProcessStarted = false;
         this._interactionService.increaseNotificationsNumber();
       }
@@ -1509,11 +1508,12 @@ export class ProjectComponent implements OnInit {
   changeCheckedTask(checkedButton: Task) {
     this.updateProjectsTaskId(checkedButton.id);
     if (checkedButton.id != undefined || checkedButton.id != null) {
-      this.selectedTaskId = checkedButton.id;
-      this._interactionService.initialiseModelDropdown(this.selectedTaskId);
+      this._interactionService.selectedTaskId = checkedButton.id;
+      this._interactionService.initialiseModelDropdown(this._interactionService.selectedTaskId);
+      this._interactionService.initialiseDatasetDropdown(this._interactionService.selectedTaskId)
       this.weightDropdown = [];
 
-      console.log("task id: " + this.selectedTaskId);
+      console.log("task id: " + this._interactionService.selectedTaskId);
       console.log("the checked task: " + checkedButton.name);
     }
   }
@@ -1594,7 +1594,7 @@ export class ProjectComponent implements OnInit {
         this._dataService.stopProcess(process.processId).subscribe(data => {
           if (data.statusText == "OK") {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBar(this.translate.instant('project.stoppedProcessMessage'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
             this.inferenceProcessStarted = false;
             process.showStopButton = false;
@@ -1631,22 +1631,33 @@ export class ProjectComponent implements OnInit {
   }
 
   //dropdown functions
-  getAllowedProperties(modelName: string) {
-    let modelId;
+  getAllowedProperties(modelName: string, datasetName: string) {
+    let selectedModelId;
+    let selectedDatasetId;
     let modelList = this._interactionService.getModelsByTaskArray();
     modelList.forEach(model => {
       if (model.name == modelName) {
-        modelId = model.id;
+        selectedModelId = model.id;
       }
     });
-    let propertyList = this._interactionService.getPropertiesById();
+    let datasetList = this._interactionService.getDatasetResponseData();
+    datasetList.forEach(dataset => {
+      if (dataset.name == datasetName) {
+        selectedDatasetId = dataset.id;
+      }
+    })
+    let propertyList = this._interactionService.getProperties();
     for (let entry of propertyList) {
-      this._dataService.allowedProperties(modelId, entry.id).subscribe(data => {
-        if (data != undefined || data != null) {
+      this._dataService.allowedProperties(selectedModelId, entry.id, selectedDatasetId).subscribe(data => {
+        if (data[0] != undefined) {
           this.updatePropertiesList(entry.id, data);
         }
         else {
-          this._dataService.propertiesById(entry.id);
+          this._dataService.propertiesById(entry.id).subscribe(data => {
+            if (data != undefined) {
+              this.updatePropertiesListById(data);
+            }
+          })
         }
       })
     }
@@ -1658,6 +1669,8 @@ export class ProjectComponent implements OnInit {
     contentData.forEach(property => {
       if (property.allowed_value != null) {
         propertyValuesNameList = property.allowed_value.split(",");
+      } else {
+        propertyValuesNameList = property.default_value;
       }
     });
 
@@ -1668,6 +1681,7 @@ export class ProjectComponent implements OnInit {
       case 2:
         this.lossDropdown = [];
         this.lossDropdown = propertyValuesNameList;
+        this.selectedOptionLoss = propertyValuesNameList[0];
         break;
       case 3:
         this.epochsValue = propertyValuesNameList;
@@ -1678,6 +1692,7 @@ export class ProjectComponent implements OnInit {
       case 5:
         this.metricDropdown = [];
         this.metricDropdown = propertyValuesNameList;
+        this.selectedOptionMetric = propertyValuesNameList[0];
         break;
       case 6:
         this.inputHeightValue = propertyValuesNameList;
@@ -1688,42 +1703,47 @@ export class ProjectComponent implements OnInit {
     }
   }
 
-  populateSelector(selector, contentData) {
-    var selectorValuesNameList = [];
-    contentData.forEach(item => {
-      selectorValuesNameList.push(item.name);
-    });
-
-    switch (selector) {
-      case "model":
-        this.modelDropdown = selectorValuesNameList;
+  updatePropertiesListById(contentData) {
+    let valuesArray = Array<string>();
+    if (contentData.values != null) {
+      valuesArray = contentData.values.split(",");
+    } else {
+      valuesArray = contentData.default;
+    }
+    switch (contentData.name) {
+      case "Learning rate":
+        this.learningRateValue = valuesArray;
         break;
-      case "dataset":
-        this.datasetDropdown = selectorValuesNameList;
+      case "Loss function":
+        this.lossDropdown = [];
+        this.lossDropdown = valuesArray;
+        this.selectedOptionLoss = valuesArray[0];
         break;
-      case "metric":
-        this.metricDropdown = selectorValuesNameList;
+      case "Epochs":
+        this.epochsValue = valuesArray;
         break;
-      case "loss":
-        this.lossDropdown = selectorValuesNameList;
+      case "Batch size":
+        this.batchSizeValue = valuesArray;
         break;
-      case "optimizer":
-        this.optimizerDropdown = selectorValuesNameList;
+      case "Metric":
+        this.metricDropdown = [];
+        this.metricDropdown = valuesArray;
+        this.selectedOptionMetric = valuesArray[0];
         break;
-      case "learning_rate":
-        this.learningRateDropdown = selectorValuesNameList;
+      case "Input height":
+        this.inputHeightValue = valuesArray;
         break;
-      case "epochs":
-        this.epochsDropdown = selectorValuesNameList;
+      case "Input width":
+        this.inputWidthValue = valuesArray;
         break;
-      case "batchSize":
-        this.batchSizeDropdown = selectorValuesNameList;
+      case "Training augmentations":
+        this.trainingAugmentationsValue = valuesArray;
         break;
-      case "inputWidth":
-        this.inputWidthDropdown = selectorValuesNameList;
+      case "Validations augmentations":
+        this.validationAugmentationsValue = valuesArray;
         break;
-      case "inputHeight":
-        this.inputHeightDropdown = selectorValuesNameList;
+      case "Test augmentations":
+        this.testAugmentationsValue = valuesArray;
         break;
     }
   }
@@ -1736,15 +1756,20 @@ export class ProjectComponent implements OnInit {
         this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username !== this._interactionService.projectOwner);
         console.log(data.body);
       }, error => {
-        this._interactionService.openSnackBar("Error: " + error.error.Error);
+        this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
       })
   }
 
   triggerSelectedModel(event) {
     this.weightDropdown = [];
-    var selectedModel = event.value;
-    this.getWeights(selectedModel);
-    this.getAllowedProperties(selectedModel);
+    this._interactionService.selectedModel = event.value;
+    this.getWeights(this._interactionService.selectedModel);
+    this.getAllowedProperties(this._interactionService.selectedModel, null);
+  }
+
+  triggerSelectedDataset(event) {
+    var selectedDataset = event.value;
+    //this.getAllowedProperties(this._interactionService.selectedModel, selectedDataset);
   }
 
   triggerSelectedModelEditWeight(event) {
@@ -1769,7 +1794,7 @@ export class ProjectComponent implements OnInit {
         dialogRef.close();
         this.displayWeightsListByModel(data);
         this.showWeightDetailsTable = false;
-        this._interactionService.openSnackBar(this.translate.instant('project.errorMessageGetModelWeightList'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorMessageGetModelWeightList'));
       }
     })
   }
@@ -1859,14 +1884,14 @@ export class ProjectComponent implements OnInit {
           this._dataService.updateWeight(weight.weightId, weight.weightDatasetId, weight.weightName, this.modelIdEditWeight, weight.pretrained_on, weight.weightPublic, this.users).subscribe(data => {
             if (data.statusText == "OK") {
               dialogRefSpinner.close();
-              this._interactionService.openSnackBar(this.translate.instant('project.updateWeightResult'));
+              this._interactionService.openSnackBarOkRequest(this.translate.instant('project.updateWeightResult'));
               this._interactionService.resetEditWeightsList(data.body);
               console.log(data.body);
               console.log("weight " + weight.weightName + " updated");
             }
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBar("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
           });
         }
       });
@@ -1883,7 +1908,7 @@ export class ProjectComponent implements OnInit {
       this.updateWeightDetails(data);
     }, error => {
       dialogRef.close();
-      this._interactionService.openSnackBar("Error: " + error.details);
+      this._interactionService.openSnackBarBadRequest("Error: " + error.details);
     });
   }
 
@@ -1976,17 +2001,26 @@ export class ProjectComponent implements OnInit {
 
   showOutputRunningTable(process) {
     this.fullStatusProcess = true;
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.statusCompleteForEvolution(process.processId, this.fullStatusProcess).subscribe(data => {
-      this.updateOutputRunningTable(data);
+      //this.updateOutputRunningTable(data);
+      dialogRef.close();
+      this.showOutputRunning = true;
+      this.showOutputInferenceSingle = false;
       this.showGraphicData(data);
       this.outputResultsDetailProcessId = process.processId;
-      this._interactionService.openSnackBar(this.translate.instant('output-details-dialog.outputStatusOk'));
+      this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
       this._interactionService.changeStopButton(process);
-    }), error => {
+    }, error => {
+      dialogRef.close();
       this.showOutputRunning = false;
       this.showOutputInferenceSingle = false;
-      this._interactionService.openSnackBar(this.translate.instant('project.outputStatusError'));
-    };
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.outputStatusError'));
+    });
   }
 
   updateOutputRunningTable(contentData) {
@@ -2052,13 +2086,13 @@ export class ProjectComponent implements OnInit {
   }
 
   showGraphicData(contentData) {
-    var outputsResults = contentData.status;
+    var outputsResults = contentData.status.process_data;
     let outputCross;
     let outputAccuracy;
     let outputBatch;
-    let varCrossEntropy = "cross_entropy=";
-    let varCategoricalAccuracy = ",categorical_accuracy=";
-    let varBatch = "Infer Batch";
+    let varCrossEntropy = "categorical_cross_entropy=";
+    let varCategoricalAccuracy = " - categorical_accuracy=";
+    let varBatch = "Inference Batch";
     let outputMax;
     let chartObject;
     let chartValuesList = [
@@ -2163,14 +2197,14 @@ export class ProjectComponent implements OnInit {
         if (data.statusText == "OK") {
           dialogRef.close();
           this._interactionService.changeProjectTabName(projectName);
-          this._interactionService.openSnackBar(this.translate.instant('project.succesMessageUpdateProject'));
+          this._interactionService.openSnackBarOkRequest(this.translate.instant('project.succesMessageUpdateProject'));
           this._interactionService.usersAssociatedArray = data.body.users;
           this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner)
           this.updateAssociatedUsersList(this._interactionService.usersAssociatedArray);
         }
       }), error => {
         dialogRef.close();
-        this._interactionService.openSnackBar("Error:" + error.statusText);
+        this._interactionService.openSnackBarBadRequest("Error:" + error.statusText);
       }
   }
 

@@ -19,7 +19,7 @@
                 {{'project.task' | translate}}
             </div>
             <div class="div-left-section-box">
-                <mat-radio-group label="tasks" [(ngModel)]="this._interactionService.selectedTask">
+                <mat-radio-group label="tasks" [(ngModel)]="this._interactionService.selectedTaskId">
                     <div class="tasks" *ngFor="let task of tasks">
                         <mat-radio-button class="div-left-section-box-button" color="primary" [(value)]="task.id" (click)="resetSelectedOptions(); changeCheckedTask(task)">
                             {{ task.name }}</mat-radio-button>
@@ -95,7 +95,7 @@
                                             {{'project.dataset' | translate}}
                                         </div>
                                         <mat-form-field class="div-middle-box-content">
-                                            <mat-select [(value)]=selectedOptionDataset>
+                                            <mat-select (selectionChange)="triggerSelectedDataset($event)" [(value)]=selectedOptionDataset>
                                                 <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
                                                     {{option}}
                                                 </mat-option>
@@ -634,7 +634,7 @@
             {{'project.outputStatusParametersDetails' | translate}} {{outputResultsDetailProcessId}}
         </div>
 
-        <table mat-table [dataSource]="outputResultsRunning" *ngIf="showOutputRunning">
+        <!-- <table mat-table [dataSource]="outputResultsRunning" *ngIf="showOutputRunning">
             <ng-container matColumnDef="Model_Id">
                 <th mat-header-cell *matHeaderCellDef>{{'project.outputModelId' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Model_Id}} </td>
@@ -681,7 +681,7 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedOutputResultsRunningColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputResultsRunningColumns;"></tr>
-        </table>
+        </table> -->
 
         <div style="padding-top: 20px;" *ngIf="showOutputRunning">
             <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;">

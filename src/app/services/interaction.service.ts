@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { Project, Model, Weight, User, ProcessingObject } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-import { MatSnackBar } from '../../../node_modules/@angular/material';
+import { MatSnackBar, MatSnackBarConfig } from '../../../node_modules/@angular/material';
 
 export class TabObject {
   name: string;
@@ -41,7 +41,7 @@ export class InteractionService extends TabObject {
   projectDatasetDisplayMode = true;
 
   modelData: string;
-  uploadModelIsClicked:Boolean;
+  uploadModelIsClicked: Boolean;
   divSendEmail: Boolean = false;
   divResetPassword: Boolean = true;
 
@@ -83,7 +83,7 @@ export class InteractionService extends TabObject {
   private _checkedTaskSource = new Subject<number>();
   checkedTask$ = this._checkedTaskSource.asObservable();
 
-  selectedTask;
+  selectedTaskId;
 
   private _changeWeightNameSource = new Subject<string>();
   _changeWeightNameSource$ = this._changeWeightNameSource.asObservable();
@@ -163,6 +163,7 @@ export class InteractionService extends TabObject {
   selectedDataId$ = this._selectedDatasetIdSource.asObservable();
   private _datasetResponseSource = new Subject<string>();
   datasetResponse = this._datasetResponseSource.asObservable();
+  selectedModel;
 
   //app-tabs -> unreadNotifications
   private _unreadNotificationsNumberSource = new Subject<number>();
@@ -236,7 +237,7 @@ export class InteractionService extends TabObject {
   usersAssociatedList$ = this._usersAssociatedListSource.asObservable();
 
   runningProcesses: ProcessingObject[] = [];
-  
+
   //reset-paswword
   private _emailValueResetPasswordSource = new Subject<string>();
   emailValueResetPasswordValue$ = this._emailValueResetPasswordSource.asObservable();
@@ -337,7 +338,7 @@ export class InteractionService extends TabObject {
     return this.modelsByTaskArray;
   }
 
-  getPropertiesById() {
+  getProperties() {
     return this.propertiesResponseData;
   }
 
@@ -647,7 +648,7 @@ export class InteractionService extends TabObject {
     this.formDataWeight = contentData;
     return this.formDataWeight;
   }
-  
+
   getProjectList() {
     return this._projectsListSource;
   }
@@ -697,7 +698,7 @@ export class InteractionService extends TabObject {
       console.log("The " + projectName + " tab is already open");
     }
   }
-  
+
   browseImage(event: any) {
     this.projectInputFiles = event.target.files;
     this.datasetImageData = event.target.value;
@@ -724,9 +725,17 @@ export class InteractionService extends TabObject {
     }
   }
 
-  openSnackBar(message) {
-    this.snackBar.open(message, "close", {
-      duration: 10000,
-    });
+  openSnackBarOkRequest(message) {
+    const config = new MatSnackBarConfig();
+    config.panelClass = ['ok-request-custom-class'];
+    config.duration = 20000;
+    this.snackBar.open(message, "close", config);
+  }
+
+  openSnackBarBadRequest(message) {
+    const config = new MatSnackBarConfig();
+    config.panelClass = ['bad-request-custom-class'];
+    config.duration = 20000;
+    this.snackBar.open(message, "close", config);
   }
 }

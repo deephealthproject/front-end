@@ -148,6 +148,8 @@ export class PowerUserComponent implements OnInit {
   usersArray: Array<User> = [];
   projectOwnerIcon = "checkedOwner";
 
+  expandWeights: Boolean;
+
   constructor(private _interactionService: InteractionService, public _authService: AuthService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
@@ -272,14 +274,14 @@ export class PowerUserComponent implements OnInit {
           else {
             dialogRefSpinner.close();
             console.log('Project already exists');
-            this._interactionService.openSnackBar(this.translate.instant('powerUser.errorCreatedNewProject'));
+            this._interactionService.openSnackBarBadRequest(this.translate.instant('powerUser.errorCreatedNewProject'));
           }
         }
       }
       else {
         dialogRefSpinner.close();
         console.log('Canceled');
-        this._interactionService.openSnackBar(this.translate.instant('powerUser.errorMessageNewProject'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('powerUser.errorMessageNewProject'));
       }
     });
   }
@@ -295,7 +297,7 @@ export class PowerUserComponent implements OnInit {
   }
 
   initialiseCurrentProject(currentProject) {
-    this._interactionService.selectedTask = currentProject.task_id;
+    this._interactionService.selectedTaskId = currentProject.task_id;
     this._interactionService.usersList = [];
     this._interactionService.usersAssociatedArray = [];
     this._interactionService.projectOwner = null;
@@ -322,7 +324,7 @@ export class PowerUserComponent implements OnInit {
       for (let process of contentData) {
         let trainingProcess = new ProcessingObject;
         trainingProcess.projectId = process.project_id;
-        trainingProcess.processId = process.id;
+        trainingProcess.processId = process.celery_id;
         trainingProcess.process_status = ProcessStatus[2];
         trainingProcess.process_type = "training";
         trainingProcess.unread = false;
@@ -336,7 +338,7 @@ export class PowerUserComponent implements OnInit {
       for (let process of contentData) {
         let inferenceProcess = new ProcessingObject;
         inferenceProcess.projectId = process.project_id;
-        inferenceProcess.processId = process.id;
+        inferenceProcess.processId = process.celery_id;
         inferenceProcess.process_status = ProcessStatus[2];
         inferenceProcess.process_type = "inference";
         inferenceProcess.unread = false;
@@ -349,7 +351,7 @@ export class PowerUserComponent implements OnInit {
       for (let process of contentData) {
         let inferenceSingleProcess = new ProcessingObject;
         inferenceSingleProcess.projectId = process.project_id;
-        inferenceSingleProcess.processId = process.id;
+        inferenceSingleProcess.processId = process.celery_id;
         inferenceSingleProcess.process_status = ProcessStatus[2];
         inferenceSingleProcess.process_type = "inferenceSingle";
         inferenceSingleProcess.unread = false;
@@ -423,7 +425,7 @@ export class PowerUserComponent implements OnInit {
     p.inference_id = contentData.inference_id;
     p.users = contentData.users;
     this.projects.push(p);
-    this._interactionService.openSnackBar(this.translate.instant('powerUser.successMessageCreatedNewProject'));
+    this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewProject'));
   };
 
   deleteProject(project) {
@@ -459,13 +461,6 @@ export class PowerUserComponent implements OnInit {
       model.weightsList.push(entry);
     }
     console.log(model.weightsList);
-  }
-
-  getWeights(model: Model) {
-    let modelId = model.id;
-    this._dataService.getWeights(modelId).subscribe(data => {
-      this.updateWeightsList(model, data);
-    })
   }
 
   selectWeight(weight) {
@@ -580,16 +575,37 @@ export class PowerUserComponent implements OnInit {
     if (this.modelsList.nativeElement.style.display == "none") {
       this.modelsList.nativeElement.style.display = "block";
       this.myModelsIcon = "open-folder";
+      this.weightsListId.nativeElement.style.display = "none";
     } else {
       this.modelsList.nativeElement.style.display = "none";
       this.myModelsIcon = "folder";
     }
   }
 
-  selectModel(model) {
-    this.selectedModel = model;
-    this.updateBackgroundColorModel();
-    this._interactionService.changeSelectedModel(model);
+  selectModel(selectedModel) {
+    this.models.forEach(model => {
+      if (model.name == selectedModel.name) {
+        this.updateBackgroundColorModel();
+        if (this.expandWeights == true) {
+            this.weightsListId.nativeElement.style.display = "none";
+            selectedModel.weightsList = [];
+            this.expandWeights = false;
+            this._interactionService.changeSelectedModel(selectedModel);
+        } else {
+          this._dataService.getWeights(selectedModel.id).subscribe(data => {
+            if (data[0] != undefined) {
+              this._interactionService.changeSelectedModel(selectedModel);
+              this.weightsListId.nativeElement.style.display = "block";
+              this.updateWeightsList(selectedModel, data);
+              this.expandWeights = true;
+            } else {
+              this._interactionService.changeSelectedModel(selectedModel);
+              this.expandWeights = false;
+            }
+          })
+        }
+      }
+    });
   }
 
   updateBackgroundColorModel() {

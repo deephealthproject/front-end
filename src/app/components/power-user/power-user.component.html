@@ -8,7 +8,7 @@
       </div>
       <div style="padding-left: 10px;" #modelsList id="modelsList">
         <div *ngFor="let model of models">
-          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model); getWeights(model);">
+          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model);">
             <mat-icon class="left-mat-icon" svgIcon={{weightsIcon}}></mat-icon>
             <div class="div-left-text-model">
               <span>{{model.name}}</span>
@@ -67,7 +67,7 @@
     </div>
     <table>
       <tr>
-        <th style="border-color: #084A6C; border-right-style: solid;">{{'powerUser.ownerColumn' | translate}}</th>
+        <th style="border-color: #084A6C; border-right-style: solid; padding-right: 10px; padding-left: 10px;">{{'powerUser.ownerColumn' | translate}}</th>
         <th>{{'powerUser.projectColumn' | translate}}</th>
       </tr>
       <tr>

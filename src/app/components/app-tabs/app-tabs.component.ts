@@ -70,7 +70,7 @@ export class AppTabsComponent implements OnInit {
   returnToProject(projectName) {
     if (projectName == this._interactionService.currentProject.name) {
       let currentProject = this._interactionService.currentProject;
-      this._interactionService.selectedTask = currentProject.task_id;
+      this._interactionService.selectedTaskId = currentProject.task_id;
       this._interactionService.usersList = [];
       this._interactionService.usersAssociatedArray = [];
       this._interactionService.projectOwner = null;

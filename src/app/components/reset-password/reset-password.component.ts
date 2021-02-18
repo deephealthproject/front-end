@@ -56,12 +56,12 @@ export class ResetPasswordComponent implements OnInit {
       this._interactionService.divSendEmail = true;
       this._interactionService.divResetPassword = false;
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('reset-password.successSendEmailForResetPassword'));
+      this._interactionService.openSnackBarOkRequest(this.translate.instant('reset-password.successSendEmailForResetPassword'));
     }, error => {
       this._interactionService.divSendEmail = false;
       this._interactionService.divResetPassword = true;
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('reset-password.errorMessageEmailForResetPassword'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('reset-password.errorMessageEmailForResetPassword'));
     });
   }
 
@@ -74,7 +74,7 @@ export class ResetPasswordComponent implements OnInit {
     this._authService.resetPasswordConfirm(newPassword, resetToken).subscribe(data => {
       if (data.statusText == "OK") {
         dialogRef.close();
-        this._interactionService.openSnackBar(this.translate.instant('reset-password.successMessageResetPassword'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('reset-password.successMessageResetPassword'));
         this._interactionService.divSendEmail = false;
         this._interactionService.divResetPassword = true;
         this.router.navigate(['']);
@@ -83,7 +83,7 @@ export class ResetPasswordComponent implements OnInit {
       this._interactionService.divSendEmail = true;
       this._interactionService.divResetPassword = false;
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('reset-password.errorMessageResetPassword'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('reset-password.errorMessageResetPassword'));
     });
   }
 }

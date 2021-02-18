@@ -100,14 +100,14 @@ export class RegisterUserComponent implements OnInit {
           console.log(data.body);
           console.log("User " + this.username + " was created");
           dialogRef.close();
-          this._interactionService.openSnackBar(this.translate.instant('register.successMessageCreatedNewUser'));
+          this._interactionService.openSnackBarOkRequest(this.translate.instant('register.successMessageCreatedNewUser'));
         }
       }, error => {
         dialogRef.close();
         if (error.error.username) {
-          this._interactionService.openSnackBar(this.translate.instant('register.errorMessageCreatedNewUser'));
+          this._interactionService.openSnackBarBadRequest(this.translate.instant('register.errorMessageCreatedNewUser'));
         } else {
-          this._interactionService.openSnackBar("Error: " + error.error.Error);
+          this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
         }
       });
   }

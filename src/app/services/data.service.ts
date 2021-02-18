@@ -13,11 +13,15 @@ export class DataService {
 
   constructor(private httpClient: HttpClient) { }
 
-  allowedProperties(modelId, propertyId): Observable<HttpResponse<any>> {
+  allowedProperties(modelId, propertyId, datasetId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat("/allowedProperties?model_id=");
     url += modelId;
     url += "&property_id=";
     url += propertyId;
+    if (datasetId != undefined) {
+      url += "&dataset_id=";
+      url += datasetId;
+    }
     return this.httpClient.get<any>(url);
   }
 
@@ -180,7 +184,7 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  pastTrainingProcesses(project_id) : Observable<HttpResponse<any>> {
+  pastTrainingProcesses(project_id): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainings/?project_id=');
     url += project_id;
     return this.httpClient.get<any>(url);
@@ -206,7 +210,7 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  pastInferenceProcesses(project_id) : Observable<HttpResponse<any>> {
+  pastInferenceProcesses(project_id): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/inference?project_id=');
     url += project_id;
     return this.httpClient.get<any>(url);
@@ -224,7 +228,7 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  pastInferenceSingleProcesses(project_id) : Observable<HttpResponse<any>> {
+  pastInferenceSingleProcesses(project_id): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/inferenceSingle?project_id=');
     url += project_id;
     return this.httpClient.get<any>(url);

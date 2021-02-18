@@ -94,7 +94,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
     this._authService.changePassword(oldPassword, newPassword, confirmNewPassword).subscribe(data => {
       if (data.statusText == "OK") {
         dialogRef.close();
-        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.successMeessageChangePassword'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('profile-details-dialog.successMeessageChangePassword'));
         this.isChangePasswordClicked = false;
         this.disabledChangePasswordButton = false;
         this.disabledDeleteAccountButton = false;
@@ -106,10 +106,10 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
     }, error => {
       dialogRef.close();
       if (error.error.old_password) {
-        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageOldPassword'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('profile-details-dialog.errorMessageOldPassword'));
       }
       if (error.error.non_field_errors) {
-        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.errorMessageInvalidNewPassword'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('profile-details-dialog.errorMessageInvalidNewPassword'));
       }
     });
   }
@@ -148,7 +148,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
       if (data.statusText == "OK") {
         dialogRef.close();
         this._interactionService.resetUserProfileDetails(data.body);
-        this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
         this.isUpdateProfileClicked = false;
         this.disabledUpdateProfileButton = false;
         this.disabledDeleteAccountButton = false;
@@ -156,7 +156,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
       }
     }), error => {
       dialogRef.close();
-      this._interactionService.openSnackBar("Error:" + error.statusText);
+      this._interactionService.openSnackBarBadRequest("Error:" + error.statusText);
     }
   }
 
@@ -201,7 +201,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
           if (data.status == 204) {
             console.log(data);
             dialogRefSpinner.close();
-            this._interactionService.openSnackBar(this.translate.instant('profile-details-dialog.succesMessageDeleteAccount'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('profile-details-dialog.succesMessageDeleteAccount'));
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('username');
@@ -211,7 +211,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
           }
         }, error => {
           dialogRefSpinner.close();
-          this._interactionService.openSnackBar("Error:" + error.statusText);
+          this._interactionService.openSnackBarBadRequest("Error:" + error.statusText);
         })
       }
       else {

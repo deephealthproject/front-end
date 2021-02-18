@@ -59,31 +59,31 @@ export class DeleteDialogComponent implements OnInit {
         case "project":
           this._dataService.deleteProject(this.deleteObject.deletedItem.id).subscribe(data => {
             dialogRef.close();
-            this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteProject'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('delete-dialog.succesMessageDeleteProject'));
             this.dialogRef.close(this.data);
           }, error => {
             dialogRef.close();
-            this._interactionService.openSnackBar("Error: " + error.error.Error);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
           });
           break;
         case "dataset":
           this._dataService.deleteDataset(this.deleteObject.deletedItem.id).subscribe(data => {
             dialogRef.close();
-            this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteDataset'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('delete-dialog.succesMessageDeleteDataset'));
             this.dialogRef.close(this.data);
           }, error => {
             dialogRef.close();
-            this._interactionService.openSnackBar("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
           });
           break;
         case "weight":
           this._dataService.deleteWeight(this.deleteObject.deletedItem.weightId).subscribe(data => {
             dialogRef.close();
-            this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteWeight'));
+            this._interactionService.openSnackBarOkRequest(this.translate.instant('delete-dialog.succesMessageDeleteWeight'));
             this.dialogRef.close(this.data);
           }, error => {
             dialogRef.close();
-            this._interactionService.openSnackBar("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
           });
           break;
         case "users":
@@ -95,10 +95,10 @@ export class DeleteDialogComponent implements OnInit {
                 dialogRef.close();
                 switch (this.dialogDeletedItem.length) {
                   case 1:
-                    this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteAssociatedUser'));
+                    this._interactionService.openSnackBarOkRequest(this.translate.instant('delete-dialog.succesMessageDeleteAssociatedUser'));
                     break;
                   case 2:
-                    this._interactionService.openSnackBar(this.translate.instant('delete-dialog.succesMessageDeleteAssociatedUsers'));
+                    this._interactionService.openSnackBarOkRequest(this.translate.instant('delete-dialog.succesMessageDeleteAssociatedUsers'));
                     break;
                 }
                 this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username != this._interactionService.projectOwner);
@@ -107,13 +107,13 @@ export class DeleteDialogComponent implements OnInit {
               }, error => {
                 dialogRef.close();
                 this._interactionService.usersAssociatedArray.push({ "username": selectedAssociatedUser, "permission": PermissionStatus[1] });
-                this._interactionService.openSnackBar("Error: " + error.statusText);
+                this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
               });
           })
           break;
       }
     } else {
-      this._interactionService.openSnackBar(this.translate.instant('delete-dialog.errorMessageDeleteItem'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('delete-dialog.errorMessageDeleteItem'));
     }
   }
 }

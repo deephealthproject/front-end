@@ -5,7 +5,6 @@ import { InteractionService } from '../../services/interaction.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MatDialogConfig, MatDialog } from '@angular/material';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
-import { HttpUrlEncodingCodec } from '../../../../node_modules/@angular/common/http';
 
 @Component({
   selector: 'app-login-user',
@@ -85,7 +84,9 @@ export class LoginUserComponent implements OnInit {
       }
     }, error => {
       dialogRef.close();
-      this._interactionService.openSnackBar(this.translate.instant('login.errorBadCredentialsLogin'));
+      this.userNameValue = "";
+      this.passwordValue = "";
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('login.errorBadCredentialsLogin'));
     });
   }
 }

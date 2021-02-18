@@ -466,3 +466,27 @@ mat-selection-list {
  .disabledIcon{
     cursor: not-allowed;
 }
+
+::ng-deep snack-bar-container.ok-request-custom-class {
+    background: #30783B;
+}
+  
+::ng-deep .ok-request-custom-class .mat-simple-snackbar {
+    color: white;
+}
+
+::ng-deep .ok-request-custom-class .mat-simple-snackbar-action {
+    color: white;
+}
+
+::ng-deep snack-bar-container.bad-request-custom-class {
+    background: #C42F2C;
+}
+
+::ng-deep .bad-request-custom-class .mat-simple-snackbar {
+    color: white;
+}
+
+::ng-deep .bad-request-custom-class .mat-simple-snackbar-action {
+    color: white;
+}
