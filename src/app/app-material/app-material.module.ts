@@ -22,6 +22,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [],
@@ -47,7 +48,8 @@ import { MatListModule } from '@angular/material/list';
     MatProgressBarModule,
     MatCardModule,
     MatMenuModule,
-    MatListModule
+    MatListModule,
+    MatExpansionModule
   ],
   exports: [
     MatToolbarModule,
@@ -71,7 +73,8 @@ import { MatListModule } from '@angular/material/list';
     MatProgressBarModule,
     MatCardModule,
     MatMenuModule,
-    MatListModule
+    MatListModule,
+    MatExpansionModule
   ]
 })
 export class AppMaterialModule { }

@@ -70,16 +70,9 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  uploadModel(modelName: string, taskId: number, onnxURL: string, onnxData: string, datasetId: number): Observable<HttpResponse<any>> {
+  uploadModel(formData): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/models/');
-    const payload = {
-      name: modelName,
-      task_id: taskId,
-      onnx_url: onnxURL,
-      onnx_data: onnxData,
-      dataset_id: datasetId
-    };
-    return this.httpClient.post<any>(url, payload, { observe: 'response' });
+    return this.httpClient.post<any>(url, formData, { observe: 'response' });
   }
 
   uploadModelStatus(processId): Observable<HttpResponse<any>> {
@@ -112,16 +105,16 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  updateWeight(weightId: number, datasetId: number, weightName: string, modelId: number, pretrained_on: number, publicWeight: boolean, owners): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat('/weights');
+  updateWeight(weightId: number, weightName: string, modelId: number, datasetId: number, pretrained_on: number, publicWeight: boolean, users): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/weights/');
+    url += weightId;
     const payload = {
-      id: weightId,
-      dataset_id: datasetId,
       name: weightName,
       model_id: modelId,
+      dataset_id: datasetId,
       pretrained_on: pretrained_on,
       public: publicWeight,
-      owners: owners
+      users: users
     };
     console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
@@ -190,12 +183,13 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  //TODO
-  trainingSettings(modelWeightsId, propertyId): Observable<HttpResponse<any>> {
-    let url = this.apiUrl.concat('/trainingSettings?modelweights_id=');
-    url += modelWeightsId;
-    url += '&property_id=';
-    url += propertyId;
+  trainingSettings(trainingId, propertyId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/trainingSettings?training_id=');
+    url += trainingId;
+    if(propertyId != undefined) {
+      url += '&property_id=';
+      url += propertyId;
+    }
     return this.httpClient.get<any>(url);
   }
 

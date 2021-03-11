@@ -1,8 +1,10 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { User, Dataset } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
+import { FormBuilder } from '../../../../node_modules/@angular/forms';
+import { DataService } from '../../services/data.service';
 
 export interface UploadDatasetsData {
   dialogContent: string;
@@ -18,7 +20,8 @@ export interface UploadDatasetsData {
   userDropdown: User[];
   selectedDatasetName;
   datasetDropdownForUploadModel: Dataset[];
-  modelData: string;
+  modelData;
+  formData: any;
 }
 
 @Component({
@@ -27,7 +30,7 @@ export interface UploadDatasetsData {
   styleUrls: ['./upload-datasets-dialog.component.css']
 })
 
-export class UploadDatasetsDialogComponent {
+export class UploadDatasetsDialogComponent implements OnInit {
   dialogContent: string;
   dialogTitle: string;
   inputPlaceHolder: string;
@@ -41,7 +44,8 @@ export class UploadDatasetsDialogComponent {
   userDropdown: User[];
   selectedDatasetName;
   datasetDropdownForUploadModel: Dataset[];
-  modelData: string;
+  modelData;
+  formData: any;
 
   changeIsUrlLinkCheckedState() {
     this.isUrlLink = !this.isUrlLink;
@@ -51,8 +55,9 @@ export class UploadDatasetsDialogComponent {
   }
 
   constructor(public dialogRef: MatDialogRef<UploadDatasetsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: UploadDatasetsData, public _interactionService: InteractionService,
-    public translate: TranslateService) {
+    @Inject(MAT_DIALOG_DATA) public data: UploadDatasetsData, public _interactionService: InteractionService, public _dataService: DataService,
+    public translate: TranslateService,
+    private formBuilder: FormBuilder) {
     this.dialogTitle = data.dialogTitle;
     this.dialogContent = data.dialogContent;
     this.inputPlaceHolder = data.inputPlaceHolder;
@@ -79,12 +84,28 @@ export class UploadDatasetsDialogComponent {
     }
   }
 
+  ngOnInit() {
+    this._interactionService.uploadForm = this.formBuilder.group({
+      name: [''],
+      onnx_data: [null]
+    });
+  }
+
   changeDatasetDisplayModeCheckedState() {
     if (this.datasetDisplayModeValue == true) {
       this._interactionService.projectDatasetDisplayMode = true;
     } else if (this.datasetDisplayModeValue == false) {
       this._interactionService.projectDatasetDisplayMode = false;
     }
+  } 
+
+  onFileSelect(event) {
+    const file = (event.target as HTMLInputElement).files[0];
+    this._interactionService.uploadForm.patchValue({
+      onnx_data: file
+    });
+    this._interactionService.uploadForm.get('onnx_data').updateValueAndValidity();
+    console.log(this._interactionService.uploadForm.value);
   }
 
   save() {
@@ -93,7 +114,7 @@ export class UploadDatasetsDialogComponent {
     this.data.inputValuePath = this.inputValuePath;
     this.data.selectedUsername = this.selectedUsername;
     this.data.selectedDatasetName = this.selectedDatasetName;
-    this.data.modelData = this._interactionService.projectImageURLSource;
+    this.data.modelData = this._interactionService.uploadForm.value;
     this.data.datasetDisplayMode = this._interactionService.projectDatasetDisplayMode;
     this.dialogRef.close(this.data);
   }

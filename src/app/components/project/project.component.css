@@ -346,15 +346,20 @@ table {
     padding-right: 10px;
 }
 
+.div-middle-edit-weight-message {
+    width: 30%;
+    display: inline-block;
+    padding-top: 28px;
+    color: rgb(211, 46, 43);
+    font-size: 14px;
+    
+}
+
 .td-output-results-cells {
     padding-top: 3px;
     padding-bottom: 3px;
     padding-left: 3px;
     padding-right: 3px;
-}
-
-.div-middle-inference-button {
-    padding-left: 40%;
 }
 
 textarea {
@@ -436,7 +441,7 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
 
 .div-edit-project-bottom-message {
     font-size: 14px;
-    color: red;
+    color: rgb(211, 46, 43);
     padding-left: 38%;
     padding-top: 8px;
 }
@@ -448,10 +453,14 @@ mat-selection-list {
 .div-icon-delete {
     transform: scale(1.3);
     cursor: pointer;
-    color: #1a759d;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    color: #3180ae;
   }
+
+.div-icon-edit {
+    cursor: pointer;
+    padding-right: 10px; 
+    color: #3180ae;
+}
 
 .div-edit-project-right-list-left-content {
     width: 90%;

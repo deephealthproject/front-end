@@ -3,16 +3,16 @@
     <div class="div-left" [hidden]="!divLeftShowStatus">
         <div class="div-left-section">
             <div class="div-left-section-title">
-                {{'project.uploadDataset' | translate}}
+                {{'project.uploadDatasetAndModelTitle' | translate}}
             </div>
             <div style="padding-top: 10px;" class="div-left-section-box">
                 <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadDataset();">
-                    {{'project.uploadDataset' | translate}}
+                    {{'project.uploadDatasetButton' | translate}}
                 </button>
             </div>
             <div style=" padding-bottom: 10px;" class="div-left-section-box">
                 <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadModel();">
-                    {{'project.uploadModel' | translate}}
+                    {{'project.uploadModelButton' | translate}}
                 </button>
             </div>
             <div class="div-left-section-title">
@@ -103,17 +103,19 @@
                                         </mat-form-field>
                                     </div>
                                 </div>
-
-                                <div class="div-middle-box-title">
-                                    {{'project.weight' | translate}}
+                                <div style="padding-left: 12px;">
+                                    <div class="div-middle-box-title">
+                                        <mat-icon svgIcon="modelweight" style="color: #084A6C; display: inline-block;"></mat-icon>
+                                        {{'project.weight' | translate}}
+                                    </div>
+                                    <mat-form-field class="div-middle-box-content">
+                                        <mat-select [(value)]=selectedOptionWeight>
+                                            <mat-option *ngFor="let option of weightDropdown" value={{option}}>
+                                                {{option}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </mat-form-field>
                                 </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionWeight>
-                                        <mat-option *ngFor="let option of weightDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
                                 <div class="div-middle-box-left-cols">
                                     <div class="div-middle-box-left-col1">
                                         <div #metric id="metric">
@@ -231,14 +233,16 @@
                                     <div #trainButton id=trainButton class="div-middle-inference-button">
                                         <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
                                             {{'project.train' | translate}}</button>
-                                        <div *ngIf="trainProcessStarted">
-                                            <p>
-                                                {{ trainMessage }}
-                                            </p>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
+                            <div style="padding-left: 20%; color: rgb(9, 46, 78);" *ngIf="trainProcessStarted">
+                                <p>
+                                    {{ trainMessage }}
+                                </p>
+                            </div>
+
                         </div>
                         <div class="div-middle-box-right">
                             <div style="color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
@@ -524,9 +528,12 @@
                 </div>
             </div>
             <div>
-                <mat-form-field>
-                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
-                </mat-form-field>
+                <div style="width: 70%; display:inline-block;">
+                    <mat-form-field>
+                        <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+                    </mat-form-field>
+                </div>
+                <div class="div-middle-edit-weight-message">{{ 'project.errorEditDeleteWeightUserPermission' | translate }}</div>
             </div>
         </div>
         <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
@@ -538,27 +545,29 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightName' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightName}} </td>
             </ng-container>
-            <ng-container matColumnDef="weightCeleryId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightCeleryId' | translate }}</th>
-                <td mat-cell *matCellDef="let element"> {{element.weightCeleryId}} </td>
-            </ng-container>
             <ng-container matColumnDef="weightDatasetId">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightDatasetId' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightDatasetId}} </td>
             </ng-container>
+            <ng-container matColumnDef="weightUsers">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightUsers' | translate }}</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightUsers}} </td>
+            </ng-container>
             <ng-container matColumnDef="weightOptions">
-                <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
-                        <div style="padding-right: 10px; cursor: pointer;" title="{{'project.edit' | translate }}" (click)="onEditWeight(row)">
-                            <mat-icon svgIcon="edit" style="color: #3180ae;"></mat-icon>
+                        <div *ngFor="let weight of row.weightUsers">
+                            <mat-icon *ngIf="weight.username == this._interactionService.username && weight.permission == 'OWN'" class="div-icon-edit"
+                                title="{{'project.edit' | translate }}" svgIcon="edit" (click)="onEditWeight(row)"></mat-icon>
                         </div>
                         <div style="padding-right: 10px; cursor: pointer;" title="{{'project.viewDetails' | translate }}" (click)="showWeightDetails(row)">
                             <mat-icon svgIcon="viewDetails" style="color: #3180ae;"></mat-icon>
                         </div>
-                        <div style="padding-right: 10px; cursor: pointer;" title="{{'delete-dialog.deleteWeight' | translate }}" (click)="deleteWeight(row)">
-                            <mat-icon svgIcon="delete" style="color: #3180ae;"></mat-icon>
-                        </div>
+                        <span *ngFor="let weight of row.weightUsers">
+                            <mat-icon *ngIf="weight.username == this._interactionService.username && weight.permission == 'OWN'" class="div-icon-edit"
+                                title="{{'delete-dialog.deleteWeight' | translate }}" svgIcon="delete" (click)="deleteWeight(row)"></mat-icon>
+                        </span>
                         <div style="cursor: pointer;" title="{{'project.results' | translate }}" (click)="showOutputProcess(row)">
                             <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
                         </div>
@@ -595,9 +604,9 @@
                     <th mat-header-cell *matHeaderCellDef>{{'project.pretrainedOn' | translate }}</th>
                     <td mat-cell *matCellDef="let element"> {{element.pretrained_on}} </td>
                 </ng-container>
-                <ng-container matColumnDef="celery_id">
-                    <th mat-header-cell *matHeaderCellDef>{{'project.celeryId' | translate }}</th>
-                    <td mat-cell *matCellDef="let element"> {{element.celery_id}} </td>
+                <ng-container matColumnDef="public_weight">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.publicWeightColumn' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.public_weight}} </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedWeightDetailsColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedWeightDetailsColumns;"></tr>

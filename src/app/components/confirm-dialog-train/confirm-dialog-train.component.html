@@ -20,7 +20,7 @@
     <div>
       <div style="padding-top: 10px; color:#336E9F;">{{'project.chooseImage' | translate}}</div>
       <div style="padding-top: 8px;">
-        <input [disabled]="inputValue" #fileInput type="file" accept="image/*" (change)="this._interactionService.browseImage($event)">
+        <input [disabled]="inputValue" #fileInput type="file" accept="image/*" (change)="this._interactionService.browseFile($event)">
       </div>
     </div>
   </div>

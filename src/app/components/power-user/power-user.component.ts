@@ -69,7 +69,7 @@ export class Weight {
   weightId: number;
   weightName: string;
   public: boolean;
-  owners: Map<string, string>;
+  users: Map<string, string>;
   weightPublic: boolean;
 }
 
@@ -98,6 +98,7 @@ export class ProcessingObject {
   showStopButton: boolean;
   showDisabledButton: boolean;
   color;
+  training_id;
 }
 
 export class ProcessData {
@@ -148,7 +149,9 @@ export class PowerUserComponent implements OnInit {
   usersArray: Array<User> = [];
   projectOwnerIcon = "checkedOwner";
 
-  expandWeights: Boolean;
+  customCollapsedHeight: string = "32px";
+  customExpandedHeight: string = "32px";
+  isWeightListEmpty: boolean = false;
 
   constructor(private _interactionService: InteractionService, public _authService: AuthService,
     private matIconRegistry: MatIconRegistry,
@@ -448,6 +451,7 @@ export class PowerUserComponent implements OnInit {
       console.log('The dialog was closed');
       console.log(result);
       if (result) {
+        this._interactionService.closeProjectTab();
         this._dataService.projects().subscribe(data => {
           this.updateProjectsList(data);
         })
@@ -455,12 +459,67 @@ export class PowerUserComponent implements OnInit {
     });
   }
 
+  //models functions
+  getModels(taskId) {
+    this._dataService.getModels(taskId).subscribe(data => {
+      this.updateModelsList(data);
+    })
+    return this.models;
+  }
+
+  updateModelsList(data) {
+    this.models = [];
+    for (let entry of data) {
+      this.models.push(entry);
+    }
+  }
+
+  expandModels() {
+    if (this.modelsList.nativeElement.style.display == "none") {
+      this.modelsList.nativeElement.style.display = "block";
+      this.myModelsIcon = "open-folder";
+    } else {
+      this.modelsList.nativeElement.style.display = "none";
+      this.myModelsIcon = "folder";
+    }
+  }
+
+  selectModel(model) {
+    this.selectedModel = model;
+    this.updateBackgroundColorModel();
+    this._interactionService.changeSelectedModel(model);
+  }
+
+  updateBackgroundColorModel() {
+    if (this.models) {
+      for (let model of this.models) {
+        if (this.selectedModel == model) {
+          model.color = "rgb(134, 154, 170)";
+        }
+        else {
+          model.color = "#425463";
+        }
+      }
+    }
+  }
+
+  getWeights(model: Model) {
+    let modelId = model.id;
+    this._dataService.getWeights(modelId).subscribe(data => {
+      if (data[0] != undefined) {
+        this.updateWeightsList(model, data);
+        this.isWeightListEmpty = false;
+      } else {
+        this.isWeightListEmpty = true;
+      }
+    })
+  }
+
   updateWeightsList(model: Model, contentData) {
     model.weightsList = [];
     for (let entry of contentData) {
       model.weightsList.push(entry);
     }
-    console.log(model.weightsList);
   }
 
   selectWeight(weight) {
@@ -553,72 +612,6 @@ export class PowerUserComponent implements OnInit {
         });
       }
     })
-  }
-
-  //models functions
-  getModels(taskId) {
-    this._dataService.getModels(taskId).subscribe(data => {
-      this.updateModelsList(data);
-    })
-    console.log(this.models);
-    return this.models;
-  }
-
-  updateModelsList(data) {
-    this.models = [];
-    for (let entry of data) {
-      this.models.push(entry);
-    }
-  }
-
-  expandModels() {
-    if (this.modelsList.nativeElement.style.display == "none") {
-      this.modelsList.nativeElement.style.display = "block";
-      this.myModelsIcon = "open-folder";
-      this.weightsListId.nativeElement.style.display = "none";
-    } else {
-      this.modelsList.nativeElement.style.display = "none";
-      this.myModelsIcon = "folder";
-    }
-  }
-
-  selectModel(selectedModel) {
-    this.models.forEach(model => {
-      if (model.name == selectedModel.name) {
-        this.updateBackgroundColorModel();
-        if (this.expandWeights == true) {
-            this.weightsListId.nativeElement.style.display = "none";
-            selectedModel.weightsList = [];
-            this.expandWeights = false;
-            this._interactionService.changeSelectedModel(selectedModel);
-        } else {
-          this._dataService.getWeights(selectedModel.id).subscribe(data => {
-            if (data[0] != undefined) {
-              this._interactionService.changeSelectedModel(selectedModel);
-              this.weightsListId.nativeElement.style.display = "block";
-              this.updateWeightsList(selectedModel, data);
-              this.expandWeights = true;
-            } else {
-              this._interactionService.changeSelectedModel(selectedModel);
-              this.expandWeights = false;
-            }
-          })
-        }
-      }
-    });
-  }
-
-  updateBackgroundColorModel() {
-    if (this.models) {
-      for (let model of this.models) {
-        if (this.selectedModel == model) {
-          model.color = "rgb(134, 154, 170)";
-        }
-        else {
-          model.color = "#425463";
-        }
-      }
-    }
   }
 
   getUsers() {

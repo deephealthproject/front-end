@@ -10,7 +10,7 @@
 }
 
 .div-left {
-  width: 18%;
+  width: 20%;
   display: inline-block;
   height: 100%;
   overflow: auto;
@@ -18,7 +18,7 @@
 }
 
 .div-right {
-  width: calc(100% - 18%);
+  width: calc(100% - 20%);
   height: 100%;
   display: inline-block;
   vertical-align: top;
@@ -141,6 +141,10 @@
   vertical-align: middle;
   cursor: pointer;
   font-family: 'Gill Sans', 'Gill Sans MT', 'Calibri', 'Trebuchet MS', sans-serif;
+}
+
+.mat-expansion-panel-header {
+  padding: 0 10px !important;
 }
 
 .div-left-section-title {

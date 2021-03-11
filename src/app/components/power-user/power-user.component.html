@@ -6,9 +6,9 @@
         <mat-icon class="left-mat-icon" svgIcon={{myModelsIcon}}></mat-icon>
         <span class="left-mat-text">{{'powerUser.myModels' | translate}}</span>
       </div>
-      <div style="padding-left: 10px;" #modelsList id="modelsList">
+      <!-- <div style="padding-left: 10px;" #modelsList id="modelsList">
         <div *ngFor="let model of models">
-          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model);">
+          <div [ngStyle]="{'background-color': model.color}" (click)="selectModel(model); ">
             <mat-icon class="left-mat-icon" svgIcon={{weightsIcon}}></mat-icon>
             <div class="div-left-text-model">
               <span>{{model.name}}</span>
@@ -24,8 +24,34 @@
             </div>
           </div>
         </div>
-      </div>
-
+      </div> -->
+      <mat-list>
+        <div style="padding-left: 6px;" #modelsList id="modelsList">
+          <div *ngFor="let model of models">
+            <mat-expansion-panel style="background-color: #425463;">
+              <mat-expansion-panel-header [ngStyle]="{'background-color': model.color}" [collapsedHeight]="customCollapsedHeight" [expandedHeight]="customExpandedHeight"
+                (click)="selectModel(model); getWeights(model);">
+                <mat-icon class="left-mat-icon" svgIcon={{weightsIcon}}></mat-icon>
+                <div class="div-left-text-model">
+                  <span>{{model.name}}</span>
+                </div>
+              </mat-expansion-panel-header>
+              <div #weightsListId id="weightsListId">
+                <div *ngFor="let weight of model.weightsList" (click)="selectWeight(weight); selectModel(model);">
+                  <div [ngStyle]="{'background-color': weight.color}">
+                    <div class="div-left-text-model">
+                      <span>{{weight.name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="isWeightListEmpty" style="padding-top: 10px; color: white" >
+                  {{'powerUser.errorMessageWeightListEmpty' | translate}}
+              </div>
+            </mat-expansion-panel>
+          </div>
+        </div>
+      </mat-list>
       <div class="div-left-section-title" (click)="expandDatasets()">
         <mat-icon class="left-mat-icon" svgIcon={{myDatasetsIcon}}></mat-icon>
         <span class="left-mat-text">{{'powerUser.myDatasets' | translate}}</span>

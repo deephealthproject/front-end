@@ -4,6 +4,7 @@ import { Project, Model, Weight, User, ProcessingObject } from '../components/po
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
 import { MatSnackBar, MatSnackBarConfig } from '../../../node_modules/@angular/material';
+import { FormGroup } from '../../../node_modules/@angular/forms';
 
 export class TabObject {
   name: string;
@@ -37,13 +38,14 @@ export class InteractionService extends TabObject {
   projectImageURLSource;
   projectInputFiles;
 
-  datasetImageData: string;
+  localFilePath: string;
   projectDatasetDisplayMode = true;
 
   modelData: string;
   uploadModelIsClicked: Boolean;
   divSendEmail: Boolean = false;
   divResetPassword: Boolean = true;
+  uploadForm: FormGroup;
 
   //project component -> which tab section is shown  
   private _projectDivLeftShowStatusSource = new Subject<boolean>();
@@ -183,6 +185,7 @@ export class InteractionService extends TabObject {
   private propertiesResponseData;
 
   formDataWeight: Weight;
+  weightUsersList;
 
   //register-user component
   private _userNameValueSource = new Subject<string>();
@@ -699,10 +702,9 @@ export class InteractionService extends TabObject {
     }
   }
 
-  browseImage(event: any) {
+  browseFile(event: any) {
     this.projectInputFiles = event.target.files;
-    this.datasetImageData = event.target.value;
-    this.modelData = event.target.value;
+    this.localFilePath = event.target.value;
     if (this.projectInputFiles.length === 0)
       return;
 
