@@ -83,11 +83,13 @@
                                             {{'project.model' | translate}}
                                         </div>
                                         <mat-form-field class="div-middle-box-content">
-                                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel [formControl]="requiredModelControl"
+                                                required>
                                                 <mat-option *ngFor="let option of modelDropdown" value={{option}}>
                                                     {{option}}
                                                 </mat-option>
                                             </mat-select>
+                                            <mat-hint style="color:#F44336" *ngIf="requiredModelControl.hasError('required')">{{'project.errorNoModelSelected' | translate}}</mat-hint>
                                         </mat-form-field>
                                     </div>
                                     <div class="div-middle-box-left-col2 ">
@@ -95,11 +97,13 @@
                                             {{'project.dataset' | translate}}
                                         </div>
                                         <mat-form-field class="div-middle-box-content">
-                                            <mat-select (selectionChange)="triggerSelectedDataset($event)" [(value)]=selectedOptionDataset>
+                                            <mat-select (selectionChange)="triggerSelectedDataset($event)" [(value)]=selectedOptionDataset [formControl]="requiredDatasetControl"
+                                                required>
                                                 <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
                                                     {{option}}
                                                 </mat-option>
                                             </mat-select>
+                                            <mat-hint style="color:#F44336" *ngIf="requiredDatasetControl.hasError('required')">{{'project.errorNoDatasetSelected' | translate}}</mat-hint>
                                         </mat-form-field>
                                     </div>
                                 </div>
@@ -233,7 +237,6 @@
                                     <div #trainButton id=trainButton class="div-middle-inference-button">
                                         <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
                                             {{'project.train' | translate}}</button>
-
                                     </div>
                                 </div>
                             </div>
@@ -242,7 +245,6 @@
                                     {{ trainMessage }}
                                 </p>
                             </div>
-
                         </div>
                         <div class="div-middle-box-right">
                             <div style="color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
@@ -287,56 +289,36 @@
                                 {{'project.model' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel [formControl]="requiredModelControl"
+                                    required>
                                     <mat-option *ngFor="let option of modelDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredModelControl.hasError('required')">{{'project.errorNoModelSelected' | translate}}</mat-hint>
                             </mat-form-field>
                             <div class="div-middle-box-title">
                                 {{'project.weight' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionWeight>
+                                <mat-select [formControl]="requiredWeightControl" required [(value)]=selectedOptionWeight>
                                     <mat-option *ngFor="let option of weightDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredWeightControl.hasError('required')">{{'project.errorNoWeightSelected' | translate}}</mat-hint>
                             </mat-form-field>
                             <div class="div-middle-box-title">
                                 {{'project.dataset' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionDataset>
+                                <mat-select matNativeControl [formControl]="requiredDatasetControl" required [(value)]=selectedOptionDataset>
                                     <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredDatasetControl.hasError('required')">{{'project.errorNoDatasetSelected' | translate}}</mat-hint>
                             </mat-form-field>
-                            <!-- <div #metric id="metric">
-                                <div class="div-middle-box-title">
-                                    {{'project.metric' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionMetric>
-                                        <mat-option *ngFor="let option of metricDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div #loss id="loss">
-                                <div class="div-middle-box-title">
-                                    {{'project.loss' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionLoss>
-                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div> -->
                         </div>
                         <div class="div-middle-box-right">
                             <div #inference id="inference">
@@ -360,56 +342,36 @@
                                 {{'project.model' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
+                                <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel [formControl]="requiredModelControl"
+                                    required>
                                     <mat-option *ngFor="let option of modelDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredModelControl.hasError('required')">{{'project.errorNoModelSelected' | translate}}</mat-hint>
                             </mat-form-field>
                             <div class="div-middle-box-title">
                                 {{'project.weight' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionWeight>
+                                <mat-select [formControl]="requiredWeightControl" required [(value)]=selectedOptionWeight>
                                     <mat-option *ngFor="let option of weightDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredWeightControl.hasError('required')">{{'project.errorNoWeightSelected' | translate}}</mat-hint>
                             </mat-form-field>
                             <div class="div-middle-box-title">
                                 {{'project.dataset' | translate}}
                             </div>
                             <mat-form-field class="div-middle-box-content">
-                                <mat-select [(value)]=selectedOptionDataset>
+                                <mat-select [formControl]="requiredDatasetControl" required [(value)]=selectedOptionDataset>
                                     <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
                                         {{option}}
                                     </mat-option>
                                 </mat-select>
+                                <mat-hint style="color:#F44336" *ngIf="requiredDatasetControl.hasError('required')">{{'project.errorNoDatasetSelected' | translate}}</mat-hint>
                             </mat-form-field>
-                            <!-- <div #metric id="metric">
-                                <div class="div-middle-box-title">
-                                    {{'project.metric' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionMetric>
-                                        <mat-option *ngFor="let option of metricDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div #loss id="loss">
-                                <div class="div-middle-box-title">
-                                    {{'project.loss' | translate}}
-                                </div>
-                                <mat-form-field class="div-middle-box-content">
-                                    <mat-select [(value)]=selectedOptionLoss>
-                                        <mat-option *ngFor="let option of lossDropdown" value={{option}}>
-                                            {{option}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div> -->
                         </div>
                         <div class="div-middle-box-right">
                             <div #inferenceSingle id="inferenceSingle">
@@ -549,9 +511,9 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightDatasetId' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightDatasetId}} </td>
             </ng-container>
-            <ng-container matColumnDef="weightUsers">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightUsers' | translate }}</th>
-                <td mat-cell *matCellDef="let element"> {{element.weightUsers}} </td>
+            <ng-container matColumnDef="weightOwner">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightOwner' | translate }}</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightOwner}} </td>
             </ng-container>
             <ng-container matColumnDef="weightOptions">
                 <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
@@ -608,6 +570,10 @@
                     <th mat-header-cell *matHeaderCellDef>{{'project.publicWeightColumn' | translate }}</th>
                     <td mat-cell *matCellDef="let element"> {{element.public_weight}} </td>
                 </ng-container>
+                <ng-container matColumnDef="associated_users">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.associatedUsersColumn' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.associated_users}} </td>
+                </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedWeightDetailsColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedWeightDetailsColumns;"></tr>
             </table>
@@ -629,7 +595,7 @@
             <ng-container matColumnDef="outputDetails">
                 <th mat-header-cell *matHeaderCellDef>{{'project.outputDetails' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
-                    <div style="cursor: pointer;" title="view details" (click)="onShowOutputDetails(row)">
+                    <div style="cursor: pointer;" title="View details" (click)="onShowInferenceOutputDetails(row)">
                         <mat-icon svgIcon="viewDetails" style="color: #65A4C5;"></mat-icon>
                     </div>
                 </td>

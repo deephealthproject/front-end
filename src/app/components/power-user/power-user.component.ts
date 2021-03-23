@@ -303,8 +303,8 @@ export class PowerUserComponent implements OnInit {
     this._interactionService.selectedTaskId = currentProject.task_id;
     this._interactionService.usersList = [];
     this._interactionService.usersAssociatedArray = [];
-    this._interactionService.projectOwner = null;
     this._interactionService.runningProcesses = [];
+    this._interactionService.projectOwner = null;
     let contentData = null;
 
     if (this._interactionService.usersList.length == 0) {
@@ -336,6 +336,7 @@ export class PowerUserComponent implements OnInit {
       }
       //id: 50, celery_id: "0883b0a5-2333-401d-a78e-d362183784ed", project_id: 79, modelweights_id: 443}
     })
+    
     this._dataService.pastInferenceProcesses(currentProject.id).subscribe(data => {
       contentData = data;
       for (let process of contentData) {
@@ -349,19 +350,21 @@ export class PowerUserComponent implements OnInit {
         this._interactionService.runningProcesses.push(inferenceProcess);
       }
     });
-    this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
-      contentData = data;
-      for (let process of contentData) {
-        let inferenceSingleProcess = new ProcessingObject;
-        inferenceSingleProcess.projectId = process.project_id;
-        inferenceSingleProcess.processId = process.celery_id;
-        inferenceSingleProcess.process_status = ProcessStatus[2];
-        inferenceSingleProcess.process_type = "inferenceSingle";
-        inferenceSingleProcess.unread = false;
-        this._interactionService.changeStopButton(inferenceSingleProcess);
-        this._interactionService.runningProcesses.push(inferenceSingleProcess);
-      }
-    });
+    
+    //??? inference Single intoarce aceleasi procese ca inference
+    // this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
+    //   contentData = data;
+    //   for (let process of contentData) {
+    //     let inferenceSingleProcess = new ProcessingObject;
+    //     inferenceSingleProcess.projectId = process.project_id;
+    //     inferenceSingleProcess.processId = process.celery_id;
+    //     inferenceSingleProcess.process_status = ProcessStatus[2];
+    //     inferenceSingleProcess.process_type = "inferenceSingle";
+    //     inferenceSingleProcess.unread = false;
+    //     this._interactionService.changeStopButton(inferenceSingleProcess);
+    //     this._interactionService.runningProcesses.push(inferenceSingleProcess);
+    //   }
+    // });
   }
 
   showProject(selectedProject: Project) {
@@ -488,6 +491,7 @@ export class PowerUserComponent implements OnInit {
     this.selectedModel = model;
     this.updateBackgroundColorModel();
     this._interactionService.changeSelectedModel(model);
+    this.getWeights(model);
   }
 
   updateBackgroundColorModel() {

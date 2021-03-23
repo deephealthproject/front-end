@@ -75,8 +75,13 @@ export class ConfirmDialogTrainComponent implements OnInit {
     }
 
     if (!this.selectedWeight) {
-      // this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
-      // this.weightColor = "red";
+      if (this.process_type == "training") {
+        //   this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
+        // this.weightColor = "red";
+      } else {
+        this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
+        this.weightColor = "red";
+      }
     }
     else {
       this.messageWeight = this.translate.instant('confirm-dialog-train.selectedWeight') + this.selectedWeight;
@@ -85,7 +90,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
     if (this.process_type == "inference") {
       this.showMessageModel = true;
-      this.showMessageWeight = false;
+      this.showMessageWeight = true;
       this.showMessageDataset = true;
       this.showDatasetInputPath = false;
     }
@@ -99,8 +104,8 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
     if (this.process_type == "inferenceSingle") {
       this.showMessageModel = true;
-      this.showMessageWeight = false;
-      this.showMessageDataset = false;
+      this.showMessageWeight = true;
+      this.showMessageDataset = true;
       this.showDatasetInputPath = true;
     }
   }

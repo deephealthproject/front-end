@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DeleteDialogComponent } from '../delete-dialog/delete-dialog.component';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
+import { FormControl, Validators } from '../../../../node_modules/@angular/forms';
 
 export class Task {
   id: number;
@@ -40,7 +41,6 @@ export class DropdownResponse {
 export interface WeightData {
   WeightId: number;
   WeightName: string;
-
   weightDatasetId: number;
 }
 
@@ -203,8 +203,8 @@ export class ProjectComponent implements OnInit {
   weightName: string;
   weightsList: MatTableDataSource<any>;
   weightDetails: MatTableDataSource<any>;
-  displayedWeightDetailsColumns: string[] = ['Weight_Id', 'Name', 'dataset_name', 'model_name', 'pretrained_on', "public_weight"];
-  displayedColumns: string[] = ['weightId', 'weightName', 'weightDatasetId', 'weightOptions'];
+  displayedWeightDetailsColumns: string[] = ['Weight_Id', 'Name', 'dataset_name', 'model_name', 'pretrained_on', "public_weight", "associated_users"];
+  displayedColumns: string[] = ['weightId', 'weightName', 'weightDatasetId', 'weightOwner', 'weightOptions'];
   weightsEditData = [];
   selectedOptionModelEditList = null;
   modelIdEditWeight = null;
@@ -212,6 +212,7 @@ export class ProjectComponent implements OnInit {
   weightIdForTitle: any;
   showWeightDetailsTable: boolean = false;
   weightDisplayMode;
+  weightOwner;
 
   //project users
   users = [];
@@ -232,6 +233,10 @@ export class ProjectComponent implements OnInit {
   //inference single
   datasetImagePath: string;
   datasetImageData: string;
+
+  requiredModelControl = new FormControl('', [Validators.required]);
+  requiredDatasetControl = new FormControl('', [Validators.required]);
+  requiredWeightControl = new FormControl('', [Validators.required]);
 
   //output
   outputList: MatTableDataSource<any>;
@@ -709,6 +714,22 @@ export class ProjectComponent implements OnInit {
     this._interactionService.resetSelectedOptions();
   }
 
+  changeUseDropoutCheckedState() {
+    this.useDropoutCheckedState = !this.useDropoutCheckedState;
+  }
+
+  changeLearningRateValue(event) {
+    this.learningRateValue = event.target.value;
+  }
+
+  changeEpochsValue(event) {
+    this.epochsValue = event.target.value;
+  }
+
+  changeBatchSizeValue(event) {
+    this.batchSizeValue = event.target.value;
+  }
+
   uploadDataset() {
     this._interactionService.uploadModelIsClicked = false;
     let taskId;
@@ -970,6 +991,54 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
+
+    this._interactionService.runningProcesses.forEach(runningProcess => {
+      if (runningProcess.process_status == "finished") {
+        console.log(runningProcess.process_status);
+        this.checkStatusPastProcesses(runningProcess);
+      }
+    })
+  }
+
+  checkStatusPastProcesses(process) {
+    this._dataService.status(process.processId).subscribe(data => {
+      let status: any = data.status;
+      process.projectId = process.projectId;
+      process.processId = process.processId;
+      process.process_data = status.process_data;
+      process.process_type = status.process_type;
+      process.process_status = status.process_status;
+      this._interactionService.changeStopButton(process);
+      if (process.process_status == "finished") {
+        console.log(process.process_status);
+        setTimeout(() => {
+          this.checkStatusPastProcesses(process)
+        }, 10 * 1000);
+      }
+      if (process.process_status == "running") {
+        let status: any = data.status;
+        let runningProcess = new ProcessingObject;
+        runningProcess.projectId = process.projectId;
+        runningProcess.processId = process.processId;
+        runningProcess.process_data = status.process_data;
+        runningProcess.process_type = status.process_type;
+        runningProcess.process_status = status.process_status;
+        runningProcess.unread = false;
+        this._interactionService.changeStopButton(process);
+        if (process.processId !== runningProcess.processId) {
+          this._interactionService.runningProcesses.push(runningProcess);
+        }
+        if (process.process_type == "training") {
+          setTimeout(() => {
+            this.checkStatusTrain(process);
+          }, 10 * 1000);
+        } else {
+          setTimeout(() => {
+            this.checkStatusInference(process);
+          }, 10 * 1000);
+        }
+      }
+    });
   }
 
   openEditWeights() {
@@ -1009,134 +1078,6 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
-  }
-
-  openOutputResults() {
-    this.openOutputResultCustom(null);
-  }
-
-  openOutputResultCustom(processIdNotification) {
-    // TODO: clean first Grid
-    this.cleanWeightsEditList();
-    if (processIdNotification != undefined && processIdNotification != null) {
-      // TODO: show info about output results from weights or from notification process
-    }
-
-    this._interactionService.changeShowStateProjectDivLeft(false);
-    this._interactionService.changeShowStateProjectDivMiddle(false);
-    this._interactionService.changeShowStateProjectDivEditProject(false);
-    this._interactionService.changeShowStateProjectDivNetwork(false);
-    this._interactionService.changeShowStateProjectDivNotifications(false);
-    this._interactionService.changeShowStateProjectDivEditWeights(false);
-    this._interactionService.changeShowStateProjectDivOutputResults(true);
-
-    this._interactionService.changeStateProjectConfigurationIsClicked(false);
-    this._interactionService.changeStateProjectEditProjectIsClicked(false);
-    this._interactionService.changeStateProjectNetworkIsClicked(false);
-    this._interactionService.changeStateProjectNotificationsIsClicked(false);
-    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
-    this._interactionService.changeStateProjectOutputResultsIsClicked(true);
-  }
-
-  displayOutputResultsOuputsTable(process) {
-    console.log(process);
-    if (process.processId != null || process.processId != undefined) {
-      this.checkProcessStatusForOutput(process);
-    }
-    else if (process.weightCeleryId != null || process.weightCeleryId != undefined) {
-      this.getOutput(process.weightCeleryId);
-    }
-
-    // clean second outputs details list grid
-    this.cleanOutputResultsOuputsTableList();
-
-    var testRealOutputs = {
-      "outputs": [
-        [
-          "['https://jenkins-master-deephealth-unix01.ing.unimore.it/backend/media/imgs/1.png']",
-          "[[4.5472843339666724e-05, 0.006470129359513521, 0.005621257703751326, 0.002127237617969513, 0.0007704696618020535, 0.9840483665466309, 3.123315400443971e-05, 0.00012626624084077775, 0.0007565256673842669, 3.0344513106683735e-06]]"
-        ]
-      ]
-    }
-  }
-
-  getOutput(processId) {
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.disableClose = true;
-    dialogConfig.autoFocus = true;
-    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
-    this._dataService.getOutput(processId).subscribe(data => {
-      this.outputResultsDetailProcessId = processId;
-      var outputsResults = data.outputs;
-      let outputDetail = [];
-      outputsResults.forEach(output => {
-        JSON.parse(output[1]).forEach(element => {
-          outputDetail = element;
-        });
-        this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
-      });
-
-      this.outputList = new MatTableDataSource(this.outputResultsData);
-      this.outputList.sort = this.sort;
-      this.outputList.paginator = this.paginator;
-      dialogRef.close();
-      this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
-    }, error => {
-      dialogRef.close();
-      this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.outputStatusError'));
-    })
-  }
-
-  checkProcessStatusForOutput(process) {
-    if (process.process_status == "finished") {
-      if (process.process_type == "training") {
-        this.showGraphicProcess = true;
-        this.showProgressBarProcess = false;
-        this.showOutputResultsProcess(process);
-      } else {
-        this.getOutput(process.processId);
-        this.showOutputInferenceSingle = true;
-        this.showGraphicProcess = false;
-        this.showProgressBarProcess = false;
-      }
-    }
-    else if (process.process_status == "running") {
-      if (process.process_type == "training") {
-        this.showGraphicProcess = true;
-        this.showProgressBarProcess = false;
-      }
-      else if (process.process_type == "inference") {
-        this.showProgressBarProcess = true;
-        this.showGraphicProcess = false;
-      } else {
-        this.showProgressBarProcess = false;
-        this.showGraphicProcess = false;
-      }
-      this.showOutputResultsProcess(process);
-    }
-  }
-
-  cleanOutputResultsOuputsTableList() {
-    this.outputResultsDetailProcessId = undefined;
-    this.outputResultsData = [];
-    this.outputList = new MatTableDataSource(this.outputResultsData);
-    this.showOutputRunning = false;
-  }
-
-  changeUseDropoutCheckedState() {
-    this.useDropoutCheckedState = !this.useDropoutCheckedState;
-  }
-
-  changeLearningRateValue(event) {
-    this.learningRateValue = event.target.value;
-  }
-
-  changeEpochsValue(event) {
-    this.epochsValue = event.target.value;
-  }
-
-  changeBatchSizeValue(event) {
-    this.batchSizeValue = event.target.value;
   }
 
   //train & inference functions
@@ -1257,9 +1198,11 @@ export class ProjectComponent implements OnInit {
             process.process_type = this.process_type;
             process.training_id = data.body.training_id;
             process.unread = true;
+            this.disabledTrainButton = false;
             this._interactionService.runningProcesses.push(process);
             this._interactionService.changeStopButton(process);
-            this.checkStatusTrainButton();
+            this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
+            //this.checkStatusTrainButton();
             setTimeout(() => {
               this.checkStatusTrain(process)
             }, 2000);
@@ -1330,6 +1273,7 @@ export class ProjectComponent implements OnInit {
       dialogContent: this.translate.instant('project.areYouSureInference'),
       trainingTime: this.translate.instant('project.estimatedTimePreTrain'),
       modelSelected: this.selectedOptionModel,
+      weightSelected: this.selectedOptionWeight,
       datasetSelected: this.selectedOptionDataset,
       process_type: this.process_type
     }
@@ -1353,8 +1297,10 @@ export class ProjectComponent implements OnInit {
           process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
+          this.disabledInferenceButton = false;
           this._interactionService.runningProcesses.push(process);
           this._interactionService.changeStopButton(process);
+          this.inferenceMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
           setTimeout(() => {
             this.checkStatusInference(process)
           }, 2000);
@@ -1397,6 +1343,7 @@ export class ProjectComponent implements OnInit {
       dialogContent: this.translate.instant('project.areYouSureInference'),
       trainingTime: this.translate.instant('project.estimatedTimePreTrain'),
       modelSelected: this.selectedOptionModel,
+      weightSelected: this.selectedOptionWeight,
       datasetSelected: this.selectedOptionDataset,
       process_type: this.process_type,
       datasetImageData: this.datasetImageData
@@ -1423,8 +1370,10 @@ export class ProjectComponent implements OnInit {
           process.process_status = ProcessStatus[1];
           process.process_type = this.process_type;
           process.unread = true;
+          this.disabledInferenceSingleButton = false;
           this._interactionService.runningProcesses.push(process);
           this._interactionService.changeStopButton(process);
+          this.inferenceMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
           setTimeout(() => {
             this.checkStatusInference(process)
           }, 2000);
@@ -1459,9 +1408,9 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedTrainProcessMessage'));
         this.trainProcessStarted = false;
+        process.unread = true;
         this._interactionService.increaseNotificationsNumber();
       }
-      this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
     })
   }
 
@@ -1483,9 +1432,9 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "finished") {
         this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedInferenceProcessMessage'));
         this.inferenceProcessStarted = false;
+        process.unread = true;
         this._interactionService.increaseNotificationsNumber();
       }
-      this.inferenceMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status;
     })
     // TODO: catch error case
   }
@@ -1610,29 +1559,23 @@ export class ProjectComponent implements OnInit {
             process.showStopButton = false;
             process.showDisabledButton = true;
             process.process_status = ProcessStatus[2];
-            this.checkStatusTrainButton();
+            //this.checkStatusTrainButton();
+            this._interactionService.runningProcesses = this._interactionService.runningProcesses.filter(item => item.processId !== process.processId);
           }
           else {
             dialogRefSpinner.close();
             this.trainProcessStarted = true;
             this.inferenceProcessStarted = true;
           }
-        });
+        }, error => {
+          dialogRefSpinner.close();
+          this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+        })
       }
       else {
         console.log('Canceled');
       }
     });
-  }
-
-  showOutputProcess(process) {
-    this.openOutputResultCustom(process.processId);
-    this.displayOutputResultsOuputsTable(process);
-    //this.showProcessPropertiesTable(process);
-  }
-
-  showOutputProcessFromWeights(process) {
-    this.displayOutputResultsOuputsTable(process);
   }
 
   markNotificationAsRead(process) {
@@ -1813,13 +1756,15 @@ export class ProjectComponent implements OnInit {
 
   displayWeightsListByModel(weightdataList) {
     this.weightsEditData = [];
-    this._interactionService.weightUsersList = [];
-    this._interactionService.weightUsersList = weightdataList;
-    console.log(this._interactionService.weightUsersList);
 
     weightdataList.forEach(weightdata => {
       this.weightDisplayMode = weightdata.public;
-      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightDatasetId: weightdata.dataset_id, weightPublic: this.weightDisplayMode, weightUsers: weightdata.users });
+      weightdata.users.forEach(user => {
+        if (user.permission == "OWN") {
+          this.weightOwner = user.username;
+        }
+      })
+      this.weightsEditData.push({ weightId: weightdata.id, weightName: weightdata.name, weightDatasetId: weightdata.dataset_id, weightOwner: this.weightOwner, weightPublic: this.weightDisplayMode, weightUsers: weightdata.users });
 
     });
     this.weightsList = new MatTableDataSource(this.weightsEditData);
@@ -1841,7 +1786,7 @@ export class ProjectComponent implements OnInit {
     console.log(weight);
     this.users = [];
     this._interactionService.formDataWeight = weight;
-    
+
     const dialogConfigSpinner = new MatDialogConfig();
     dialogConfigSpinner.disableClose = true;
     dialogConfigSpinner.autoFocus = true;
@@ -1928,6 +1873,8 @@ export class ProjectComponent implements OnInit {
     let model_name;
     let public_weight;
     let pretrained_on;
+    let associated_users = [];
+    let nrAssociatedUsers = 0;
     let datasetList = this._interactionService.getDatasetResponseData();
     let modelList = this._interactionService.getModelsByTaskArray();
     modelList.forEach(element => {
@@ -1950,6 +1897,16 @@ export class ProjectComponent implements OnInit {
     } else {
       public_weight = this.translate.instant('project.publicWeight');
     }
+
+    contentData.users.forEach(user => {
+      if (user.permission == "VIEW") {
+        associated_users.push(user.username);
+        nrAssociatedUsers++;
+      }
+    })
+    if (nrAssociatedUsers == 0) {
+      associated_users.push(this.translate.instant('project.noAssociatedUsers'));
+    }
     dummyArray.push(
       {
         Weight_Id: contentData.id,
@@ -1957,7 +1914,8 @@ export class ProjectComponent implements OnInit {
         dataset_name: dataset_name,
         model_name: model_name,
         pretrained_on: pretrained_on,
-        public_weight: public_weight
+        public_weight: public_weight,
+        associated_users: associated_users
       });
     this.weightIdForTitle = contentData.id;
     this.weightDetails = new MatTableDataSource(dummyArray);
@@ -2006,7 +1964,125 @@ export class ProjectComponent implements OnInit {
     this.getWeights(selectedModel);
   }
 
-  onShowOutputDetails(outputResultsRow) {
+  showOutputProcess(process) {
+    this.openOutputResultCustom(process.processId);
+    this.displayOutputResultsOuputsTable(process);
+    //this.showProcessPropertiesTable(process);
+  }
+
+  openOutputResults() {
+    this.openOutputResultCustom(null);
+  }
+
+  openOutputResultCustom(processIdNotification) {
+    // TODO: clean first Grid
+    this.cleanWeightsEditList();
+    if (processIdNotification != undefined && processIdNotification != null) {
+      // TODO: show info about output results from weights or from notification process
+    }
+
+    this._interactionService.changeShowStateProjectDivLeft(false);
+    this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivNotifications(false);
+    this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivOutputResults(true);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectNotificationsIsClicked(false);
+    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectOutputResultsIsClicked(true);
+  }
+
+  displayOutputResultsOuputsTable(process) {
+    console.log(process);
+    if (process.processId != null || process.processId != undefined) {
+      this.checkProcessStatusForOutput(process);
+    }
+    else if (process.weightCeleryId != null || process.weightCeleryId != undefined) {
+      this.getOutput(process.weightCeleryId);
+    }
+
+    // clean second outputs details list grid
+    this.cleanOutputResultsOuputsTableList();
+
+    var testRealOutputs = {
+      "outputs": [
+        [
+          "['https://jenkins-master-deephealth-unix01.ing.unimore.it/backend/media/imgs/1.png']",
+          "[[4.5472843339666724e-05, 0.006470129359513521, 0.005621257703751326, 0.002127237617969513, 0.0007704696618020535, 0.9840483665466309, 3.123315400443971e-05, 0.00012626624084077775, 0.0007565256673842669, 3.0344513106683735e-06]]"
+        ]
+      ]
+    }
+  }
+
+  getOutput(processId) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
+    this._dataService.getOutput(processId).subscribe(data => {
+      this.outputResultsDetailProcessId = processId;
+      var outputsResults = data.outputs;
+      let outputDetail = [];
+      outputsResults.forEach(output => {
+        JSON.parse(output[1]).forEach(element => {
+          outputDetail = element;
+        });
+        this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
+      });
+
+      this.outputList = new MatTableDataSource(this.outputResultsData);
+      this.outputList.sort = this.sort;
+      this.outputList.paginator = this.paginator;
+      dialogRef.close();
+      this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
+    }, error => {
+      dialogRef.close();
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.outputStatusError'));
+    })
+  }
+
+  checkProcessStatusForOutput(process) {
+    if (process.process_status == "finished") {
+      if (process.process_type == "training") {
+        this.showGraphicProcess = true;
+        this.showProgressBarProcess = false;
+        this.showOutputResultsProcess(process);
+      } else {
+        this.getOutput(process.processId);
+        this.showOutputInferenceSingle = true;
+        this.showGraphicProcess = false;
+        this.showProgressBarProcess = false;
+      }
+    }
+    else if (process.process_status == "running") {
+      if (process.process_type == "training") {
+        this.showGraphicProcess = true;
+        this.showProgressBarProcess = false;
+      }
+      else if (process.process_type == "inference") {
+        this.showProgressBarProcess = true;
+        this.showGraphicProcess = false;
+      } else {
+        this.showProgressBarProcess = false;
+        this.showGraphicProcess = false;
+      }
+      this.showOutputResultsProcess(process);
+    }
+  }
+
+  cleanOutputResultsOuputsTableList() {
+    this.outputResultsDetailProcessId = undefined;
+    this.outputResultsData = [];
+    this.outputList = new MatTableDataSource(this.outputResultsData);
+    this.showOutputRunning = false;
+  }
+
+  onShowInferenceOutputDetails(outputResultsRow) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.data = {
       processId: this.outputResultsDetailProcessId,
@@ -2018,6 +2094,10 @@ export class ProjectComponent implements OnInit {
 
   onShowOutputsByWeight(outputResultsRow) {
     this.showOutputProcessFromWeights(outputResultsRow);
+  }
+
+  showOutputProcessFromWeights(process) {
+    this.displayOutputResultsOuputsTable(process);
   }
 
   showOutputResultsProcess(process) {
