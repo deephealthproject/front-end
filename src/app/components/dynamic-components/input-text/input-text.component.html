@@ -1,0 +1,9 @@
+<div style="padding-left: 20px;">
+  <div class="div-property-name">{{propertyData.name}}</div>
+  <div class="div-property-content-values" #textProperty id="textProperty">
+    <mat-form-field appearance="none" style="width: 90%;">
+      <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}}
+        (change)="changeTextPropertyValue($event)"></textarea>
+    </mat-form-field>
+  </div>
+</div>

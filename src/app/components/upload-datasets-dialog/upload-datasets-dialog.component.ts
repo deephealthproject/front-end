@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
 import { User, Dataset } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
-import { FormBuilder } from '../../../../node_modules/@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 
 export interface UploadDatasetsData {

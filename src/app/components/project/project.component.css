@@ -185,6 +185,32 @@
     height: 15px;
 }
 
+.div-middle-box-properties-title {
+    font-size: 15px; 
+    color: rgb(16 104 150); 
+    padding-bottom: 16px;
+}
+
+.div-middle-properties-table {
+    width: 100%; 
+    border: solid 0.5px; 
+    border-color: rgb(65, 90, 128); 
+    display: inline-block;
+}
+
+.div-middle-properties-table-titles {
+    width: calc(100% - 10px); 
+    display: inline-block; 
+    border-bottom: solid 0.5px; 
+    border-color: rgb(65, 90, 128); 
+    padding-top: 8px; 
+    padding-left: 10px; 
+    padding-bottom: 8px;
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    background-color: #65A4C4;
+}
+
 .div-border {
     padding: 10px;
     border-top-style: solid;
@@ -236,7 +262,7 @@
 }
 
 .div-notifications-title-section {
-    width: calc(100% / 4 - 1px);
+    width: calc(100% / 5 - 1px);
     background-color: #65A4C4;
     display: inline-block;
     text-align: center;
@@ -256,7 +282,7 @@
 }
 
 .div-notifications-process-section {
-    width: calc(100% / 4);
+    width: calc(100% / 5);
     display: inline-block;
     text-align: center;
     padding: 20px 0;
@@ -285,6 +311,18 @@
     padding-left: 2px;
     float: right;
     /* background-color: #ECF3F4; */
+}
+
+.div-notifications-search{
+    width: 8%;
+    color: #084A6C;
+}
+
+.div-notifications-search-text{
+    width: 92%;
+    color: #084A6C;
+    padding-bottom: 4px;
+    font-size: 15px;
 }
 
 .left-mat-icon {

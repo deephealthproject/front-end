@@ -1,0 +1,8 @@
+<div style="padding-left: 20px;">
+    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-content-values" #floatProperty id="floatProperty">
+        <mat-form-field style="font-size: 15px; width: 90%; text-align: right;">
+            <input matInput type="number" value={{propertyData.default_value}} step=0.0001 (change)="changeFloatPropertyValue($event)">
+        </mat-form-field>
+    </div>
+</div>

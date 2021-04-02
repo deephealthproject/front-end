@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
 import { MatDialogConfig, MatDialog, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
@@ -14,7 +14,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DeleteDialogComponent } from '../delete-dialog/delete-dialog.component';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
-import { FormControl, Validators } from '../../../../node_modules/@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
+import { PropertyItem } from '../property-item';
+import { DropdownComponent } from '../dynamic-components/dropdown/dropdown.component';
+import { InputTextComponent } from '../dynamic-components/input-text/input-text.component';
+import { InputFloatComponent } from '../dynamic-components/input-float/input-float.component';
+import { InputIntegerComponent } from '../dynamic-components/input-integer/input-integer.component';
 
 export class Task {
   id: number;
@@ -125,6 +130,8 @@ export class ProjectComponent implements OnInit {
   trainingAugmentationsValue;
   validationAugmentationsValue;
   testAugmentationsValue;
+
+  selectedOption = null;
 
   //data augmentation
   flippingCheckedState;
@@ -238,6 +245,11 @@ export class ProjectComponent implements OnInit {
   requiredDatasetControl = new FormControl('', [Validators.required]);
   requiredWeightControl = new FormControl('', [Validators.required]);
 
+  //processes in Notifications
+  processesList: MatTableDataSource<any>;
+  displayedProcessColumns: string[] = ['processRead', 'processDate', 'projectId', 'processId', 'processType', 'processStatus', 'processOptions'];
+  processData = [];
+
   //output
   outputList: MatTableDataSource<any>;
   outputResultsData = [];
@@ -265,7 +277,7 @@ export class ProjectComponent implements OnInit {
   yAxis: boolean = true;
   showYAxisLabel: boolean = true;
   showXAxisLabel: boolean = true;
-  xAxisLabel: string = 'Cross entropy';
+  xAxisLabel: string = 'Epoch';
   yAxisLabel: string = 'Categorical accuracy';
   timeline: boolean = true;
 
@@ -290,7 +302,8 @@ export class ProjectComponent implements OnInit {
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private translate: TranslateService,
-    private router: Router) {
+    private router: Router,
+    private componentFactoryResolver: ComponentFactoryResolver) {
     this.matIconRegistry.addSvgIcon(
       'search',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/baseline-search-24px.svg')
@@ -350,6 +363,9 @@ export class ProjectComponent implements OnInit {
 
   @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
   @ViewChild(MatSelectionList) associatedUsersSelection: MatSelectionList;
+
+  @Input() dynamicPropertyList: PropertyItem[] = [];
+  @ViewChild('viewPropertiesContainer', { read: ViewContainerRef }) viewPropertiesContainer: ViewContainerRef;
 
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
@@ -977,6 +993,7 @@ export class ProjectComponent implements OnInit {
   }
 
   openNotifications() {
+    this.cleanProcessesList();
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(false);
@@ -991,6 +1008,15 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
+
+    this._interactionService.runningProcesses.forEach(process => {
+      this.processData.push({ /*processDate: process.processDate*/ projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
+        showDisabledButton: process.showDisabledButton, processRead: process.unread
+      });
+    });
+    this.processesList = new MatTableDataSource(this.processData);
+    this.processesList.paginator = this.paginator;
+    this.processesList.sort = this.sort;
 
     this._interactionService.runningProcesses.forEach(runningProcess => {
       if (runningProcess.process_status == "finished") {
@@ -1024,10 +1050,21 @@ export class ProjectComponent implements OnInit {
         runningProcess.process_type = status.process_type;
         runningProcess.process_status = status.process_status;
         runningProcess.unread = false;
+        runningProcess.showDisabledButton = false;
         this._interactionService.changeStopButton(process);
         if (process.processId !== runningProcess.processId) {
           this._interactionService.runningProcesses.push(runningProcess);
         }
+        this.processData.forEach(process => {
+          if (process.processId == runningProcess.processId) {
+            process.processStatus = runningProcess.process_status;
+            process.showStopButton = true;
+            process.showDisabledButton = runningProcess.showDisabledButton;
+            this.processesList = new MatTableDataSource(this.processData);
+            this.processesList.paginator = this.paginator;
+            this.processesList.sort = this.sort;
+          }
+        })
         if (process.process_type == "training") {
           setTimeout(() => {
             this.checkStatusTrain(process);
@@ -1039,6 +1076,11 @@ export class ProjectComponent implements OnInit {
         }
       }
     });
+  }
+
+  cleanProcessesList() {
+    this.processData = [];
+    this.processesList = new MatTableDataSource(this.processData);
   }
 
   openEditWeights() {
@@ -1088,15 +1130,15 @@ export class ProjectComponent implements OnInit {
     let selectedProperties: PropertyInstance[] = [];
     let metric = new PropertyInstance;
     metric.name = "Metric";
-    metric.value = this.selectedOptionMetric;
+    metric.value = this._interactionService.metricValue;
     selectedProperties.push(metric);
     let loss = new PropertyInstance;
     loss.name = "Loss function";
-    loss.value = this.selectedOptionLoss;
+    loss.value = this._interactionService.lossFunctionValue;
     selectedProperties.push(loss);
     let learning = new PropertyInstance;
     learning.name = "Learning rate";
-    learning.value = this.learningRateValue;
+    learning.value = this._interactionService.learningRateValue;
     if (learning.value >= 0.00000 && learning.value <= 0.99999) {
       selectedProperties.push(learning);
     }
@@ -1105,18 +1147,42 @@ export class ProjectComponent implements OnInit {
     }
     let epochs = new PropertyInstance;
     epochs.name = "Epochs";
-    epochs.value = this.epochsValue;
+    epochs.value = this._interactionService.epochValue;
     selectedProperties.push(epochs);
     let batchSize = new PropertyInstance;
     batchSize.name = "Batch size";
-    batchSize.value = this.batchSizeValue;
+    batchSize.value = this._interactionService.batchSizeValue;
     selectedProperties.push(batchSize);
-    // let inputHeight = new PropertyInstance;
-    // inputHeight.name = "Input height";
-    // inputHeight.value = this.inputHeightValue;
-    // let inputWidth = new PropertyInstance;
-    // inputWidth.name = "Input width";
-    // inputWidth.value = this.inputWidthValue;
+    let inputHeight = new PropertyInstance;
+    inputHeight.name = "Input height";
+    inputHeight.value = this._interactionService.inputHeightValue;
+    if(this._interactionService.inputHeightValue != null) {
+      selectedProperties.push(inputHeight);
+    }
+    let inputWidth = new PropertyInstance;
+    inputWidth.name = "Input width";
+    inputWidth.value = this._interactionService.inputWidthValue;
+    if(this._interactionService.inputWidthValue != null) {
+      selectedProperties.push(inputWidth);
+    }
+    let trainingAugmentations = new PropertyInstance;
+    trainingAugmentations.name = "Training augmentations";
+    trainingAugmentations.value = this._interactionService.trainingAugmentations;
+    if(this._interactionService.trainingAugmentations != null) {
+      selectedProperties.push(trainingAugmentations);
+    }
+    let validationAugmentations = new PropertyInstance;
+    validationAugmentations.name = "Validation augmentations";
+    validationAugmentations.value = this._interactionService.validationAugmentations;
+    if(this._interactionService.validationAugmentations != null) {
+      selectedProperties.push(validationAugmentations);
+    }
+    let testAugmentations = new PropertyInstance;
+    testAugmentations.name = "Test augmentations";
+    testAugmentations.value = this._interactionService.testAugmentations;
+    if(this._interactionService.testAugmentations != null) {
+      selectedProperties.push(testAugmentations);
+    }
     // let dropout = new PropertyInstance;
     // dropout.name = "Use dropout";
     // if(this.useDropoutCheckedState){
@@ -1556,11 +1622,29 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
             this.inferenceProcessStarted = false;
-            process.showStopButton = false;
-            process.showDisabledButton = true;
-            process.process_status = ProcessStatus[2];
+            // process.showStopButton = false;
+            // process.showDisabledButton = true;
+            // process.process_status = "stopped";
             //this.checkStatusTrainButton();
-            this._interactionService.runningProcesses = this._interactionService.runningProcesses.filter(item => item.processId !== process.processId);
+            //this._interactionService.runningProcesses = this._interactionService.runningProcesses.filter(item => item.processId !== process.processId);
+            // this.processData = this.processData.filter(item => item.processId !== process.processId);
+            this._interactionService.runningProcesses.forEach(runningProcess => {
+              if (runningProcess.processId == process.processId) {
+                runningProcess.process_status = "stopped";
+                runningProcess.showStopButton = false;
+                runningProcess.showDisabledButton = true;
+              }
+            })
+            this.processData.forEach(existingProcess => {
+              if (existingProcess.processId == process.processId) {
+                existingProcess.processStatus = "stopped";
+                existingProcess.showStopButton = false;
+                existingProcess.showDisabledButton = true;
+              }
+            })
+            this.processesList = new MatTableDataSource(this.processData);
+            this.processesList.paginator = this.paginator;
+            this.processesList.sort = this.sort;
           }
           else {
             dialogRefSpinner.close();
@@ -1579,14 +1663,33 @@ export class ProjectComponent implements OnInit {
   }
 
   markNotificationAsRead(process) {
-    if (process.unread == true) {
-      process.unread = false;
+    if (process.processRead == true) {
+      process.processRead = false;
       this._interactionService.decreaseNotificationsNumber();
     }
+    this._interactionService.runningProcesses.forEach(runningProcess => {
+      if (runningProcess.processId == process.processId) {
+        runningProcess.unread = process.processRead;
+      }
+    })
+  }
+
+  triggerSelectedModel(event) {
+    this.weightDropdown = [];
+    this._interactionService.selectedModel = event.value;
+    this.getWeights(this._interactionService.selectedModel);
+    this.getAllowedProperties(this._interactionService.selectedModel, null);
+  }
+
+  triggerSelectedDataset(event) {
+    var selectedDataset = event.value;
+    //this.getAllowedProperties(this._interactionService.selectedModel, selectedDataset);
   }
 
   //dropdown functions
   getAllowedProperties(modelName: string, datasetName: string) {
+    this.viewPropertiesContainer.clear();
+
     let selectedModelId;
     let selectedDatasetId;
     let modelList = this._interactionService.getModelsByTaskArray();
@@ -1602,20 +1705,92 @@ export class ProjectComponent implements OnInit {
       }
     })
     let propertyList = this._interactionService.getProperties();
+    this.dynamicPropertyList = [];
+
     for (let entry of propertyList) {
       this._dataService.allowedProperties(selectedModelId, entry.id, selectedDatasetId).subscribe(data => {
         if (data[0] != undefined) {
-          this.updatePropertiesList(entry.id, data);
+          if (entry.type == "float") {
+            this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+          }
+          else if (entry.type == "list") {
+            this.updateDropdownAllowedProperty(data);
+            this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, selectedOption: this.selectedOption, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+          }
+          else if (entry.type == "integer") {
+            this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+          }
+          else if (entry.type == "string") {
+            this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+          }
+          this.viewPropertiesContainer.clear();
+          this.dynamicPropertyList.forEach(item => {
+            const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+            const componentRef = this.viewPropertiesContainer.createComponent<PropertyItem>(componentFactory);
+
+            componentRef.instance.propertyData = item.propertyData;
+          });
+
+          //this.updatePropertiesList(entry.id, data);
         }
         else {
           this._dataService.propertiesById(entry.id).subscribe(data => {
+            let contentData;
+            contentData = data;
             if (data != undefined) {
-              this.updatePropertiesListById(data);
+              if (entry.type == "float") {
+                this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+              }
+              else if (entry.type == "list") {
+                this.updateDropdownProperty(contentData);
+                this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values, selectedOption: this.selectedOption }))
+              }
+              else if (entry.type == "integer") {
+                this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+              }
+              else if (entry.type == "string") {
+                this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+              }
+              this.viewPropertiesContainer.clear();
+              this.dynamicPropertyList.forEach(item => {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewPropertiesContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              });
+
+              //this.updatePropertiesListById(data);
             }
           })
         }
       })
     }
+  }
+
+  updateDropdownAllowedProperty(contentData) {
+    var propertyValuesNameList = Array<string>();
+    if (contentData[0].allowed_value != null) {
+      propertyValuesNameList = contentData[0].allowed_value.split(",");
+    } else {
+      propertyValuesNameList = contentData[0].default_value;
+    }
+    contentData[0].allowed_value = [];
+    contentData[0].allowed_value = propertyValuesNameList;
+    this.selectedOption = propertyValuesNameList[0];
+  }
+
+  updateDropdownProperty(contentData) {
+    var propertyValuesNameList = Array<string>();
+    if (contentData.values != null) {
+      propertyValuesNameList = contentData.values.split(",");
+    } else {
+      propertyValuesNameList = contentData.default;
+    }
+    contentData.values = [];
+    contentData.values = propertyValuesNameList;
+    this.selectedOption = propertyValuesNameList[0];
   }
 
   updatePropertiesList(propertyId: number, contentData) {
@@ -1713,18 +1888,6 @@ export class ProjectComponent implements OnInit {
       }, error => {
         this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
       })
-  }
-
-  triggerSelectedModel(event) {
-    this.weightDropdown = [];
-    this._interactionService.selectedModel = event.value;
-    this.getWeights(this._interactionService.selectedModel);
-    this.getAllowedProperties(this._interactionService.selectedModel, null);
-  }
-
-  triggerSelectedDataset(event) {
-    var selectedDataset = event.value;
-    //this.getAllowedProperties(this._interactionService.selectedModel, selectedDataset);
   }
 
   triggerSelectedModelEditWeight(event) {
@@ -1981,6 +2144,7 @@ export class ProjectComponent implements OnInit {
       // TODO: show info about output results from weights or from notification process
     }
 
+    this.showOutputRunning = false;
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(false);
@@ -2028,12 +2192,16 @@ export class ProjectComponent implements OnInit {
       this.outputResultsDetailProcessId = processId;
       var outputsResults = data.outputs;
       let outputDetail = [];
-      outputsResults.forEach(output => {
-        JSON.parse(output[1]).forEach(element => {
-          outputDetail = element;
+      if (outputsResults != undefined) {
+        outputsResults.forEach(output => {
+          JSON.parse(output[1]).forEach(element => {
+            outputDetail = element;
+          });
+          this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
         });
-        this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
-      });
+      } else {
+        dialogRef.close();
+      }
 
       this.outputList = new MatTableDataSource(this.outputResultsData);
       this.outputList.sort = this.sort;
@@ -2047,8 +2215,8 @@ export class ProjectComponent implements OnInit {
   }
 
   checkProcessStatusForOutput(process) {
-    if (process.process_status == "finished") {
-      if (process.process_type == "training") {
+    if (process.processStatus == "finished") {
+      if (process.processType == "training") {
         this.showGraphicProcess = true;
         this.showProgressBarProcess = false;
         this.showOutputResultsProcess(process);
@@ -2059,12 +2227,12 @@ export class ProjectComponent implements OnInit {
         this.showProgressBarProcess = false;
       }
     }
-    else if (process.process_status == "running") {
-      if (process.process_type == "training") {
+    else if (process.processStatus == "running") {
+      if (process.processType == "training") {
         this.showGraphicProcess = true;
         this.showProgressBarProcess = false;
       }
-      else if (process.process_type == "inference") {
+      else if (process.processType == "inference") {
         this.showProgressBarProcess = true;
         this.showGraphicProcess = false;
       } else {
@@ -2193,6 +2361,9 @@ export class ProjectComponent implements OnInit {
     let outputCross;
     let outputAccuracy;
     let outputBatch;
+    let outputEpoch;
+    let currentBatch;
+    let totalBatch;
     let varCrossEntropy = "categorical_cross_entropy=";
     let varCategoricalAccuracy = " - categorical_accuracy=";
     let varBatch = "Inference Batch";
@@ -2205,29 +2376,38 @@ export class ProjectComponent implements OnInit {
       }
     ];
 
-    outputsResults.forEach(output => {
-      if (output.indexOf("Train Epoch:") == 0 && output.indexOf(varCrossEntropy) > 0 && output.indexOf(varCategoricalAccuracy) > 0) {
-        outputCross = output.substr(output.indexOf(varCrossEntropy) + varCrossEntropy.length, 5);
-        outputAccuracy = output.substr(output.indexOf(varCategoricalAccuracy) + varCategoricalAccuracy.length, 5);
+    if (outputsResults.length == 0) {
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.outputResultsError'));
+    } else {
+      outputsResults.forEach(output => {
+        if (output.indexOf("Train Epoch:") == 0 && output.indexOf(varCrossEntropy) > 0 && output.indexOf(varCategoricalAccuracy) > 0) {
+          currentBatch = output.match(/.*[[](\d+).*/)[1];
+          totalBatch = output.match(/.*[/](\d+).*/)[1];
+          if (currentBatch == totalBatch) {
+            outputEpoch = output.match(/.*[ ](\d+).*/)[1];
+            //outputCross = output.substr(output.indexOf(varCrossEntropy) + varCrossEntropy.length, 5);
+            outputAccuracy = output.substr(output.indexOf(varCategoricalAccuracy) + varCategoricalAccuracy.length, 5);
 
-        chartObject = { name: outputCross, value: parseFloat(outputAccuracy) };
-        chartValuesList[0].series.push(chartObject);
+            chartObject = { name: outputEpoch, value: parseFloat(outputAccuracy) };
+            chartValuesList[0].series.push(chartObject);
 
-        Object.assign(this, { chartValuesList });
-      }
-      else if (output.indexOf(varBatch) == 0) {
-        if (output.substr(output.indexOf("/")).length <= 5) {
-          outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 5);
-          outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
-          this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+            Object.assign(this, { chartValuesList });
+          }
         }
-        else if (output.substr(output.indexOf("/")).length > 5) {
-          outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 6);
-          outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
-          this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+        else if (output.indexOf(varBatch) == 0) {
+          if (output.substr(output.indexOf("/")).length <= 5) {
+            outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 5);
+            outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
+            this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+          }
+          else if (output.substr(output.indexOf("/")).length > 5) {
+            outputBatch = output.substr(output.indexOf(varBatch) + varBatch.length, output.length - varBatch.length - 6);
+            outputMax = output.substr(output.indexOf((varBatch)) + varBatch.length + outputBatch.length + 1);
+            this.outputInference = (parseFloat(outputBatch)) * 100 / parseFloat(outputMax);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   getUsers() {
@@ -2368,5 +2548,9 @@ export class ProjectComponent implements OnInit {
         this.router.navigate(['/power-user']);
       }
     });
+  }
+
+  applyProcessFilter(filterValue: string) {
+    this.processesList.filter = filterValue.trim().toLowerCase();
   }
 }

@@ -30,6 +30,11 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { FilterPipe } from './components/pipes/filter.pipe';
 import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
 import { ProgressSpinnerDialogComponent } from './components/progress-spinner-dialog/progress-spinner-dialog.component';
+import { ProcessFilterPipe } from './components/pipes/process-filter.pipe';
+import { DropdownComponent } from './components/dynamic-components/dropdown/dropdown.component';
+import { InputIntegerComponent } from './components/dynamic-components/input-integer/input-integer.component';
+import { InputFloatComponent } from './components/dynamic-components/input-float/input-float.component';
+import { InputTextComponent } from './components/dynamic-components/input-text/input-text.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -61,7 +66,12 @@ const routes: Routes = [
     ResetPasswordComponent,
     FilterPipe,
     DeleteDialogComponent,
-    ProgressSpinnerDialogComponent
+    ProgressSpinnerDialogComponent,
+    ProcessFilterPipe,
+    DropdownComponent,
+    InputTextComponent,
+    InputIntegerComponent,
+    InputFloatComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -96,7 +106,11 @@ const routes: Routes = [
     ShowOutputDetailsDialogComponent,
     ShowProfileDetailsDialogComponent,
     DeleteDialogComponent,
-    ProgressSpinnerDialogComponent
+    ProgressSpinnerDialogComponent,
+    DropdownComponent, 
+    InputIntegerComponent, 
+    InputFloatComponent, 
+    InputTextComponent
   ],
   providers: [AuthService, AuthGuard,
     {

@@ -1,0 +1,11 @@
+.div-property-name {
+    display: inline-block; 
+    width: 30%; 
+    font-size: 15px;
+}
+
+.div-property-content-values {
+    display: inline-block; 
+    width: calc(70% - 24px); 
+    padding-left: 24px;
+}

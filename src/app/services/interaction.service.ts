@@ -249,6 +249,18 @@ export class InteractionService extends TabObject {
   private _resetCodeValueSource = new Subject<string>();
   resetCodeValue$ = this._resetCodeValueSource.asObservable();
 
+  //dynamic properties
+  learningRateValue = null;
+  epochValue = null;
+  batchSizeValue = null;
+  inputHeightValue = null;
+  inputWidthValue = null;
+  trainingAugmentations = null;
+  validationAugmentations = null;
+  testAugmentations = null;
+  metricValue = null;
+  lossFunctionValue = null;
+
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
       this.insertDataIntoModelDropdown(data);
