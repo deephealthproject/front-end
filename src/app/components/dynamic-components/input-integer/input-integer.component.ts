@@ -17,12 +17,16 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
   ngOnInit() {
     if (this.propertyData.name == "Epochs") {
       this._interactionService.epochValue = this.propertyData.default_value;
+      this._interactionService.epochName = this.propertyData.name;
     } else if (this.propertyData.name == "Batch size") {
       this._interactionService.batchSizeValue = this.propertyData.default_value;
+      this._interactionService.batchSizeName = this.propertyData.name;
     } else if (this.propertyData.name == "Input width") {
       this._interactionService.inputWidthValue = this.propertyData.default_value;
+      this._interactionService.inputWidthName = this.propertyData.name;
     } else if (this.propertyData.name == "Input height") {
       this._interactionService.inputHeightValue = this.propertyData.default_value;
+      this._interactionService.inputHeightName = this.propertyData.name;
     }
   }
 

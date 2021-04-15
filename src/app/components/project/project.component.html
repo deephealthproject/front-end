@@ -67,7 +67,7 @@
         <div class="div-middle-tabs">
             <mat-tab-group animationDuration="0ms">
                 <mat-tab label="{{'project.train' | translate }}">
-                    <div class="div-middle-box">
+                    <div style="padding: 2%;">
                         <div class="div-middle-box-left">
                             <!-- <div #reTrain id="reTrain" class="div-middle-slide-toggle-button">
                                 <span>{{'project.reTrainTheModel' | translate}}</span>
@@ -120,30 +120,32 @@
                                         </mat-select>
                                     </mat-form-field>
                                 </div>
-                                <div class="div-middle-box-properties-title">{{'project.modelPropertiesTitle' | translate}}</div>
-                                <div class="div-middle-properties-table">
-                                    <div class="div-middle-properties-table-titles">
-                                        <span style="font-size: 15px; padding-right: 20px;">{{'project.propertiesTitle' | translate}}</span>
-                                        <span style="font-size: 15px; padding-left: 106px;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
-                                    </div>
-                                    <ng-container #viewPropertiesContainer></ng-container>
-                                </div>
                             </form>
-                            <div class="div-middle-box-left-cols">
-                                <div class="div-middle-box-left-col1"></div>
-                                <div class="div-middle-box-left-col2" style="padding-top: 14px;">
-                                    <div #trainButton id=trainButton class="div-middle-inference-button">
-                                        <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
-                                            {{'project.train' | translate}}</button>
+                        </div>
+                        <div class="div-middle-box-properties-title">{{'project.modelPropertiesTitle' | translate}}</div>
+                        <div class="div-middle-properties-table">
+                            <div class="div-middle-properties-table-titles">
+                                <span style="font-size: 15px; padding-left: 14%;">{{'project.propertiesTitle' | translate}}</span>
+                                <span style="font-size: 15px; padding-left: 16.5%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
+                            </div>
+                            <div>
+                                <div class="div-middle-properties">
+                                    <ng-container #viewPropertiesContainer></ng-container>
+                                    <div style="padding-left: 46%; padding-bottom: 10px;" *ngIf="this.showTrainButton">
+                                        <div #trainButton id=trainButton class="div-middle-inference-button">
+                                            <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">
+                                                {{'project.train' | translate}}</button>
+                                        </div>
+                                    </div>
+                                    <div style="padding-left: 10%; color: rgb(9, 46, 78);" *ngIf="trainProcessStarted">
+                                        <p>
+                                            {{ trainMessage }}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                            <div style="padding-left: 20%; color: rgb(9, 46, 78);" *ngIf="trainProcessStarted">
-                                <p>
-                                    {{ trainMessage }}
-                                </p>
                             </div>
                         </div>
+
                         <!-- <div class="div-middle-box-right">
                             <div style="color: rgb(9, 46, 78);" #dataAugmentationSection id=dataAugmentationSection>
                                 <div>{{'project.dataAugumentation' | translate}}</div>
@@ -325,7 +327,7 @@
             </mat-form-field>
         </div>
 
-        <table mat-table [dataSource]="processesList" matSort class="mat-elevation-z8">
+        <table mat-table #processTableSort="matSort" [dataSource]="processesList" matSort class="mat-elevation-z8"> 
             <ng-container matColumnDef="processRead">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let row" (click)="markNotificationAsRead(row)">
@@ -376,7 +378,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedProcessColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedProcessColumns;"></tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" #processPaginator showFirstLastButtons></mat-paginator>
 
         <!-- <div class="div-notifications-title">
             <div class="div-notifications-title-section">
@@ -463,7 +465,7 @@
                 <div class="div-middle-edit-weight-message">{{ 'project.errorEditDeleteWeightUserPermission' | translate }}</div>
             </div>
         </div>
-        <table mat-table [dataSource]="weightsList" matSort class="mat-elevation-z8">
+        <table mat-table #modelWeightTableSort="matSort" [dataSource]="weightsList" matSort class="mat-elevation-z8">
             <ng-container matColumnDef="weightId">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightId' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightId}} </td>
@@ -504,7 +506,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" #modelWeightPaginator showFirstLastButtons></mat-paginator>
 
         <div *ngIf="showWeightDetailsTable">
             <div style="padding-left: 30px; font-weight: bold;">
@@ -552,7 +554,7 @@
                 {{'project.outputResultList' | translate}} {{outputResultsDetailProcessId}}
             </div>
         </div>
-        <table mat-table [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
+        <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
             <ng-container matColumnDef="outputImage">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
@@ -567,7 +569,7 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedOutputColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputColumns;"></tr>
-            <mat-paginator [pageSizeOptions]="[5, 10, 20]" paginator showFirstLastButtons></mat-paginator>
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" #outputPaginator showFirstLastButtons></mat-paginator>
         </table>
 
         <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;" *ngIf="showOutputRunning">

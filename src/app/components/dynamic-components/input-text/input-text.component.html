@@ -1,9 +1,85 @@
-<div style="padding-left: 20px;">
-  <div class="div-property-name">{{propertyData.name}}</div>
-  <div class="div-property-content-values" #textProperty id="textProperty">
-    <mat-form-field appearance="none" style="width: 90%;">
-      <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}}
-        (change)="changeTextPropertyValue($event)"></textarea>
-    </mat-form-field>
+<div [ngClass]="{'div-training-property': propertyData.name == 'Training augmentations' && propertyData.allowed_value != null}">
+  <div style="padding-left: 15%; padding-right: 15%">
+    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-content-values" #textProperty id="textProperty">
+      <mat-form-field appearance="none" style="width: 90%;">
+        <textarea [disabled]="propertyData.name=='Training augmentations'" matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}} (change)="changeTextPropertyValue($event)"></textarea>
+      </mat-form-field>
+    </div>
+  </div>
+  <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.allowed_value != null">
+    <div style="display: flex;">
+      <div class="div-middle-properties-left">
+        <div class="div-middle-box-angle">
+          <div>{{'project.angleXAxisTrainingAugmentations' | translate}}</div>
+          <span>{{'project.angleInferiorLimit' | translate}}</span>
+          <mat-slider min="-90" max="90" step="1" thumbLabel tickInterval="1" value="{{angleXValue}}" color="primary" (change)="updateAngleXValue($event)"></mat-slider>
+          <span>{{'project.angleSuperiorLimit' | translate}}</span>
+          <div>
+            {{'project.angleXAxisValueTrainingAugmentations' | translate}} {{this._interactionService.angleXValue}}
+          </div>
+
+          <div style="padding-top: 10px;">{{'project.angleYAxisTrainingAugmentations' | translate}}</div>
+          <span>{{'project.angleInferiorLimit' | translate}}</span>
+          <mat-slider min="-90" max="90" step="1" thumbLabel tickInterval="1" value="{{angleYValue}}" color="primary" (change)="updateAngleYValue($event)"></mat-slider>
+          <span>{{'project.angleSuperiorLimit' | translate}}</span>
+          <div>
+            {{'project.angleYAxisValueTrainingAugmentations' | translate}} {{this._interactionService.angleYValue}}
+          </div>
+          <div style="padding-top: 12px;">
+            {{'project.angleValueTrainingAugmentations' | translate}} [ {{this._interactionService.angleXValue}}, {{this._interactionService.angleYValue}} ]
+          </div>
+        </div>
+      </div>
+      <div class="div-middle-properties-right">
+        <div class="div-middle-box-center">
+          <div>{{'project.centerXAxisTrainingAugmentations' | translate}}</div>
+          <span>{{'project.angleInferiorLimit' | translate}}</span>
+          <mat-slider min="-90" max="90" step="1" thumbLabel tickInterval="1" value="{{centerXValue}}" color="primary" (change)="updateCenterXValue($event)"></mat-slider>
+          <span>{{'project.angleSuperiorLimit' | translate}}</span>
+          <div>
+            {{'project.centerXAxisValueTrainingAugmentations' | translate}} {{this._interactionService.centerXValue}}
+          </div>
+
+          <div style="padding-top: 10px;">{{'project.centerYAxisTrainingAugmentations' | translate}}</div>
+          <span>{{'project.angleInferiorLimit' | translate}}</span>
+          <mat-slider min="-90" max="90" step="1" thumbLabel tickInterval="1" value="{{centerYValue}}" color="primary" (change)="updateCenterYValue($event)"></mat-slider>
+          <span>{{'project.angleSuperiorLimit' | translate}}</span>
+          <div>
+            {{'project.centerYAxisValueTrainingAugmentations' | translate}} {{this._interactionService.centerYValue}}
+          </div>
+          <div style="padding-top: 12px;">
+            {{'project.centerValueTrainingAugmentations' | translate}} [ {{this._interactionService.centerXValue}}, {{this._interactionService.centerYValue}} ]
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex;">
+      <div class="div-middle-properties-left">
+        <div class="div-middle-box-angle" style="margin-top: 10px;">
+          <div>{{'project.scaleTrainingAugmentations' | translate}}</div>
+          <span style="padding-right: 8px;">{{'project.scaleInferiorLimit' | translate}}</span>
+          <mat-slider min="0" max="10" step="0.1" thumbLabel tickInterval="1" value="{{scaleValue}}" color="primary" (change)="updateScaleValue($event)"></mat-slider>
+          <span>{{'project.scaleSuperiorLimit' | translate}}</span>
+          <div>
+            {{'project.scaleValueTrainingAugmentations' | translate}} {{this._interactionService.scaleValue}}
+          </div>
+        </div>
+      </div>
+      <div class="div-middle-properties-right">
+        <div class="div-middle-box-center" style="margin-top: 10px;">
+          <div>{{'project.interpValueTrainingAugmentations' | translate}}</div>
+          <mat-form-field style="width: 94%; font-size: 15px;">
+            <mat-select [(value)]=this._interactionService.selectedOptionInterp>
+              <mat-option *ngFor="let option of this._interactionService.interpDropdown" value={{option}}>
+                {{option}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

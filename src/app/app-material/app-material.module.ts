@@ -23,6 +23,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [],
@@ -49,7 +50,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatCardModule,
     MatMenuModule,
     MatListModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatSliderModule
   ],
   exports: [
     MatToolbarModule,
@@ -74,7 +76,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatCardModule,
     MatMenuModule,
     MatListModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatSliderModule
   ]
 })
 export class AppMaterialModule { }

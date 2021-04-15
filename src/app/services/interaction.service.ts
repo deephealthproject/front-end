@@ -166,6 +166,7 @@ export class InteractionService extends TabObject {
   private _datasetResponseSource = new Subject<string>();
   datasetResponse = this._datasetResponseSource.asObservable();
   selectedModel;
+  selectedDataset;
 
   //app-tabs -> unreadNotifications
   private _unreadNotificationsNumberSource = new Subject<number>();
@@ -250,16 +251,36 @@ export class InteractionService extends TabObject {
   resetCodeValue$ = this._resetCodeValueSource.asObservable();
 
   //dynamic properties
+  learningRateName = null;
+  epochName = null;
+  batchSizeName = null;
+  inputHeightName = null;
+  inputWidthName = null;
+  trainingAugmentationsName = null;
+  validationAugmentationsName = null;
+  testAugmentationsName = null;
+  metricName = null;
+  lossFunctionName = null;
   learningRateValue = null;
   epochValue = null;
   batchSizeValue = null;
   inputHeightValue = null;
   inputWidthValue = null;
-  trainingAugmentations = null;
-  validationAugmentations = null;
-  testAugmentations = null;
+  trainingAugmentationsValue = null;
+  validationAugmentationsValue = null;
+  testAugmentationsValue = null;
   metricValue = null;
   lossFunctionValue = null;
+  booleanPropertyName = null;
+  booleanPropertyValue: Boolean = false;
+
+  angleXValue;
+  angleYValue;;
+  centerXValue;
+  centerYValue;
+  scaleValue;
+  interpDropdown;
+  selectedOptionInterp = null;
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {

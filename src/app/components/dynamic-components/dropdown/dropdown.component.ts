@@ -16,8 +16,10 @@ export class DropdownComponent implements PropertyInterface, OnInit {
   ngOnInit() {
     if (this.propertyData.name == "Metric") {
       this._interactionService.metricValue = this.propertyData.selectedOption;
+      this._interactionService.metricName = this.propertyData.name;
     } else if (this.propertyData.name == "Loss function") {
       this._interactionService.lossFunctionValue = this.propertyData.selectedOption;
+      this._interactionService.lossFunctionName = this.propertyData.name;
     }
   }
 

@@ -1,0 +1,7 @@
+<div style="padding-left: 15%; padding-right: 15%">
+    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-content-values" #booleanProperty id="booleanProperty">
+        <mat-checkbox color="primary" [checked]=false [disabled]="false" (change)="changeBooleanPropertyCheckedState()">
+        </mat-checkbox>
+      </div>
+</div>

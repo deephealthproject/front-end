@@ -17,6 +17,7 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
   ngOnInit() {
     if(this.propertyData.name == "Learning rate") {
     this._interactionService.learningRateValue = this.propertyData.default_value;
+    this._interactionService.learningRateName = this.propertyData.name;
     }
   }
   

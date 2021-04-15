@@ -20,6 +20,7 @@ import { DropdownComponent } from '../dynamic-components/dropdown/dropdown.compo
 import { InputTextComponent } from '../dynamic-components/input-text/input-text.component';
 import { InputFloatComponent } from '../dynamic-components/input-float/input-float.component';
 import { InputIntegerComponent } from '../dynamic-components/input-integer/input-integer.component';
+import { BooleanComponent } from '../dynamic-components/boolean/boolean.component';
 
 export class Task {
   id: number;
@@ -85,8 +86,6 @@ export class ProjectComponent implements OnInit {
   checkedStateTextInputType = false;
   checkedState3DInputType = false;
   checkedStateVideoInputType = false;
-
-  public message: string;
 
   //selectors option list
   selectors: Array<string> = ["model", "dataset", "metric", "loss", "learning_rate", "epochs", "batchSize", "inputHeight", "inputWidth"];
@@ -179,7 +178,7 @@ export class ProjectComponent implements OnInit {
   disabledInferenceButton = false;
   disabledInferenceSingleButton = false;
   showInference = false;
-  showTrainButton = true;
+  showTrainButton = false;
   disabledStopButton = false;
   process_type: string;
   trainMessage: string = null;
@@ -358,8 +357,13 @@ export class ProjectComponent implements OnInit {
   @ViewChild('validationAugmentations') validationAugmentations: ElementRef;
   @ViewChild('testAugmentations') testAugmentations: ElementRef;
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
+  @ViewChild('modelWeightPaginator', { read: MatPaginator }) modelWeightPaginator: MatPaginator;
+  @ViewChild('outputPaginator', { read: MatPaginator }) outputPaginator: MatPaginator;
+
+  @ViewChild('processTableSort') processTableSort: MatSort;
+  @ViewChild('modelWeightTableSort') modelWeightTableSort: MatSort;
+  @ViewChild('outputTableSort') outputTableSort: MatSort;
 
   @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
   @ViewChild(MatSelectionList) associatedUsersSelection: MatSelectionList;
@@ -1015,8 +1019,8 @@ export class ProjectComponent implements OnInit {
       });
     });
     this.processesList = new MatTableDataSource(this.processData);
-    this.processesList.paginator = this.paginator;
-    this.processesList.sort = this.sort;
+    this.processesList.paginator = this.processPaginator;
+    this.processesList.sort = this.processTableSort;
 
     this._interactionService.runningProcesses.forEach(runningProcess => {
       if (runningProcess.process_status == "finished") {
@@ -1061,8 +1065,8 @@ export class ProjectComponent implements OnInit {
             process.showStopButton = true;
             process.showDisabledButton = runningProcess.showDisabledButton;
             this.processesList = new MatTableDataSource(this.processData);
-            this.processesList.paginator = this.paginator;
-            this.processesList.sort = this.sort;
+            this.processesList.paginator = this.processPaginator;
+            this.processesList.sort = this.processTableSort;
           }
         })
         if (process.process_type == "training") {
@@ -1128,16 +1132,9 @@ export class ProjectComponent implements OnInit {
     this.trainProcessStarted = true;
 
     let selectedProperties: PropertyInstance[] = [];
-    let metric = new PropertyInstance;
-    metric.name = "Metric";
-    metric.value = this._interactionService.metricValue;
-    selectedProperties.push(metric);
-    let loss = new PropertyInstance;
-    loss.name = "Loss function";
-    loss.value = this._interactionService.lossFunctionValue;
-    selectedProperties.push(loss);
+
     let learning = new PropertyInstance;
-    learning.name = "Learning rate";
+    learning.name = this._interactionService.learningRateName;
     learning.value = this._interactionService.learningRateValue;
     if (learning.value >= 0.00000 && learning.value <= 0.99999) {
       selectedProperties.push(learning);
@@ -1145,44 +1142,59 @@ export class ProjectComponent implements OnInit {
     else {
       this.trainProcessStarted = false;
     }
+    let metric = new PropertyInstance;
+    metric.name = this._interactionService.metricName;
+    metric.value = this._interactionService.metricValue;
+    selectedProperties.push(metric);
+    let loss = new PropertyInstance;
+    loss.name = this._interactionService.lossFunctionName;
+    loss.value = this._interactionService.lossFunctionValue;
+    selectedProperties.push(loss);
     let epochs = new PropertyInstance;
-    epochs.name = "Epochs";
+    epochs.name = this._interactionService.epochName;
     epochs.value = this._interactionService.epochValue;
     selectedProperties.push(epochs);
     let batchSize = new PropertyInstance;
-    batchSize.name = "Batch size";
+    batchSize.name = this._interactionService.batchSizeName;
     batchSize.value = this._interactionService.batchSizeValue;
     selectedProperties.push(batchSize);
     let inputHeight = new PropertyInstance;
-    inputHeight.name = "Input height";
+    inputHeight.name = this._interactionService.inputHeightName;
     inputHeight.value = this._interactionService.inputHeightValue;
-    if(this._interactionService.inputHeightValue != null) {
+    if (this._interactionService.inputHeightValue != null) {
       selectedProperties.push(inputHeight);
     }
     let inputWidth = new PropertyInstance;
-    inputWidth.name = "Input width";
+    inputWidth.name = this._interactionService.inputWidthName;
     inputWidth.value = this._interactionService.inputWidthValue;
-    if(this._interactionService.inputWidthValue != null) {
+    if (this._interactionService.inputWidthValue != null) {
       selectedProperties.push(inputWidth);
     }
     let trainingAugmentations = new PropertyInstance;
-    trainingAugmentations.name = "Training augmentations";
-    trainingAugmentations.value = this._interactionService.trainingAugmentations;
-    if(this._interactionService.trainingAugmentations != null) {
+    trainingAugmentations.name = this._interactionService.trainingAugmentationsName;
+    trainingAugmentations.value = this._interactionService.trainingAugmentationsValue;
+    if (this._interactionService.trainingAugmentationsValue != null) {
       selectedProperties.push(trainingAugmentations);
     }
     let validationAugmentations = new PropertyInstance;
-    validationAugmentations.name = "Validation augmentations";
-    validationAugmentations.value = this._interactionService.validationAugmentations;
-    if(this._interactionService.validationAugmentations != null) {
+    validationAugmentations.name = this._interactionService.validationAugmentationsName;
+    validationAugmentations.value = this._interactionService.validationAugmentationsValue;
+    if (this._interactionService.validationAugmentationsValue != null) {
       selectedProperties.push(validationAugmentations);
     }
     let testAugmentations = new PropertyInstance;
-    testAugmentations.name = "Test augmentations";
-    testAugmentations.value = this._interactionService.testAugmentations;
-    if(this._interactionService.testAugmentations != null) {
+    testAugmentations.name = this._interactionService.testAugmentationsName;
+    testAugmentations.value = this._interactionService.testAugmentationsValue;
+    if (this._interactionService.testAugmentationsValue != null) {
       selectedProperties.push(testAugmentations);
     }
+    let booleanProperty = new PropertyInstance;
+    booleanProperty.name = this._interactionService.booleanPropertyName;
+    booleanProperty.value = this._interactionService.booleanPropertyValue;
+    if (this._interactionService.booleanPropertyValue != false) {
+      selectedProperties.push(booleanProperty);
+    }
+
     // let dropout = new PropertyInstance;
     // dropout.name = "Use dropout";
     // if(this.useDropoutCheckedState){
@@ -1256,7 +1268,7 @@ export class ProjectComponent implements OnInit {
             }
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedTrainProcessMessage'));
             this.trainProcessStarted = true;
-            this.showTrainButton = false;
+            this.showTrainButton = true;
             let process = new ProcessingObject;
             process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
@@ -1643,8 +1655,8 @@ export class ProjectComponent implements OnInit {
               }
             })
             this.processesList = new MatTableDataSource(this.processData);
-            this.processesList.paginator = this.paginator;
-            this.processesList.sort = this.sort;
+            this.processesList.paginator = this.processPaginator;
+            this.processesList.sort = this.processTableSort;
           }
           else {
             dialogRefSpinner.close();
@@ -1677,17 +1689,19 @@ export class ProjectComponent implements OnInit {
   triggerSelectedModel(event) {
     this.weightDropdown = [];
     this._interactionService.selectedModel = event.value;
+    this.showTrainButton = true;
     this.getWeights(this._interactionService.selectedModel);
     this.getAllowedProperties(this._interactionService.selectedModel, null);
   }
 
   triggerSelectedDataset(event) {
-    var selectedDataset = event.value;
-    //this.getAllowedProperties(this._interactionService.selectedModel, selectedDataset);
+    this._interactionService.selectedDataset = event.value;
+    //this.getAllowedProperties(this._interactionService.selectedModel, this._interactionService.selectedDataset);
   }
 
   //dropdown functions
   getAllowedProperties(modelName: string, datasetName: string) {
+    this._interactionService.interpDropdown = [];
     this.viewPropertiesContainer.clear();
 
     let selectedModelId;
@@ -1722,6 +1736,22 @@ export class ProjectComponent implements OnInit {
           }
           else if (entry.type == "string") {
             this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+            if (entry.name == "Training augmentations") {
+              if (data[0].allowed_value != null) {
+                var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
+                this._interactionService.angleXValue = result[0];
+                this._interactionService.angleYValue = result[1];
+                this._interactionService.centerXValue = result[2];
+                this._interactionService.centerYValue = result[3];
+                this._interactionService.scaleValue = result[4];
+                //TODO: to be updated
+                this._interactionService.interpDropdown.push("linear");
+                this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
+              }
+            }
+          }
+          else if (entry.type == "boolean") {
+            this.dynamicPropertyList.push(new PropertyItem(BooleanComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
           }
           this.viewPropertiesContainer.clear();
           this.dynamicPropertyList.forEach(item => {
@@ -1751,6 +1781,16 @@ export class ProjectComponent implements OnInit {
               }
               else if (entry.type == "string") {
                 this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+                if (entry.name == "Training augmentations") {
+                  if (contentData.default != null) {
+                    var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
+                    this._interactionService.angleXValue = result[0];
+                    this._interactionService.angleYValue = result[1];
+                    this._interactionService.centerXValue = result[2];
+                    this._interactionService.centerYValue = result[3];
+                    this._interactionService.scaleValue = result[4];
+                  }
+                }
               }
               this.viewPropertiesContainer.clear();
               this.dynamicPropertyList.forEach(item => {
@@ -1931,8 +1971,8 @@ export class ProjectComponent implements OnInit {
 
     });
     this.weightsList = new MatTableDataSource(this.weightsEditData);
-    this.weightsList.sort = this.sort;
-    this.weightsList.paginator = this.paginator;
+    this.weightsList.sort = this.modelWeightTableSort;
+    this.weightsList.paginator = this.modelWeightPaginator;
   }
 
   cleanWeightsEditList() {
@@ -2204,8 +2244,8 @@ export class ProjectComponent implements OnInit {
       }
 
       this.outputList = new MatTableDataSource(this.outputResultsData);
-      this.outputList.sort = this.sort;
-      this.outputList.paginator = this.paginator;
+      this.outputList.sort = this.outputTableSort;
+      this.outputList.paginator = this.outputPaginator;
       dialogRef.close();
       this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
     }, error => {

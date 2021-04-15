@@ -13,3 +13,39 @@ textarea {
     width: calc(70% - 24px); 
     padding-left: 24px;
 }
+
+.div-middle-properties-left{
+    width: 50%;
+}
+
+.div-middle-properties-right{
+    width: 50%;
+}
+
+.div-middle-box-angle {
+    border: solid 0.5px; 
+    border-color: rgb(101,164,196); 
+    padding: 6px; 
+    font-size: 15px;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.div-middle-box-center {
+    border: solid 0.5px; 
+    border-color: rgb(101,164,196); 
+    padding: 6px;
+    font-size: 15px;
+    margin-right: 20px;
+}
+
+.div-training-property {
+    border: solid 0.5px; 
+    border-color: rgb(101,164,196); 
+    margin: 10px;
+    padding-bottom: 10px;
+}
+
+mat-slider {
+    width: 90%;
+}

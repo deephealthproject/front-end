@@ -35,6 +35,7 @@ import { DropdownComponent } from './components/dynamic-components/dropdown/drop
 import { InputIntegerComponent } from './components/dynamic-components/input-integer/input-integer.component';
 import { InputFloatComponent } from './components/dynamic-components/input-float/input-float.component';
 import { InputTextComponent } from './components/dynamic-components/input-text/input-text.component';
+import { BooleanComponent } from './components/dynamic-components/boolean/boolean.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -71,7 +72,8 @@ const routes: Routes = [
     DropdownComponent,
     InputTextComponent,
     InputIntegerComponent,
-    InputFloatComponent
+    InputFloatComponent,
+    BooleanComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -110,7 +112,8 @@ const routes: Routes = [
     DropdownComponent, 
     InputIntegerComponent, 
     InputFloatComponent, 
-    InputTextComponent
+    InputTextComponent,
+    BooleanComponent
   ],
   providers: [AuthService, AuthGuard,
     {

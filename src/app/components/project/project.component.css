@@ -132,7 +132,7 @@
 
 .div-middle-box-right {
     width: 30%;
-    padding-left: 5%;
+    padding-left: 3%;
 }
 
 .div-middle-box-left-cols {
@@ -194,7 +194,7 @@
 .div-middle-properties-table {
     width: 100%; 
     border: solid 0.5px; 
-    border-color: rgb(65, 90, 128); 
+    border-color: rgb(101,164,196);
     display: inline-block;
 }
 
@@ -202,13 +202,17 @@
     width: calc(100% - 10px); 
     display: inline-block; 
     border-bottom: solid 0.5px; 
-    border-color: rgb(65, 90, 128); 
+    border-color: rgb(101,164,196); 
     padding-top: 8px; 
     padding-left: 10px; 
     padding-bottom: 8px;
     color: rgb(255, 255, 255);
     font-size: 15px;
     background-color: #65A4C4;
+}
+
+.div-middle-properties{
+    width: 100%;
 }
 
 .div-border {

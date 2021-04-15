@@ -8,7 +8,7 @@ import { InteractionService } from '../../../services/interaction.service';
   styleUrls: ['./input-text.component.css']
 })
 export class InputTextComponent implements PropertyInterface, OnInit {
-  
+
   @Input() propertyData: any;
   @ViewChild('textProperty') textProperty: ElementRef;
 
@@ -16,11 +16,14 @@ export class InputTextComponent implements PropertyInterface, OnInit {
 
   ngOnInit() {
     if (this.propertyData.name == "Training augmentations") {
-      this._interactionService.trainingAugmentations = this.propertyData.allowed_value;
+      this._interactionService.trainingAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.trainingAugmentationsName = this.propertyData.name;
     } else if (this.propertyData.name == "Validation augmentations") {
-      this._interactionService.validationAugmentations = this.propertyData.allowed_value;
+      this._interactionService.validationAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.validationAugmentationsName = this.propertyData.name;
     } else if (this.propertyData.name == "Test augmentations") {
-      this._interactionService.testAugmentations = this.propertyData.allowed_value;
+      this._interactionService.testAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.testAugmentationsName = this.propertyData.name;
     }
   }
 
@@ -32,11 +35,61 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     }
 
     if (this.propertyData.name == "Training augmentations") {
-      this._interactionService.trainingAugmentations = event.target.value;
+      this._interactionService.trainingAugmentationsValue = event.target.value;
     } else if (this.propertyData.name == "Validation augmentations") {
-      this._interactionService.validationAugmentations = event.target.value;
+      this._interactionService.validationAugmentationsValue = event.target.value;
     } else if (this.propertyData.name == "Test augmentations") {
-      this._interactionService.testAugmentations = event.target.value;
+      this._interactionService.testAugmentationsValue = event.target.value;
+    }
+  }
+
+  updateAngleXValue(event) {
+    this._interactionService.angleXValue = event.value;
+    var updatedTrainingAugmentationsValue;
+    updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
+    if (this.propertyData.name == "Training augmentations") {
+      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
+    }
+  }
+
+  updateAngleYValue(event) {
+    this._interactionService.angleYValue = event.value;
+    var updatedTrainingAugmentationsValue;
+    updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
+    if (this.propertyData.name == "Training augmentations") {
+      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
+    }
+  }
+
+  updateCenterXValue(event) {
+    this._interactionService.centerXValue = event.value;
+    var updatedTrainingAugmentationsValue;
+    updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
+    if (this.propertyData.name == "Training augmentations") {
+      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
+    }
+  }
+
+  updateCenterYValue(event) {
+    this._interactionService.centerYValue = event.value;
+    var updatedTrainingAugmentationsValue;
+    updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
+    if (this.propertyData.name == "Training augmentations") {
+      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
+    }
+  }
+
+  updateScaleValue(event) {
+    this._interactionService.scaleValue = event.value;
+    var updatedTrainingAugmentationsValue;
+    updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
+    if (this.propertyData.name == "Training augmentations") {
+      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }
 }
