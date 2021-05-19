@@ -1,8 +1,10 @@
 <div style="padding-left: 15%; padding-right: 15%">
-    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-name">{{propertyData.name}}
+        <span *ngIf="propertyData.name == 'Learning rate'">*</span>
+    </div>
     <div class="div-property-content-values" #floatProperty id="floatProperty">
         <mat-form-field style="font-size: 15px; width: 90%; text-align: right;">
-            <input matInput type="number" value={{propertyData.default_value}} step=0.0001 (change)="changeFloatPropertyValue($event)">
+            <input matInput required type="number" value={{propertyData.default_value}} step=0.0001 (change)="changeFloatPropertyValue($event)">
         </mat-form-field>
     </div>
 </div>

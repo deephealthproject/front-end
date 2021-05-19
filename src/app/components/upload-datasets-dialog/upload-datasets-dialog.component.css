@@ -4,9 +4,14 @@
 }
 
 mat-dialog-content {
-    display: inline;
+    overflow: auto;
 }
 
 .mat-form-field {
-    width: 650px;
+    width: 550px;
+    display: block;
+}
+
+.customClassUploadModel {
+    height: 350px;
 }

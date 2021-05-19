@@ -13,6 +13,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button (click)="deleteItem()">{{'delete-dialog.OKButton' | translate}}</button>
+  <button mat-raised-button [disabled]="dialogDeletedItemInputValue == null" (click)="deleteItem()">{{'delete-dialog.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'delete-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

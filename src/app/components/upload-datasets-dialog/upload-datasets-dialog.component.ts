@@ -1,9 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
-import { User, Dataset } from '../power-user/power-user.component';
+import { User, Dataset, Model } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 
 export interface UploadDatasetsData {
@@ -19,9 +19,16 @@ export interface UploadDatasetsData {
   selectedUsername;
   userDropdown: User[];
   selectedDatasetName;
-  datasetDropdownForUploadModel: Dataset[];
-  modelData;
-  formData: any;
+  selectedModelName;
+  datasetDropdownForUploadModelWeight: Dataset[];
+  modelDropdownForUploadModelWeight: Model[];
+  modelWeightFormData;
+
+  inputValueLayersToRemove: string;
+  inputValueClasses: string;
+
+  selectedColorTypeImage: string;
+  selectedColorTypeGroundTruth: string;
 }
 
 @Component({
@@ -43,9 +50,19 @@ export class UploadDatasetsDialogComponent implements OnInit {
   selectedUsername;
   userDropdown: User[];
   selectedDatasetName;
-  datasetDropdownForUploadModel: Dataset[];
-  modelData;
-  formData: any;
+  selectedModelName
+  datasetDropdownForUploadModelWeight: Dataset[];
+  modelDropdownForUploadModelWeight: Model[];
+  modelWeightFormData;
+
+  inputValueLayersToRemove: string;
+  inputValueClasses: string;
+
+  requiredModelControl = new FormControl('', [Validators.required]);
+  requiredColorTypeImageControl = new FormControl('', [Validators.required]);
+  colorTypeList = [];
+  selectedColorTypeImage;
+  selectedColorTypeGroundTruth;
 
   changeIsUrlLinkCheckedState() {
     this.isUrlLink = !this.isUrlLink;
@@ -66,7 +83,11 @@ export class UploadDatasetsDialogComponent implements OnInit {
     this.selectedUsername = data.selectedUsername;
     this.userDropdown = [];
     this.selectedDatasetName = data.selectedDatasetName;
-    this.datasetDropdownForUploadModel = [];
+    this.selectedModelName = data.selectedModelName;
+    this.datasetDropdownForUploadModelWeight = [];
+    this.modelDropdownForUploadModelWeight = [];
+    this.selectedColorTypeImage = data.selectedColorTypeImage;
+    this.selectedColorTypeGroundTruth = data.selectedColorTypeGroundTruth;
 
     if(this._interactionService.uploadModelIsClicked == false) {
       let userProject: User;
@@ -77,9 +98,14 @@ export class UploadDatasetsDialogComponent implements OnInit {
       this.userDropdown = this.userDropdown.filter(item => item.username != this._interactionService.username);
     } else {
       let datasetProject: Dataset;
-      data.datasetDropdownForUploadModel.forEach(dataset => {
-        datasetProject = {id: dataset.id, name: dataset.name, path: dataset.path, task_id: dataset.task_id, color:dataset.color, owners:dataset.owners, datasetPublic: dataset.datasetPublic}
-        this.datasetDropdownForUploadModel.push(datasetProject);
+      data.datasetDropdownForUploadModelWeight.forEach(dataset => {
+        datasetProject = {id: dataset.id, name: dataset.name, path: dataset.path, task_id: dataset.task_id, color:dataset.color, users:dataset.users, datasetPublic: dataset.datasetPublic, ctype: dataset.ctype, ctype_gt: dataset.ctype_gt, classes: dataset.classes }
+        this.datasetDropdownForUploadModelWeight.push(datasetProject);
+      })
+      let modelProject: Model;
+      data.modelDropdownForUploadModelWeight.forEach(model => {
+        modelProject = {id: model.id, name: model.name, task_id: model.task_id, color: model.color, location: model.location, weightsList: model.weightsList, propertiesList: model.propertiesList }
+        this.modelDropdownForUploadModelWeight.push(modelProject);
       })
     }
   }
@@ -89,6 +115,19 @@ export class UploadDatasetsDialogComponent implements OnInit {
       name: [''],
       onnx_data: [null]
     });
+    this.datasetDisplayModeValue = true;
+    this.initialiseColorTypeList();
+  }
+
+  initialiseColorTypeList() {
+    this.colorTypeList = [];
+    this.colorTypeList.push("NONE");
+    this.colorTypeList.push("GRAY");
+    this.colorTypeList.push("RGB");
+    this.colorTypeList.push("RGBA");
+    this.colorTypeList.push("BGR");
+    this.colorTypeList.push("HSV");
+    this.colorTypeList.push("YCBCR");
   }
 
   changeDatasetDisplayModeCheckedState() {
@@ -114,8 +153,13 @@ export class UploadDatasetsDialogComponent implements OnInit {
     this.data.inputValuePath = this.inputValuePath;
     this.data.selectedUsername = this.selectedUsername;
     this.data.selectedDatasetName = this.selectedDatasetName;
-    this.data.modelData = this._interactionService.uploadForm.value;
+    this.data.selectedModelName = this.selectedModelName;
+    this.data.modelWeightFormData = this._interactionService.uploadForm.value;
     this.data.datasetDisplayMode = this._interactionService.projectDatasetDisplayMode;
+    this.data.inputValueLayersToRemove = this.inputValueLayersToRemove;
+    this.data.inputValueClasses = this.inputValueClasses;
+    this.data.selectedColorTypeImage = this.selectedColorTypeImage;
+    this.data.selectedColorTypeGroundTruth = this.selectedColorTypeGroundTruth;
     this.dialogRef.close(this.data);
   }
 }

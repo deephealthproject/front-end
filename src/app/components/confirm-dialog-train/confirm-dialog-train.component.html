@@ -24,9 +24,30 @@
       </div>
     </div>
   </div>
+  <div *ngIf="showMessageModel || showMessageDataset || showMessageWeight">
+    <mat-form-field style="color:#336E9F; width: 60%;">
+      {{'confirm-dialog-train.selectTaskManagerType' | translate}}
+      <mat-select [(value)]=selectedTaskManager>
+        <mat-option *ngFor="let option of processTaskManager" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div *ngIf="selectedTaskManager == 'STREAMFLOW'">
+    <div style="color: #FF0000; padding-top: 5px;">{{'confirm-dialog-train.infoMessageErrorProcessStreamFlow'| translate}}</div>
+    <mat-form-field style="color:#336E9F; width: 60%;">
+      {{'confirm-dialog-train.selectEnvironmentType' | translate}}
+      <mat-select [(value)]=selectedEnvironmentType disabled>
+        <mat-option *ngFor="let option of streamFlowEnvironment" [value]="option.type">
+          {{option.type}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
+  <button mat-raised-button *ngIf="showMessageModel || showMessageDataset || showMessageWeight" [disabled]="!showMessageModel || !showMessageWeight || !selectedTaskManager" (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'confirm-dialog-train.CancelButton' | translate}}</button>
 </mat-dialog-actions>

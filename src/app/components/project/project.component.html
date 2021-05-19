@@ -11,7 +11,7 @@
                 </button>
             </div>
             <div style=" padding-bottom: 10px;" class="div-left-section-box">
-                <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadModel();">
+                <button mat-flat-button class="div-left-upload-dataset-button" (click)="uploadModelWeight();">
                     {{'project.uploadModelButton' | translate}}
                 </button>
             </div>
@@ -83,13 +83,11 @@
                                             {{'project.model' | translate}}
                                         </div>
                                         <mat-form-field class="div-middle-box-content">
-                                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel [formControl]="requiredModelControl"
-                                                required>
+                                            <mat-select (selectionChange)="triggerSelectedModel($event)" [(value)]=selectedOptionModel>
                                                 <mat-option *ngFor="let option of modelDropdown" value={{option}}>
                                                     {{option}}
                                                 </mat-option>
                                             </mat-select>
-                                            <mat-hint style="color:#F44336" *ngIf="requiredModelControl.hasError('required')">{{'project.errorNoModelSelected' | translate}}</mat-hint>
                                         </mat-form-field>
                                     </div>
                                     <div class="div-middle-box-left-col2 ">
@@ -113,11 +111,12 @@
                                         {{'project.weight' | translate}}
                                     </div>
                                     <mat-form-field class="div-middle-box-content">
-                                        <mat-select [(value)]=selectedOptionWeight>
+                                        <mat-select [(value)]=selectedOptionWeight [formControl]="requiredWeightControl" required>
                                             <mat-option *ngFor="let option of weightDropdown" value={{option}}>
                                                 {{option}}
                                             </mat-option>
                                         </mat-select>
+                                        <mat-hint style="color:#F44336" *ngIf="requiredWeightControl.hasError('required')">{{'project.errorNoWeightSelected' | translate}}</mat-hint>
                                     </mat-form-field>
                                 </div>
                             </form>
@@ -261,17 +260,6 @@
                                 </mat-select>
                                 <mat-hint style="color:#F44336" *ngIf="requiredWeightControl.hasError('required')">{{'project.errorNoWeightSelected' | translate}}</mat-hint>
                             </mat-form-field>
-                            <div class="div-middle-box-title">
-                                {{'project.dataset' | translate}}
-                            </div>
-                            <mat-form-field class="div-middle-box-content">
-                                <mat-select [formControl]="requiredDatasetControl" required [(value)]=selectedOptionDataset>
-                                    <mat-option *ngFor="let option of datasetDropdown" value={{option}}>
-                                        {{option}}
-                                    </mat-option>
-                                </mat-select>
-                                <mat-hint style="color:#F44336" *ngIf="requiredDatasetControl.hasError('required')">{{'project.errorNoDatasetSelected' | translate}}</mat-hint>
-                            </mat-form-field>
                         </div>
                         <div class="div-middle-box-right">
                             <div #inferenceSingle id="inferenceSingle">
@@ -327,7 +315,7 @@
             </mat-form-field>
         </div>
 
-        <table mat-table #processTableSort="matSort" [dataSource]="processesList" matSort class="mat-elevation-z8"> 
+        <table mat-table #processTableSort="matSort" [dataSource]="this._interactionService.processesList" matSort class="mat-elevation-z8">
             <ng-container matColumnDef="processRead">
                 <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let row" (click)="markNotificationAsRead(row)">
@@ -360,12 +348,11 @@
                 <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
-                        <button mat-icon-button style="padding-right: 20px;" [disabled]="row.processStatus == 'stopped'" (click)="showOutputProcess(row)">
-                            <mat-icon [ngClass]="{'disabledIcon': row.processStatus == 'stopped'}" style="color: #3180ae;" title="Show Output" svgIcon="showOutput"></mat-icon>
+                        <button mat-icon-button style="padding-right: 20px;" [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'"
+                            (click)="showOutputProcess(row)">
+                            <mat-icon [ngClass]="{'disabledIcon': row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'}" style="color: #3180ae;"
+                                title="Show Output" svgIcon="showOutput"></mat-icon>
                         </button>
-                        <!-- <div style="padding-right: 20px;" (click)="showOutputProcess(row)" title="Show Output">
-                            <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
-                        </div> -->
                         <div (click)="stopProcess(row)" title="stop process" *ngIf="row.showStopButton" style="padding-top: 9px;">
                             <mat-icon svgIcon="stopProcess" style="color: red;"></mat-icon>
                         </div>
@@ -375,8 +362,8 @@
                     </div>
                 </td>
             </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedProcessColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedProcessColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="this._interactionService.displayedProcessColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: this._interactionService.displayedProcessColumns;"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]" #processPaginator showFirstLastButtons></mat-paginator>
 
@@ -482,6 +469,10 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightOwner' | translate }}</th>
                 <td mat-cell *matCellDef="let element"> {{element.weightOwner}} </td>
             </ng-container>
+            <ng-container matColumnDef="weightProcessId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.weightProcessId' | translate }}</th>
+                <td mat-cell *matCellDef="let element"> {{element.weightProcessId}} </td>
+            </ng-container>
             <ng-container matColumnDef="weightOptions">
                 <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
                 <td mat-cell *matCellDef="let row">
@@ -513,13 +504,13 @@
                 {{'project.weightView' | translate }} {{this.weightIdForTitle}} {{'project.detailsView' | translate }}
             </div>
             <table mat-table [dataSource]="weightDetails">
-                <ng-container matColumnDef="Weight_Id">
+                <ng-container matColumnDef="weight_id">
                     <th mat-header-cell *matHeaderCellDef>{{'project.weightId' | translate }}</th>
-                    <td mat-cell *matCellDef="let element"> {{element.Weight_Id}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.weight_id}} </td>
                 </ng-container>
-                <ng-container matColumnDef="Name">
+                <ng-container matColumnDef="weight_name">
                     <th mat-header-cell *matHeaderCellDef>{{'project.weightName' | translate }}</th>
-                    <td mat-cell *matCellDef="let element"> {{element.Name}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.weight_name}} </td>
                 </ng-container>
                 <ng-container matColumnDef="dataset_name">
                     <th mat-header-cell *matHeaderCellDef>{{'project.datasetName' | translate }}</th>
@@ -540,6 +531,14 @@
                 <ng-container matColumnDef="associated_users">
                     <th mat-header-cell *matHeaderCellDef>{{'project.associatedUsersColumn' | translate }}</th>
                     <td mat-cell *matCellDef="let element"> {{element.associated_users}} </td>
+                </ng-container>
+                <ng-container matColumnDef="layers_to_remove">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.layersToRemoveColumn' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.layers_to_remove}} </td>
+                </ng-container>
+                <ng-container matColumnDef="classes">
+                    <th mat-header-cell *matHeaderCellDef>{{'project.classesColumn' | translate }}</th>
+                    <td mat-cell *matCellDef="let element"> {{element.classes}} </td>
                 </ng-container>
                 <tr mat-header-row *matHeaderRowDef="displayedWeightDetailsColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedWeightDetailsColumns;"></tr>
@@ -632,7 +631,11 @@
             <div *ngIf="showGraphicProcess">
                 <ngx-charts-line-chart [view]="view" [scheme]="colorScheme" [legend]="legend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel"
                     [xAxis]="xAxis" [yAxis]="yAxis" [xAxisLabel]="xAxisLabel" [yAxisLabel]="yAxisLabel" [timeline]="timeline"
-                    [results]="chartValuesList" (select)="onSelect($event)" (activate)="onActivate($event)" (deactivate)="onDeactivate($event)">
+                    [results]="chartLossValuesList" (select)="onSelect($event)" (activate)="onActivate($event)" (deactivate)="onDeactivate($event)">
+                </ngx-charts-line-chart>
+                <ngx-charts-line-chart [view]="view" [scheme]="colorScheme" [legend]="legend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel"
+                    [xAxis]="xAxis" [yAxis]="yAxis" [xAxisLabel]="xAxisLabel" [yAxisLabel]="yMetricAxisLabel" [timeline]="timeline"
+                    [results]="chartMetricValuesList" (select)="onSelect($event)" (activate)="onActivate($event)" (deactivate)="onDeactivate($event)">
                 </ngx-charts-line-chart>
             </div>
         </div>

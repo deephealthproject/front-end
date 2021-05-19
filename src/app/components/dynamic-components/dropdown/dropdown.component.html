@@ -1,5 +1,7 @@
 <div style="padding-left: 15%; padding-right: 15%; padding-bottom: 12px;">
-    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-name">{{propertyData.name}}
+        <span *ngIf="propertyData.name == 'Metric'">*</span>
+    </div>
     <div class="div-property-content-values">
         <mat-form-field style="text-align: right; width: 90%; height: 30px; font-size: 15px;">
             <mat-select [(value)]=propertyData.selectedOption (selectionChange)="changeSelectedPropertyValue($event)">

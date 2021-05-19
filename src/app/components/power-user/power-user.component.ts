@@ -44,8 +44,11 @@ export class Dataset {
   path: string;
   task_id: number;
   color: string;
-  owners: Map<string, string>;
+  users: Map<string, string>;
   datasetPublic: boolean;
+  ctype: string;
+  ctype_gt: string;
+  classes: string;
 }
 
 export class Model {
@@ -71,6 +74,10 @@ export class Weight {
   public: boolean;
   users: Map<string, string>;
   weightPublic: boolean;
+  process_id: string;
+  layer_to_remove: string;
+  classes: string;
+  is_active: string;
 }
 
 export class PropertyInstance {
@@ -82,10 +89,11 @@ export class PropertyInstance {
 }
 
 export enum ProcessStatus {
-  none,
-  running,
-  finished,
-  error
+  PENDING,
+  STARTED,
+  RETRY,
+  FAILURE,
+  SUCCESS
 }
 
 export class ProcessingObject {
@@ -116,6 +124,14 @@ export class ItemToDelete {
   deletedItem: any;
 }
 
+export enum TypeOfItemToDelete {
+  project,
+  model,
+  dataset,
+  weight,
+  users
+}
+
 @Component({
   selector: 'app-power-user',
   templateUrl: './power-user.component.html',
@@ -126,7 +142,7 @@ export class PowerUserComponent implements OnInit {
   projects: Array<Project> = [];
   projectName: string;
   projectTaskId;
-  projectId: number = 2;
+  projectId: number = 1;
   task_id: number;
   selectedModel: Model;
   selectedDataset: Dataset;
@@ -143,6 +159,9 @@ export class PowerUserComponent implements OnInit {
   selectedDatasetColor;
   modelweights_id: number = -1;
   taskList = [];
+  modelName;
+  modelTaskId;
+  modelId: number = 1;
 
   username: string;
   users = [];
@@ -270,7 +289,7 @@ export class PowerUserComponent implements OnInit {
             }
             this.projectId++;
             console.log("Project " + this.projectName + " created");
-            this.addProject(this.projectName, null, this.projectTaskId, this.users);
+            this.addProject(this.projectName, this.projectTaskId, this.users);
             this._interactionService.projectName = this.projectName;
             dialogRefSpinner.close();
           }
@@ -283,10 +302,89 @@ export class PowerUserComponent implements OnInit {
       }
       else {
         dialogRefSpinner.close();
-        console.log('Canceled');
-        this._interactionService.openSnackBarBadRequest(this.translate.instant('powerUser.errorMessageNewProject'));
       }
     });
+  }
+
+  addProject(projectName, task_id, users) {
+    this._dataService.addProject(projectName, task_id, users).subscribe(data => {
+      // this._interactionService.resetProjectsList(data.body);
+      if (data.statusText == "Created") {
+        this.getProjects();
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewProject'));
+      }
+    }, error => {
+      this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+    })
+  }
+
+  createNewModel(): void {
+    this.taskList = [];
+    this.users = [];
+    this._dataService.getTasks().subscribe(data => {
+      this.createNewModelWithTask(data);
+    });
+  }
+
+  createNewModelWithTask(data) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      inputValue: this.projectName,
+      dialogTitle: this.translate.instant('powerUser.createNewModel'),
+      inputPlaceHolder: this.translate.instant('powerUser.modelName'),
+      selectedOptionTask: null,
+      selectedUsername: null,
+      taskDropdown: data
+    };
+
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
+    let dialogRef = this.dialog.open(CreateProjectDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
+      if (result) {
+        if (result.inputValue) {
+          let thatModelExist = false;
+          for (let currentModel of this.models) {
+            if (currentModel.name == result.inputValue)
+              thatModelExist = true;
+          }
+          if (thatModelExist == false) {
+            this.modelName = result.inputValue;
+            this.modelTaskId = result.selectedOptionTask;
+            this.modelId++;
+            console.log("Model " + this.modelName + " created");
+            this.createModel(this.modelName, this.modelTaskId);
+            dialogRefSpinner.close();
+          }
+          else {
+            dialogRefSpinner.close();
+            console.log('Model already exists');
+            this._interactionService.openSnackBarBadRequest(this.translate.instant('powerUser.errorCreatedNewModel'));
+          }
+        }
+      }
+      else {
+        dialogRefSpinner.close();
+      }
+    });
+  }
+
+  createModel(modelName, task_id) {
+    this._dataService.createModel(modelName, task_id).subscribe(data => {
+      if (data.statusText == "Created") {
+        this.models = this.getModels(undefined);
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewModel'));
+      }
+    }, error => {
+      this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+    })
   }
 
   setTasksList() {
@@ -328,7 +426,7 @@ export class PowerUserComponent implements OnInit {
         let trainingProcess = new ProcessingObject;
         trainingProcess.projectId = process.project_id;
         trainingProcess.processId = process.celery_id;
-        trainingProcess.process_status = ProcessStatus[2];
+        trainingProcess.process_status = ProcessStatus[4];
         trainingProcess.process_type = "training";
         trainingProcess.unread = false;
         this._interactionService.changeStopButton(trainingProcess);
@@ -336,41 +434,42 @@ export class PowerUserComponent implements OnInit {
       }
       //id: 50, celery_id: "0883b0a5-2333-401d-a78e-d362183784ed", project_id: 79, modelweights_id: 443}
     })
-    
+
     this._dataService.pastInferenceProcesses(currentProject.id).subscribe(data => {
       contentData = data;
       for (let process of contentData) {
         let inferenceProcess = new ProcessingObject;
         inferenceProcess.projectId = process.project_id;
         inferenceProcess.processId = process.celery_id;
-        inferenceProcess.process_status = ProcessStatus[2];
+        inferenceProcess.process_status = ProcessStatus[4];
         inferenceProcess.process_type = "inference";
         inferenceProcess.unread = false;
         this._interactionService.changeStopButton(inferenceProcess);
         this._interactionService.runningProcesses.push(inferenceProcess);
       }
     });
-    
+
     //??? inference Single intoarce aceleasi procese ca inference
-    // this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
-    //   contentData = data;
-    //   for (let process of contentData) {
-    //     let inferenceSingleProcess = new ProcessingObject;
-    //     inferenceSingleProcess.projectId = process.project_id;
-    //     inferenceSingleProcess.processId = process.celery_id;
-    //     inferenceSingleProcess.process_status = ProcessStatus[2];
-    //     inferenceSingleProcess.process_type = "inferenceSingle";
-    //     inferenceSingleProcess.unread = false;
-    //     this._interactionService.changeStopButton(inferenceSingleProcess);
-    //     this._interactionService.runningProcesses.push(inferenceSingleProcess);
-    //   }
-    // });
+    this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
+      contentData = data;
+      for (let process of contentData) {
+        let inferenceSingleProcess = new ProcessingObject;
+        inferenceSingleProcess.projectId = process.project_id;
+        inferenceSingleProcess.processId = process.celery_id;
+        inferenceSingleProcess.process_status = ProcessStatus[4];
+        inferenceSingleProcess.process_type = "inferenceSingle";
+        inferenceSingleProcess.unread = false;
+        this._interactionService.changeStopButton(inferenceSingleProcess);
+        this._interactionService.runningProcesses.push(inferenceSingleProcess);
+      }
+    });
   }
 
   showProject(selectedProject: Project) {
     this._interactionService.showProjectTab(selectedProject.name);
     this._interactionService.changeCurrentProject(selectedProject);
     this._interactionService.resetProject();
+    this._interactionService.resetSelectedOptions();
 
     this._interactionService.changeShowStateProjectDivLeft(true);
     this._interactionService.changeShowStateProjectDivMiddle(true);
@@ -410,18 +509,6 @@ export class PowerUserComponent implements OnInit {
     console.log(this.projects);
   }
 
-  addProject(projectName, modelweights_id, task_id, users) {
-    this._dataService.addProject(projectName, modelweights_id, task_id, users).subscribe(data => {
-      // this._interactionService.resetProjectsList(data.body);
-      if (data.body != undefined) {
-        this.insertProject(data.body);
-      }
-      else {
-        this.insertProject(data);
-      }
-    })
-  }
-
   insertProject(contentData) {
     let p = new Project;
     p.id = contentData.id;
@@ -436,7 +523,7 @@ export class PowerUserComponent implements OnInit {
 
   deleteProject(project) {
     let itemToDelete = new ItemToDelete();
-    itemToDelete.type = "project";
+    itemToDelete.type = TypeOfItemToDelete[0];
     itemToDelete.deletedItem = project;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
@@ -455,9 +542,7 @@ export class PowerUserComponent implements OnInit {
       console.log(result);
       if (result) {
         this._interactionService.closeProjectTab();
-        this._dataService.projects().subscribe(data => {
-          this.updateProjectsList(data);
-        })
+        this.getProjects();
       }
     });
   }
@@ -592,7 +677,7 @@ export class PowerUserComponent implements OnInit {
 
   deleteDataset(dataset) {
     let itemToDelete = new ItemToDelete();
-    itemToDelete.type = "dataset";
+    itemToDelete.type = TypeOfItemToDelete[2];
     itemToDelete.deletedItem = dataset;
     let taskId;
     const dialogConfig = new MatDialogConfig();

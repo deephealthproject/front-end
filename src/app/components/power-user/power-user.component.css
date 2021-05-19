@@ -62,6 +62,15 @@
   cursor: pointer;
 }
 
+.div-left-icon-create-model {
+  transform: scale(1.2);
+  padding-left: 2px;
+  padding-right: 7px;
+  color: #1a759d;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
 .div-right-text {
   font-size: 16px;
   display: inline-block;
@@ -69,6 +78,15 @@
   vertical-align: middle;
   cursor: pointer;
   font-family: 'Segoe UI';
+}
+
+.div-left-text-create-model {
+  vertical-align: middle;
+  color: white;
+  cursor: pointer;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size: 13px;
+  display: inline-block;
 }
 
 .div-right-project {
@@ -150,7 +168,7 @@
 .div-left-section-title {
   background-color: #65A4C4;
   border-bottom: 1px solid #425463;
-  height: 30px;
+  height: 34px;
   padding-top: 7px;
 }
 

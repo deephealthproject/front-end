@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>{{dialogTitle}}</h1>
 
-<mat-dialog-content>
+<mat-dialog-content [ngClass]="{'customClassUploadModel': this._interactionService.uploadModelIsClicked }">
   <div>
     <input matInput [(ngModel)]="inputValue" placeholder="{{inputPlaceHolder}}">
   </div>
@@ -9,7 +9,7 @@
     <div style="color:#336E9F;">
       {{dialogContent}}
       <div *ngIf="!this._interactionService.uploadModelIsClicked">
-        <div style="color:rgb(199, 62, 62); padding-top: 5px;">{{'upload-dataset-dialog.infoMessageErrorUploadLocalDatasets'| translate}}</div>
+        <div style="color:#FF0000; padding-top: 5px;">{{'upload-dataset-dialog.infoMessageErrorUploadLocalDatasets'| translate}}</div>
       </div>
     </div>
     <div #isUrlLink id="isUrlLink" style="padding-top: 5px;">
@@ -24,6 +24,23 @@
     <div style="padding-top: 8px; padding-bottom: 18px;">
       <input [disabled]="inputValuePath" #fileInput type="file" accept="*" (change)="this._interactionService.browseFile($event)">
     </div> -->
+    <mat-form-field style="color:#336E9F;">
+      {{'upload-dataset-dialog.selectColorTypeImage' | translate}}
+      <mat-select [(value)]=selectedColorTypeImage [formControl]="requiredColorTypeImageControl" required>
+        <mat-option *ngFor="let option of colorTypeList" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+      <mat-hint style="color:#F44336" *ngIf="requiredColorTypeImageControl.hasError('required')">{{'upload-dataset-dialog.errorNoColorTypeImageSelected' | translate}}</mat-hint>
+    </mat-form-field>
+    <mat-form-field style="color:#336E9F;">
+      {{'upload-dataset-dialog.selectColorTypeGroundTruth' | translate}}
+      <mat-select [(value)]=selectedColorTypeGroundTruth>
+        <mat-option *ngFor="let option of colorTypeList" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
     <mat-checkbox color="primary" [checked]="datasetDisplayModeValue" [(ngModel)]="datasetDisplayModeValue" (change)="changeDatasetDisplayModeCheckedState()">
       {{'upload-dataset-dialog.datasetDisplayMode' | translate}}
     </mat-checkbox>
@@ -47,18 +64,40 @@
     </div>
     <div>
       <mat-form-field style="color:#336E9F;">
-        {{'upload-dataset-dialog.selectDataset' | translate}}
-        <mat-select [(value)]=selectedDatasetName>
-          <mat-option *ngFor="let option of datasetDropdownForUploadModel" [value]="option.name">
+        {{'upload-dataset-dialog.selectModel' | translate}}
+        <mat-select [(value)]=selectedModelName [formControl]="requiredModelControl" required>
+          <mat-option *ngFor="let option of modelDropdownForUploadModelWeight" [value]="option.name">
             {{option.name}}
           </mat-option>
         </mat-select>
+        <mat-hint style="color:#F44336" *ngIf="requiredModelControl.hasError('required')">{{'project.errorNoModelSelected' | translate}}</mat-hint>
+      </mat-form-field>
+      <mat-form-field style="color:#336E9F;">
+        {{'upload-dataset-dialog.selectDataset' | translate}}
+        <mat-select [(value)]=selectedDatasetName>
+          <mat-option *ngFor="let option of datasetDropdownForUploadModelWeight" [value]="option.name">
+            {{option.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div>
+      <div style="color:#336E9F;">{{'upload-dataset-dialog.uploadLayersToRemove' | translate}}</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="inputValueLayersToRemove" placeholder="{{inputPlaceHolderLayersToRemove}}">
+      </mat-form-field>
+      <div style="color:#336E9F;">{{'upload-dataset-dialog.uploadClasses' | translate}}</div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="inputValueClasses" placeholder="{{inputPlaceHolderClasses}}">
       </mat-form-field>
     </div>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
+  <button *ngIf="!this._interactionService.uploadModelIsClicked" mat-raised-button [disabled]="inputValue == null || inputValuePath == null || requiredColorTypeImageControl.hasError('required')"
+    (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
+  <button *ngIf="this._interactionService.uploadModelIsClicked" mat-raised-button [disabled]="inputValue == null || inputValuePath == null || requiredModelControl.hasError('required')"
+    (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'upload-dataset-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

@@ -1,5 +1,7 @@
 <div style="padding-left: 15%; padding-right: 15%">
-    <div class="div-property-name">{{propertyData.name}}</div>
+    <div class="div-property-name">{{propertyData.name}}
+        <span *ngIf="propertyData.name == 'Batch size' || propertyData.name == 'Epochs'">*</span>
+    </div>
     <div class="div-property-content-values" #integerProperty id="integerProperty">
         <mat-form-field style="text-align: right; width: 90%; font-size: 15px;">
             <input matInput type="number" value={{propertyData.default_value}} step=1 (change)="changeIntegerPropertyValue($event)">

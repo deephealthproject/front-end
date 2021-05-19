@@ -1,15 +1,38 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Project, Model, Weight, User, ProcessingObject } from '../components/power-user/power-user.component';
+import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-import { MatSnackBar, MatSnackBarConfig } from '../../../node_modules/@angular/material';
+import { MatSnackBar, MatSnackBarConfig, MatTableDataSource, MatPaginator, MatSort } from '../../../node_modules/@angular/material';
 import { FormGroup } from '../../../node_modules/@angular/forms';
 
 export class TabObject {
   name: string;
   type: string;
   id: number;
+}
+
+export class ProcessingObject {
+  projectId;
+  processId;
+  process_type;
+  process_status: string;
+  process_data: Array<ProcessData>;
+  unread: boolean;
+  showStopButton: boolean;
+  showDisabledButton: boolean;
+  color;
+  training_id;
+}
+
+export class ProcessData {
+  epoch;
+  inputWidth;
+  inputHeight;
+  loss;
+  metric;
+  test_accuracy;
+  validation_accuracy;
 }
 
 @Injectable({
@@ -112,6 +135,11 @@ export class InteractionService extends TabObject {
   private _selectedOptionLossSource = new Subject<string>();
   selectedOptionLoss$ = this._selectedOptionLossSource.asObservable();
 
+  private _selectedOptionTaskManagerSource = new Subject<string>();
+  selectedOptionTaskManager$ = this._selectedOptionTaskManagerSource.asObservable();
+  private _selectedOptionEnvironmentSource = new Subject<string>();
+  selectedOptionEnvironment$ = this._selectedOptionEnvironmentSource.asObservable();
+
   //project component -> div-details dropdown lists for selectors
   private _dropdownModelSource = new Subject<Array<string>>();
   dropdownModel$ = this._dropdownModelSource.asObservable();
@@ -165,8 +193,8 @@ export class InteractionService extends TabObject {
   selectedDataId$ = this._selectedDatasetIdSource.asObservable();
   private _datasetResponseSource = new Subject<string>();
   datasetResponse = this._datasetResponseSource.asObservable();
-  selectedModel;
-  selectedDataset;
+  selectedModel = null;
+  selectedDataset = null;
 
   //app-tabs -> unreadNotifications
   private _unreadNotificationsNumberSource = new Subject<number>();
@@ -249,6 +277,13 @@ export class InteractionService extends TabObject {
   newResetPasswordValue$ = this._newResetPasswordValueSource.asObservable();
   private _resetCodeValueSource = new Subject<string>();
   resetCodeValue$ = this._resetCodeValueSource.asObservable();
+
+  //processes in Notifications
+  processesList: MatTableDataSource<any>;
+  displayedProcessColumns: string[] = ['processRead', 'processDate', 'projectId', 'processId', 'processType', 'processStatus', 'processOptions'];
+  processData = [];
+  @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
+  @ViewChild('processTableSort') processTableSort: MatSort;
 
   //dynamic properties
   learningRateName = null;
@@ -430,6 +465,8 @@ export class InteractionService extends TabObject {
     this._trainingAugmentationsValueSource.next(null);
     this._validationAugmentationsValueSource.next(null);
     this._testAugmentationsValueSource.next(null);
+    this.selectedModel = null;
+    this.selectedDataset = null;
   }
 
   resetInputType(state: boolean) {
@@ -750,14 +787,96 @@ export class InteractionService extends TabObject {
   }
 
   changeStopButton(process) {
-    if (process.process_status == "running") {
+    if (process.process_status == "STARTED") {
       process.showStopButton = true;
       process.showDisabledButton = false;
     }
-    else if (process.process_status == "finished") {
+    else if (process.process_status == "SUCCESS") {
       process.showDisabledButton = true;
       process.showStopButton = false;
     }
+  }
+
+  showProcesses() {
+    this.runningProcesses.forEach(process => {
+      this.processData.push({ /*processDate: process.processDate*/ projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
+        showDisabledButton: process.showDisabledButton, processRead: process.unread
+      });
+    });
+    this.processesList = new MatTableDataSource(this.processData);
+    this.processesList.paginator = this.processPaginator;
+    this.processesList.sort = this.processTableSort;
+
+    this.runningProcesses.forEach(runningProcess => {
+      this.checkStatusPastProcesses(runningProcess);
+    })
+  }
+
+  checkStatusPastProcesses(process) {
+    this._dataService.status(process.processId).subscribe(data => {
+      let status: any = data.status;
+      process.projectId = process.projectId;
+      process.processId = process.processId;
+      process.process_data = status.process_data;
+      process.process_type = status.process_type;
+      process.process_status = status.process_status;
+      this.changeStopButton(process);
+      if (process.process_status == "PENDING" || process.process_status == "STARTED") {
+        let status: any = data.status;
+        let runningProcess = new ProcessingObject;
+        runningProcess.projectId = process.projectId;
+        runningProcess.processId = process.processId;
+        runningProcess.process_data = status.process_data;
+        runningProcess.process_type = status.process_type;
+        runningProcess.process_status = status.process_status;
+        runningProcess.unread = false;
+        runningProcess.showDisabledButton = false;
+        this.changeStopButton(process);
+        if (process.processId !== runningProcess.processId) {
+          this.runningProcesses.push(runningProcess);
+        }
+        this.processData.forEach(process => {
+          if (process.processId == runningProcess.processId) {
+            process.processStatus = runningProcess.process_status;
+            process.showStopButton = true;
+            process.showDisabledButton = runningProcess.showDisabledButton;
+            this.processesList = new MatTableDataSource(this.processData);
+            this.processesList.paginator = this.processPaginator;
+            this.processesList.sort = this.processTableSort;
+          }
+        })
+      }
+      if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+        let status: any = data.status;
+        let failProcess = new ProcessingObject;
+        failProcess.projectId = process.projectId;
+        failProcess.processId = process.processId;
+        failProcess.process_data = status.process_data;
+        failProcess.process_type = status.process_type;
+        failProcess.process_status = status.process_status;
+        failProcess.showStopButton = false;
+        failProcess.showDisabledButton = true;
+        this.changeStopButton(process);
+        if (process.processId !== failProcess.processId) {
+          this.runningProcesses.push(failProcess);
+        }
+        this.processData.forEach(process => {
+          if (process.processId == failProcess.processId) {
+            process.processStatus = failProcess.process_status;
+            process.showStopButton = false;
+            process.showDisabledButton = failProcess.showDisabledButton;
+            this.processesList = new MatTableDataSource(this.processData);
+            this.processesList.paginator = this.processPaginator;
+            this.processesList.sort = this.processTableSort;
+          }
+        })
+      }
+    });
+  }
+   
+  cleanProcessesList() {
+    this.processData = [];
+    this.processesList = new MatTableDataSource(this.processData);
   }
 
   openSnackBarOkRequest(message) {

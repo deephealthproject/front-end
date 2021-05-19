@@ -14,6 +14,10 @@ export interface TrainDialogData {
   inputPlaceHolder: string;
   inputValue: string;
   datasetImageData: string;
+
+  selectedTaskManager: string;
+  selectedEnvironmentType: string;
+  selectedEnvironment;
 }
 
 @Component({
@@ -44,6 +48,13 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
   datasetImageData: string;
 
+  processTaskManager;
+  streamFlowEnvironment = [];
+  selectedTaskManager: string;
+  selectedEnvironmentType: string;
+  selectedEnvironment = new Map<string, string>();
+  environmentId : number = 0;
+
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData, private _interactionService: InteractionService,
     public translate: TranslateService) {
@@ -55,6 +66,11 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.selectedWeight = data.weightSelected;
     this.process_type = data.process_type;
     this.inputPlaceHolder = data.inputPlaceHolder;
+
+    this.selectedTaskManager = data.selectedTaskManager;
+    this.selectedEnvironmentType = data.selectedEnvironmentType;
+    data.selectedEnvironment = new Map<string, string>();
+    this.selectedEnvironment = data.selectedEnvironment;
 
     if (!this.selectedModel) {
       this.messageModel = this.translate.instant('confirm-dialog-train.errorModel');
@@ -76,8 +92,8 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
     if (!this.selectedWeight) {
       if (this.process_type == "training") {
-        //   this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
-        // this.weightColor = "red";
+        this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
+        this.weightColor = "red";
       } else {
         this.messageWeight = this.translate.instant('confirm-dialog-train.errorWeight');
         this.weightColor = "red";
@@ -105,18 +121,46 @@ export class ConfirmDialogTrainComponent implements OnInit {
     if (this.process_type == "inferenceSingle") {
       this.showMessageModel = true;
       this.showMessageWeight = true;
-      this.showMessageDataset = true;
+      this.showMessageDataset = false;
       this.showDatasetInputPath = true;
     }
   }
 
   ngOnInit() {
+    this.initialiseProcessTaskManager();
+    this.initialiseStreamFlowEnvironment();
+  }
+
+  initialiseProcessTaskManager() {
+    this.processTaskManager = [];
+    this.processTaskManager.push("CELERY");
+    this.processTaskManager.push("STREAMFLOW");
+  }
+
+  initialiseStreamFlowEnvironment() {
+    this.streamFlowEnvironment = [];
+    this.streamFlowEnvironment.push({"id": 0, "type":"DCK"});
+    this.streamFlowEnvironment.push({"id": 1, "type":"DCC"});
+    this.streamFlowEnvironment.push({"id": 2, "type":"SSH"});
+    this.streamFlowEnvironment.push({"id": 3, "type":"HLM"});
+    this.streamFlowEnvironment.push({"id": 4, "type":"SLM"});
   }
 
   save() {
     this.data.inputValue = this.inputValue;
     this.data.datasetImageData = this._interactionService.projectImageURLSource;
     //this.data.datasetImageData = this.data.datasetImageData.replace("data:image/jpeg;base64,", "");
+    this.data.selectedTaskManager = this.selectedTaskManager;
+    this.data.selectedEnvironmentType = this.selectedEnvironmentType;
+    this.streamFlowEnvironment.forEach(env => {
+      if(this.selectedEnvironmentType == env.type) {
+        this.environmentId = env.id;
+      }
+    })
+    this.data.selectedEnvironment = {
+      'id': this.environmentId,
+      'type': this.selectedEnvironmentType
+    };
     this.dialogRef.close(this.data);
   }
 

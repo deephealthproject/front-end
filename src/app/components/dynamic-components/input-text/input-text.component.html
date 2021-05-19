@@ -3,12 +3,12 @@
     <div class="div-property-name">{{propertyData.name}}</div>
     <div class="div-property-content-values" #textProperty id="textProperty">
       <mat-form-field appearance="none" style="width: 90%;">
-        <textarea [disabled]="propertyData.name=='Training augmentations'" matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize"
           cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}} (change)="changeTextPropertyValue($event)"></textarea>
       </mat-form-field>
     </div>
   </div>
-  <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.allowed_value != null">
+  <!-- <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.allowed_value != null">
     <div style="display: flex;">
       <div class="div-middle-properties-left">
         <div class="div-middle-box-angle">
@@ -81,5 +81,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 </div>

@@ -189,6 +189,7 @@
     font-size: 15px; 
     color: rgb(16 104 150); 
     padding-bottom: 16px;
+    padding-top: 12px;
 }
 
 .div-middle-properties-table {
@@ -393,7 +394,7 @@ table {
     width: 30%;
     display: inline-block;
     padding-top: 28px;
-    color: rgb(235, 46, 43);
+    color: #FF0000;
     font-size: 14px;
     
 }

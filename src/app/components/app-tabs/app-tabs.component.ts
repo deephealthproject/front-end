@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
-import { MatIconRegistry } from '@angular/material';
+import { MatIconRegistry, MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
-import { Project, ProcessingObject, ProcessStatus, User } from '../power-user/power-user.component';
+import { ProcessingObject, ProcessStatus, User } from '../power-user/power-user.component';
 import { PermissionStatus } from '../delete-dialog/delete-dialog.component';
 import { AuthService } from '../../services/auth.service';
 
@@ -97,34 +97,36 @@ export class AppTabsComponent implements OnInit {
         for (let process of contentData) {
           let trainingProcess = new ProcessingObject;
           trainingProcess.projectId = process.project_id;
-          trainingProcess.processId = process.id;
-          trainingProcess.process_status = ProcessStatus[2];
+          trainingProcess.processId = process.celery_id;
+          trainingProcess.process_status = ProcessStatus[4];
           trainingProcess.process_type = "training";
           trainingProcess.unread = false;
           this._interactionService.changeStopButton(trainingProcess);
           this._interactionService.runningProcesses.push(trainingProcess);
         }
       })
+
       this._dataService.pastInferenceProcesses(currentProject.id).subscribe(data => {
         contentData = data;
         for (let process of contentData) {
           let inferenceProcess = new ProcessingObject;
           inferenceProcess.projectId = process.project_id;
-          inferenceProcess.processId = process.id;
-          inferenceProcess.process_status = ProcessStatus[2];
+          inferenceProcess.processId = process.celery_id;
+          inferenceProcess.process_status = ProcessStatus[4];
           inferenceProcess.process_type = "inference";
           inferenceProcess.unread = false;
           this._interactionService.changeStopButton(inferenceProcess);
           this._interactionService.runningProcesses.push(inferenceProcess);
         }
       });
+      
       this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
         contentData = data;
         for (let process of contentData) {
           let inferenceSingleProcess = new ProcessingObject;
           inferenceSingleProcess.projectId = process.project_id;
-          inferenceSingleProcess.processId = process.id;
-          inferenceSingleProcess.process_status = ProcessStatus[2];
+          inferenceSingleProcess.processId = process.celery_id;
+          inferenceSingleProcess.process_status = ProcessStatus[4];
           inferenceSingleProcess.process_type = "inferenceSingle";
           inferenceSingleProcess.unread = false;
           this._interactionService.changeStopButton(inferenceSingleProcess);
@@ -142,9 +144,7 @@ export class AppTabsComponent implements OnInit {
   }
 
   openNotifications() {
-    this._interactionService.changeShowStatePowerUser(false);
-    this._interactionService.changeShowStateProject(true);
-
+    this._interactionService.cleanProcessesList();
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(false);
@@ -158,6 +158,9 @@ export class AppTabsComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
-    this._interactionService.changeShowStateProjectDivOutputResults(false);
+    this._interactionService.changeStateProjectOutputResultsIsClicked(false);
+
+    this._interactionService.showProcesses();
   }
+
 }
