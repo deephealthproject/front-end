@@ -5,10 +5,18 @@ import { environment } from '../../environments/environment.prod';
 
 @Injectable()
 export class AuthService {
-  apiUrl = environment.apiBaseUrl;
-  clientID = environment.clientId;
+  constructor(
+    private httpClient: HttpClient,
+    private config: AppConfigService
+  ) {}
 
-  constructor(private httpClient: HttpClient) { }
+  get apiUrl() {
+    return this.config.getConfig()["apiBaseUrl"];
+  }
+
+  get clientID() {
+    return this.config.getConfig()["clientId"];
+  }
 
   public getAuthorizationToken(): string {
     return localStorage.getItem('accessToken');
