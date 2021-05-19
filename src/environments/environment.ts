@@ -4,8 +4,16 @@
 
 export const environment = {
   production: false,
-  // apiBaseUrl: 'http://localhost:5000'
-  apiBaseUrl: 'https://jenkins-master-deephealth-unix01.ing.unimore.it/backend'
+  // Base URL of the back-end server
+  apiBaseUrl: "http://localhost:8000/backend",
+  // OAuth Client ID that you can get registering the front-end at <apiBaseUrl>/backend/auth/applications/
+  clientId: "",
+  // 'configFile' is the path of a JSON resource containing
+  // the configuration properties that should be loaded
+  // and set without rebuild (e.g., apiBaseUrl, clientId).
+  // They overwrite the default environment settings defined at build-time
+  // and are exposed by the `AppConfigService.getConfig()` method.
+  configFile: "/assets/config.json",
 };
 
 /*
