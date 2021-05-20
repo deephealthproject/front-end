@@ -16,19 +16,19 @@ export class InputTextComponent implements PropertyInterface, OnInit {
 
   ngOnInit() {
     if (this.propertyData.name == "Training augmentations") {
-      this._interactionService.trainingAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.trainingAugmentationsValue = this.propertyData.default_value;
       this._interactionService.trainingAugmentationsName = this.propertyData.name;
     } else if (this.propertyData.name == "Validation augmentations") {
-      this._interactionService.validationAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.validationAugmentationsValue = this.propertyData.default_value;
       this._interactionService.validationAugmentationsName = this.propertyData.name;
     } else if (this.propertyData.name == "Test augmentations") {
-      this._interactionService.testAugmentationsValue = this.propertyData.allowed_value;
+      this._interactionService.testAugmentationsValue = this.propertyData.default_value;
       this._interactionService.testAugmentationsName = this.propertyData.name;
     }
   }
 
   changeTextPropertyValue(event) {
-    if (event.target.value != this.propertyData.allowed_value) {
+    if (event.target.value != this.propertyData.default_value) {
       this.textProperty.nativeElement.style.color = "#3f51b5";
     } else {
       this.textProperty.nativeElement.style.color = "black";
@@ -48,7 +48,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     var updatedTrainingAugmentationsValue;
     updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
     if (this.propertyData.name == "Training augmentations") {
-      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this.propertyData.default_value = updatedTrainingAugmentationsValue;
       this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }
@@ -58,7 +58,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     var updatedTrainingAugmentationsValue;
     updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
     if (this.propertyData.name == "Training augmentations") {
-      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this.propertyData.default_value = updatedTrainingAugmentationsValue;
       this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }
@@ -68,7 +68,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     var updatedTrainingAugmentationsValue;
     updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
     if (this.propertyData.name == "Training augmentations") {
-      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this.propertyData.default_value = updatedTrainingAugmentationsValue;
       this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }
@@ -78,7 +78,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     var updatedTrainingAugmentationsValue;
     updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
     if (this.propertyData.name == "Training augmentations") {
-      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this.propertyData.default_value = updatedTrainingAugmentationsValue;
       this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }
@@ -88,7 +88,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
     var updatedTrainingAugmentationsValue;
     updatedTrainingAugmentationsValue = "SequentialAugmentationContainer\n    AugRotate angle=[" + this._interactionService.angleXValue + "," + this._interactionService.angleYValue + "] center=(" + this._interactionService.centerXValue + "," + this._interactionService.centerYValue + ") scale=" + this._interactionService.scaleValue + " interp=\"linear\"\n\nend";
     if (this.propertyData.name == "Training augmentations") {
-      this.propertyData.allowed_value = updatedTrainingAugmentationsValue;
+      this.propertyData.default_value = updatedTrainingAugmentationsValue;
       this._interactionService.trainingAugmentationsValue = updatedTrainingAugmentationsValue;
     }
   }

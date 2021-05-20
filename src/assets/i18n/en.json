@@ -258,6 +258,7 @@
         "classes": "Output Details",
         "closeButton": "Close",
         "outputStatusOk": "Outputs details get ok",
+        "outputPendingStatus": "Please come back later to view the details!",
         "outputStatusError": "Error: Cannot get output details"
     },
     "register": {
