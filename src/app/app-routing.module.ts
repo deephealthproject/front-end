@@ -1,64 +1,52 @@
-import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
-import { RouterModule, Routes } from "@angular/router";
-import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
-
-import { AppConfigService } from "./services/config.service";
-import { AppMaterialModule } from "./app-material/app-material.module";
-import { AppTabsComponent } from "./components/app-tabs/app-tabs.component";
-import { AuthGuard } from "./auth.guard";
-import { AuthService } from "./services/auth.service";
-import { BooleanComponent } from "./components/dynamic-components/boolean/boolean.component";
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { ConfirmDialogComponent } from "./components/confirm-dialog/confirm-dialog.component";
-import { ConfirmDialogTrainComponent } from "./components/confirm-dialog-train/confirm-dialog-train.component";
-import { CreateProjectDialogComponent } from "./components/create-project-dialog/create-project-dialog.component";
-import { DeepHealthComponent } from "./components/deep-health/deep-health.component";
-import { DeleteDialogComponent } from "./components/delete-dialog/delete-dialog.component";
-import { DropdownComponent } from "./components/dynamic-components/dropdown/dropdown.component";
-import { FilterPipe } from "./components/pipes/filter.pipe";
-import { FormsModule } from "@angular/forms";
-import { HttpClient } from "@angular/common/http";
-import { InputFloatComponent } from "./components/dynamic-components/input-float/input-float.component";
-import { InputIntegerComponent } from "./components/dynamic-components/input-integer/input-integer.component";
-import { InputTextComponent } from "./components/dynamic-components/input-text/input-text.component";
-import { InterceptorService } from "./services/interceptor.service";
-import { LoginUserComponent } from "./components/login-user/login-user.component";
-import { NgModule } from "@angular/core";
-import { OAuthModule } from "angular-oauth2-oidc";
-import { PowerUserComponent } from "./components/power-user/power-user.component";
-import { ProcessFilterPipe } from "./components/pipes/process-filter.pipe";
-import { ProgressSpinnerDialogComponent } from "./components/progress-spinner-dialog/progress-spinner-dialog.component";
-import { ProjectComponent } from "./components/project/project.component";
-import { ReactiveFormsModule } from "@angular/forms";
-import { RegisterUserComponent } from "./components/register-user/register-user.component";
-import { ResetPasswordComponent } from "./components/reset-password/reset-password.component";
-import { ShowOutputDetailsDialogComponent } from "./components/show-output-details-dialog/show-output-details-dialog.component";
-import { ShowProfileDetailsDialogComponent } from "./components/show-profile-details-dialog/show-profile-details-dialog.component";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
-import { TranslateService } from "@ngx-translate/core";
-import { UpdateWeightDialogComponent } from "./components/update-weight-dialog/update-weight-dialog.component";
-import { UploadDatasetsDialogComponent } from "./components/upload-datasets-dialog/upload-datasets-dialog.component";
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { DeepHealthComponent } from './components/deep-health/deep-health.component';
+import { AppTabsComponent } from './components/app-tabs/app-tabs.component';
+import { PowerUserComponent } from './components/power-user/power-user.component';
+import { HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
+import { AppMaterialModule } from './app-material/app-material.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ProjectComponent } from './components/project/project.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogTrainComponent } from './components/confirm-dialog-train/confirm-dialog-train.component';
+import { CreateProjectDialogComponent } from './components/create-project-dialog/create-project-dialog.component';
+import { UploadDatasetsDialogComponent } from './components/upload-datasets-dialog/upload-datasets-dialog.component';
+import { UpdateWeightDialogComponent } from './components/update-weight-dialog/update-weight-dialog.component';
+import { ShowOutputDetailsDialogComponent } from './components/show-output-details-dialog/show-output-details-dialog.component';
+import { InterceptorService } from './services/interceptor.service';
+import { AuthService } from './services/auth.service';
+import { OAuthModule } from 'angular-oauth2-oidc';
+import { RegisterUserComponent } from './components/register-user/register-user.component';
+import { LoginUserComponent } from './components/login-user/login-user.component';
+import { ShowProfileDetailsDialogComponent } from './components/show-profile-details-dialog/show-profile-details-dialog.component';
+import { AuthGuard } from './auth.guard';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { FilterPipe } from './components/pipes/filter.pipe';
+import { DeleteDialogComponent } from './components/delete-dialog/delete-dialog.component';
+import { ProgressSpinnerDialogComponent } from './components/progress-spinner-dialog/progress-spinner-dialog.component';
+import { ProcessFilterPipe } from './components/pipes/process-filter.pipe';
+import { DropdownComponent } from './components/dynamic-components/dropdown/dropdown.component';
+import { InputIntegerComponent } from './components/dynamic-components/input-integer/input-integer.component';
+import { InputFloatComponent } from './components/dynamic-components/input-float/input-float.component';
+import { InputTextComponent } from './components/dynamic-components/input-text/input-text.component';
+import { BooleanComponent } from './components/dynamic-components/boolean/boolean.component';
 
 export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
-}
-
-export function initConfig(appConfig: AppConfigService) {
-  return (): Promise<any> => {
-    return appConfig.loadConfig();
-  };
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 const routes: Routes = [
-  { path: "", component: LoginUserComponent },
-  {
-    path: "power-user",
-    component: PowerUserComponent,
-    canActivate: [AuthGuard],
-  },
-  { path: "project", component: ProjectComponent, canActivate: [AuthGuard] },
-  { path: "register", component: RegisterUserComponent },
-  { path: "reset-password", component: ResetPasswordComponent },
+  { path: '', component: LoginUserComponent },
+  { path: 'power-user', component: PowerUserComponent, canActivate: [AuthGuard] },
+  { path: 'project', component: ProjectComponent, canActivate: [AuthGuard] },
+  { path: 'register', component: RegisterUserComponent },
+  { path: 'reset-password', component: ResetPasswordComponent }
 ];
 
 @NgModule({
@@ -85,7 +73,7 @@ const routes: Routes = [
     InputTextComponent,
     InputIntegerComponent,
     InputFloatComponent,
-    BooleanComponent,
+    BooleanComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -98,19 +86,18 @@ const routes: Routes = [
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: createTranslateLoader,
-        deps: [HttpClient],
-      },
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
     }),
-    OAuthModule.forRoot(),
+    OAuthModule.forRoot()
   ],
-  exports: [
-    RouterModule,
+  exports: [RouterModule,
     AppMaterialModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    TranslateModule,
+    TranslateModule
   ],
   entryComponents: [
     ConfirmDialogComponent,
@@ -122,26 +109,23 @@ const routes: Routes = [
     ShowProfileDetailsDialogComponent,
     DeleteDialogComponent,
     ProgressSpinnerDialogComponent,
-    DropdownComponent,
-    InputIntegerComponent,
-    InputFloatComponent,
+    DropdownComponent, 
+    InputIntegerComponent, 
+    InputFloatComponent, 
     InputTextComponent,
-    BooleanComponent,
+    BooleanComponent
   ],
-  providers: [
-    AppConfigService,
-    AuthService,
-    AuthGuard,
+  providers: [AuthService, AuthGuard,
     {
-      provide: HTTP_INTERCEPTORS,
-      useClass: InterceptorService,
-      multi: true,
-    },
-  ],
+    provide: HTTP_INTERCEPTORS,
+    useClass: InterceptorService,
+    multi: true
+    }
+  ]
 })
 export class AppRoutingModule {
   constructor(public translate: TranslateService) {
-    translate.setDefaultLang("en");
-    translate.use("en");
+    translate.setDefaultLang('en');
+    translate.use('en');
   }
 }

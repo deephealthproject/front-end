@@ -1,30 +1,21 @@
-import { HttpClient, HttpHeaders, HttpResponse } from "@angular/common/http";
-
-import { AppConfigService } from "../services/config.service";
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private httpClient: HttpClient,
-    private config: AppConfigService
-  ) {}
+  apiUrl = environment.apiBaseUrl;
+  clientID = environment.clientId;
 
-  get apiUrl() {
-    return this.config.getConfig()["apiBaseUrl"];
-  }
-
-  get clientID() {
-    return this.config.getConfig()["clientId"];
-  }
+  constructor(private httpClient: HttpClient) { }
 
   public getAuthorizationToken(): string {
-    return localStorage.getItem("accessToken");
+    return localStorage.getItem('accessToken');
   }
 
   public getRefreshToken(): string {
-    return localStorage.getItem("refreshToken");
+    return localStorage.getItem('refreshToken');
   }
 
   refreshToken(): Observable<HttpResponse<any>> {

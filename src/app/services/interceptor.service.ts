@@ -1,13 +1,12 @@
-import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { MatDialog, MatDialogConfig } from '@angular/material';
-import { catchError, tap } from 'rxjs/operators';
-import { empty, throwError } from 'rxjs';
-
-import { AuthService } from './auth.service';
-import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from './auth.service';
+import { throwError, empty } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { MatDialogConfig, MatDialog } from '@angular/material';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 
 @Injectable()
 export class InterceptorService implements HttpInterceptor {

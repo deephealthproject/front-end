@@ -97,7 +97,7 @@
 <mat-dialog-actions>
   <button *ngIf="!this._interactionService.uploadModelIsClicked" mat-raised-button [disabled]="inputValue == null || inputValuePath == null || requiredColorTypeImageControl.hasError('required')"
     (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
-  <button *ngIf="this._interactionService.uploadModelIsClicked" mat-raised-button [disabled]="inputValue == null || requiredModelControl.hasError('required')"
+  <button *ngIf="this._interactionService.uploadModelIsClicked" mat-raised-button [disabled]="inputValue == null || inputValuePath == null || requiredModelControl.hasError('required')"
     (click)="save()">{{'upload-dataset-dialog.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'upload-dataset-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

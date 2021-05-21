@@ -3,11 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0",
-    "build": "ng build",
-    "test": "ng test",
+    "config": "ts-node set-env.ts",
+    "start": "npm run config & ng serve --host 0.0.0.0",
+    "build": "npm run config && ng build",
+    "test": "npm run config && ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "npm run build"
   },
   "private": true,
   "dependencies": {
@@ -27,9 +29,12 @@
     "angular-oauth2-oidc": "^10.0.3",
     "angular-oauth2-oidc-jwks": "^9.0.0",
     "chart.js": "^2.9.3",
+    "colors": "^1.1.2",
     "core-js": "^2.5.4",
+    "dotenv": "^5.0.1",
     "rxjs": "^6.3.3",
     "tslib": "^1.9.0",
+    "write-file": "^1.0.0",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

@@ -1062,7 +1062,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
 
     this._interactionService.showProcesses();
-   
+
   }
 
   openEditWeights() {
@@ -1291,11 +1291,13 @@ export class ProjectComponent implements OnInit {
               this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
             });
           }
+        } else {
+          this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         }
       });
     }
     else {
-      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueLearningRate'));
       this.trainProcessStarted = false;
       this.showTrainButton = true;
       console.log('Canceled');
@@ -1424,6 +1426,7 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1525,6 +1528,7 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1862,7 +1866,7 @@ export class ProjectComponent implements OnInit {
               //     this._interactionService.centerXValue = result[2];
               //     this._interactionService.centerYValue = result[3];
               //     this._interactionService.scaleValue = result[4];
-              //     
+              //     //TODO: to be updated
               //     this._interactionService.interpDropdown.push("linear");
               //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
               //   }
@@ -1894,7 +1898,6 @@ export class ProjectComponent implements OnInit {
                 }
                 else if (entry.type == "STR") {
                   this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
-                  //TODO: to be updated
                   // if (entry.name == "Training augmentations") {
                   //   if (contentData.default != null) {
                   //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
@@ -2468,7 +2471,7 @@ export class ProjectComponent implements OnInit {
       if (this.metricChartObject == null) {
         this.showOutputRunning = false;
         this.showOutputInferenceSingle = false;
-        this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.outputPendingStatus'));
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputPendingStatus'));
       } else {
         this.showOutputRunning = true;
         this.showOutputInferenceSingle = false;

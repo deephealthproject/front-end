@@ -1,8 +1,7 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
-
-import { AppConfigService } from './config.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment.prod';
 import { Weight } from '../components/power-user/power-user.component';
 
 @Injectable({
@@ -10,16 +9,9 @@ import { Weight } from '../components/power-user/power-user.component';
 })
 
 export class DataService {
+  apiUrl = environment.apiBaseUrl;
 
-  constructor(
-    private httpClient: HttpClient,
-    private config: AppConfigService
-  ) {}
-
-  get apiUrl() {
-    return this.config.getConfig()["apiBaseUrl"];
-  }
-
+  constructor(private httpClient: HttpClient) { }
 
   allowedProperties(modelId, propertyId, datasetId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat("/allowedProperties?model_id=");
