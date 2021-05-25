@@ -265,6 +265,7 @@ export class ProjectComponent implements OnInit {
   showProgressBarProcess: boolean = false;
   outputInference: number = 0;
 
+  metricChartObject;
   values: any[];
   view: any[] = [1290, 370];
   crossEntropyChartValues = [];
@@ -1061,7 +1062,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
 
     this._interactionService.showProcesses();
-   
+
   }
 
   openEditWeights() {
@@ -1290,11 +1291,13 @@ export class ProjectComponent implements OnInit {
               this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
             });
           }
+        } else {
+          this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         }
       });
     }
     else {
-      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueLearningRate'));
       this.trainProcessStarted = false;
       this.showTrainButton = true;
       console.log('Canceled');
@@ -1365,7 +1368,7 @@ export class ProjectComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
-      if (result && this.selectedOptionModel != null && this.selectedOptionDataset != null) {
+      if (result && this.selectedOptionModel != null && this.selectedOptionWeight != null && this.selectedOptionDataset != null) {
         if (result.selectedTaskManager == "CELERY") {
           let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
           this._dataService.inferenceModel(selectedWeightId, selectedDatasetId, this._interactionService.currentProject.id, result.selectedTaskManager).subscribe(data => {
@@ -1423,6 +1426,7 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1464,7 +1468,7 @@ export class ProjectComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       console.log(result);
-      if (result && this.selectedOptionModel != null) {
+      if (result && this.selectedOptionModel != null && selectedWeightId != null) {
         this.datasetImagePath = result.inputValue;
         this.datasetImageData = result.datasetImageData;
         if (result.selectedTaskManager == "CELERY") {
@@ -1524,6 +1528,7 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1852,19 +1857,20 @@ export class ProjectComponent implements OnInit {
             }
             else if (entry.type == "STR") {
               this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-              if (entry.name == "Training augmentations") {
-                if (data[0].allowed_value != null) {
-                  var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
-                  this._interactionService.angleXValue = result[0];
-                  this._interactionService.angleYValue = result[1];
-                  this._interactionService.centerXValue = result[2];
-                  this._interactionService.centerYValue = result[3];
-                  this._interactionService.scaleValue = result[4];
-                  //TODO: to be updated
-                  this._interactionService.interpDropdown.push("linear");
-                  this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
-                }
-              }
+              //TODO: to be updated
+              // if (entry.name == "Training augmentations") {
+              //   if (data[0].allowed_value != null) {
+              //     var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
+              //     this._interactionService.angleXValue = result[0];
+              //     this._interactionService.angleYValue = result[1];
+              //     this._interactionService.centerXValue = result[2];
+              //     this._interactionService.centerYValue = result[3];
+              //     this._interactionService.scaleValue = result[4];
+              //     //TODO: to be updated
+              //     this._interactionService.interpDropdown.push("linear");
+              //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
+              //   }
+              // }
             }
             this.viewPropertiesContainer.clear();
             this.dynamicPropertyList.forEach(item => {
@@ -1892,16 +1898,16 @@ export class ProjectComponent implements OnInit {
                 }
                 else if (entry.type == "STR") {
                   this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
-                  if (entry.name == "Training augmentations") {
-                    if (contentData.default != null) {
-                      var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
-                      this._interactionService.angleXValue = result[0];
-                      this._interactionService.angleYValue = result[1];
-                      this._interactionService.centerXValue = result[2];
-                      this._interactionService.centerYValue = result[3];
-                      this._interactionService.scaleValue = result[4];
-                    }
-                  }
+                  // if (entry.name == "Training augmentations") {
+                  //   if (contentData.default != null) {
+                  //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
+                  //     this._interactionService.angleXValue = result[0];
+                  //     this._interactionService.angleYValue = result[1];
+                  //     this._interactionService.centerXValue = result[2];
+                  //     this._interactionService.centerYValue = result[3];
+                  //     this._interactionService.scaleValue = result[4];
+                  //   }
+                  // }
                 }
                 this.viewPropertiesContainer.clear();
                 this.dynamicPropertyList.forEach(item => {
@@ -2452,6 +2458,7 @@ export class ProjectComponent implements OnInit {
 
   showOutputResultsProcess(process) {
     this.fullStatusProcess = true;
+    this.showOutputRunning = false;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
@@ -2459,11 +2466,17 @@ export class ProjectComponent implements OnInit {
     let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.statusCompleteForEvolution(process.processId, this.fullStatusProcess).subscribe(data => {
       dialogRef.close();
-      this.showOutputRunning = true;
-      this.showOutputInferenceSingle = false;
       this.showGraphicData(data);
       this.outputResultsDetailProcessId = process.processId;
-      this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
+      if (this.metricChartObject == null) {
+        this.showOutputRunning = false;
+        this.showOutputInferenceSingle = false;
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputPendingStatus'));
+      } else {
+        this.showOutputRunning = true;
+        this.showOutputInferenceSingle = false;
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputStatusOk'));
+      }
       this._interactionService.changeStopButton(process);
     }, error => {
       dialogRef.close();
@@ -2540,6 +2553,7 @@ export class ProjectComponent implements OnInit {
 
   showGraphicData(contentData) {
     var outputsResults = contentData.status.process_data;
+    this.metricChartObject = null;
     let outputEpoch;
     let currentBatch;
     let totalBatch;
@@ -2551,7 +2565,6 @@ export class ProjectComponent implements OnInit {
     let varInference = "Inference";
     let varOutputInference;
     let lossChartObject;
-    let metricChartObject;
     let chartLossValuesList = [
       {
         "name": "Evolution of the process",
@@ -2581,8 +2594,8 @@ export class ProjectComponent implements OnInit {
             chartLossValuesList[0].series.push(lossChartObject);
             Object.assign(this, { chartLossValuesList });
 
-            metricChartObject = { name: outputEpoch, value: parseFloat(outputMetric) };
-            chartMetricValuesList[0].series.push(metricChartObject);
+            this.metricChartObject = { name: outputEpoch, value: parseFloat(outputMetric) };
+            chartMetricValuesList[0].series.push(this.metricChartObject);
             Object.assign(this, { chartMetricValuesList });
           }
         }

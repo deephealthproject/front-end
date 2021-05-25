@@ -49,5 +49,6 @@
 
 <mat-dialog-actions>
   <button mat-raised-button *ngIf="showMessageModel || showMessageDataset || showMessageWeight" [disabled]="!showMessageModel || !showMessageWeight || !selectedTaskManager" (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
+  <button mat-raised-button *ngIf="!showMessageModel || !showMessageWeight" (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'confirm-dialog-train.CancelButton' | translate}}</button>
 </mat-dialog-actions>

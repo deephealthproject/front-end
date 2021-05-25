@@ -89,7 +89,8 @@
         "finishedTrainProcessMessage": "The train process has finished!",
         "finishedInferenceProcessMessage": "The inference process has finished!",
         "finishedProcessMessage": "The process has finished!",
-        "errorStartedTrainProcessMessage": "Error: Please select a learning rate value between 0 and 0.99999!",
+        "errorValueLearningRate": "Error: Please select a learning rate value between 0 and 0.99999!",
+        "errorStartedTrainProcessMessage": "Error: Please select all required data to launch a process!",
         "stoppedProcessMessage": "The process stopped!",
         "uploadDatasetAndModelTitle": "Upload dataset and model",
         "uploadDatasetButton": "Upload dataset",
@@ -258,6 +259,7 @@
         "classes": "Output Details",
         "closeButton": "Close",
         "outputStatusOk": "Outputs details get ok",
+        "outputPendingStatus": "Please come back later to view the details!",
         "outputStatusError": "Error: Cannot get output details"
     },
     "register": {

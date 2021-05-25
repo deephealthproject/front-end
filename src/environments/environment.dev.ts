@@ -1,5 +1,6 @@
 export const environment = {
     production: false,
     name: 'dev',
-    apiBaseUrl: 'http://localhost:8089/wrapper-backend'
+    apiBaseUrl: 'https://test_url_prod_orig_dev_env',
+    clientId: ''
 };
