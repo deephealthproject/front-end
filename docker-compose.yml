@@ -13,3 +13,5 @@ services:
     restart: unless-stopped
     environment:
         - JAVA_OPTS="-Xmx4548m -Xss512k"
+    volumes:
+      - ./config.json:/usr/src/app/src/assets/config.json

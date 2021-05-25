@@ -129,7 +129,17 @@
                             </div>
                             <div>
                                 <div class="div-middle-properties">
-                                    <ng-container #viewPropertiesContainer></ng-container>
+                                    <!-- <ng-container #viewPropertiesContainer></ng-container> -->
+                                    <ng-container #viewLearningRateContainer></ng-container>
+                                    <ng-container #viewEpochsContainer></ng-container>
+                                    <ng-container #viewBatchSizeContainer></ng-container>
+                                    <ng-container #viewMetricContainer></ng-container>
+                                    <ng-container #viewLossFunctionContainer></ng-container>
+                                    <ng-container #viewInputWidthContainer></ng-container>
+                                    <ng-container #viewInputHeightContainer></ng-container>
+                                    <ng-container #viewTrainingAugmentationsContainer></ng-container>
+                                    <ng-container #viewValidationAugmentationsContainer></ng-container>
+                                    <ng-container #viewTestAugmentationsContainer></ng-container>
                                     <div style="padding-left: 46%; padding-bottom: 10px;" *ngIf="this.showTrainButton">
                                         <div #trainButton id=trainButton class="div-middle-inference-button">
                                             <button mat-flat-button color="primary" (click)="trainModel()" [disabled]="disabledTrainButton">

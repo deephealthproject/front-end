@@ -1,16 +1,15 @@
 <!-- <div [ngClass]="{'div-training-property': propertyData.name == 'Training augmentations' && propertyData.default_value != null}"> -->
-<div>
+<div>  
   <div style="padding-left: 15%; padding-right: 15%">
     <div class="div-property-name">{{propertyData.name}}</div>
     <div class="div-property-content-values" #textProperty id="textProperty">
       <mat-form-field appearance="none" style="width: 90%;">
-        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.default_value}}
-          (change)="changeTextPropertyValue($event)"></textarea>
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.default_value}} (change)="changeTextPropertyValue($event)"></textarea>
       </mat-form-field>
     </div>
   </div>
-  <!-- TODO: to be updated -->
-  <!-- <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.allowed_value != null">
+  <!-- <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.default_value != null">
     <div style="display: flex;">
       <div class="div-middle-properties-left">
         <div class="div-middle-box-angle">

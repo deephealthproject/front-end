@@ -374,6 +374,16 @@ export class ProjectComponent implements OnInit {
 
   @Input() dynamicPropertyList: PropertyItem[] = [];
   @ViewChild('viewPropertiesContainer', { read: ViewContainerRef }) viewPropertiesContainer: ViewContainerRef;
+  @ViewChild('viewLearningRateContainer', { read: ViewContainerRef }) viewLearningRateContainer: ViewContainerRef;
+  @ViewChild('viewEpochsContainer', { read: ViewContainerRef }) viewEpochsContainer: ViewContainerRef;
+  @ViewChild('viewBatchSizeContainer', { read: ViewContainerRef }) viewBatchSizeContainer: ViewContainerRef;
+  @ViewChild('viewInputWidthContainer', { read: ViewContainerRef }) viewInputWidthContainer: ViewContainerRef;
+  @ViewChild('viewInputHeightContainer', { read: ViewContainerRef }) viewInputHeightContainer: ViewContainerRef;
+  @ViewChild('viewLossFunctionContainer', { read: ViewContainerRef }) viewLossFunctionContainer: ViewContainerRef;
+  @ViewChild('viewMetricContainer', { read: ViewContainerRef }) viewMetricContainer: ViewContainerRef;
+  @ViewChild('viewTrainingAugmentationsContainer', { read: ViewContainerRef }) viewTrainingAugmentationsContainer: ViewContainerRef;
+  @ViewChild('viewValidationAugmentationsContainer', { read: ViewContainerRef }) viewValidationAugmentationsContainer: ViewContainerRef;
+  @ViewChild('viewTestAugmentationsContainer', { read: ViewContainerRef }) viewTestAugmentationsContainer: ViewContainerRef;
 
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
@@ -1151,19 +1161,19 @@ export class ProjectComponent implements OnInit {
     let trainingAugmentations = new PropertyInstance;
     trainingAugmentations.name = this._interactionService.trainingAugmentationsName;
     trainingAugmentations.value = this._interactionService.trainingAugmentationsValue;
-    if (this._interactionService.trainingAugmentationsValue != null) {
+    if (this._interactionService.trainingAugmentationsValue != null || this._interactionService.trainingAugmentationsValue != " ") {
       selectedProperties.push(trainingAugmentations);
     }
     let validationAugmentations = new PropertyInstance;
     validationAugmentations.name = this._interactionService.validationAugmentationsName;
     validationAugmentations.value = this._interactionService.validationAugmentationsValue;
-    if (this._interactionService.validationAugmentationsValue != null) {
+    if (this._interactionService.validationAugmentationsValue != null || this._interactionService.validationAugmentationsValue != " ") {
       selectedProperties.push(validationAugmentations);
     }
     let testAugmentations = new PropertyInstance;
     testAugmentations.name = this._interactionService.testAugmentationsName;
     testAugmentations.value = this._interactionService.testAugmentationsValue;
-    if (this._interactionService.testAugmentationsValue != null) {
+    if (this._interactionService.testAugmentationsValue != null || this._interactionService.testAugmentationsValue != " ") {
       selectedProperties.push(testAugmentations);
     }
     let booleanProperty = new PropertyInstance;
@@ -1291,13 +1301,11 @@ export class ProjectComponent implements OnInit {
               this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
             });
           }
-        } else {
-          this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         }
       });
     }
     else {
-      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueLearningRate'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
       this.trainProcessStarted = false;
       this.showTrainButton = true;
       console.log('Canceled');
@@ -1426,7 +1434,6 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
-        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1528,7 +1535,6 @@ export class ProjectComponent implements OnInit {
         }
       }
       else {
-        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
         this.inferenceProcessStarted = false;
         console.log('Canceled');
       }
@@ -1811,7 +1817,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.selectedModel = event.value;
     this.showTrainButton = true;
     this.getWeights(this._interactionService.selectedModel);
-    this.getAllowedProperties(this._interactionService.selectedModel, null);
+    this.getAllowedProperties(this._interactionService.selectedModel, this._interactionService.selectedDataset);
   }
 
   triggerSelectedDataset(event) {
@@ -1822,7 +1828,17 @@ export class ProjectComponent implements OnInit {
   //dropdown functions
   getAllowedProperties(modelName: string, datasetName: string) {
     this._interactionService.interpDropdown = [];
-    this.viewPropertiesContainer.clear();
+    //this.viewPropertiesContainer.clear();
+    this.viewLearningRateContainer.clear();
+    this.viewEpochsContainer.clear();
+    this.viewBatchSizeContainer.clear();
+    this.viewInputWidthContainer.clear();
+    this.viewInputHeightContainer.clear();
+    this.viewLossFunctionContainer.clear();
+    this.viewMetricContainer.clear();
+    this.viewTrainingAugmentationsContainer.clear();
+    this.viewValidationAugmentationsContainer.clear();
+    this.viewTestAugmentationsContainer.clear();
 
     let selectedModelId;
     let selectedDatasetId;
@@ -1858,7 +1874,7 @@ export class ProjectComponent implements OnInit {
             else if (entry.type == "STR") {
               this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
               //TODO: to be updated
-              // if (entry.name == "Training augmentations") {
+              //if (entry.name == "Training augmentations") {
               //   if (data[0].allowed_value != null) {
               //     var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
               //     this._interactionService.angleXValue = result[0];
@@ -1866,19 +1882,84 @@ export class ProjectComponent implements OnInit {
               //     this._interactionService.centerXValue = result[2];
               //     this._interactionService.centerYValue = result[3];
               //     this._interactionService.scaleValue = result[4];
-              //     //TODO: to be updated
               //     this._interactionService.interpDropdown.push("linear");
               //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
               //   }
               // }
             }
-            this.viewPropertiesContainer.clear();
+            //this.viewPropertiesContainer.clear();
+            this.viewLearningRateContainer.clear();
+            this.viewEpochsContainer.clear();
+            this.viewBatchSizeContainer.clear();
+            this.viewInputWidthContainer.clear();
+            this.viewInputHeightContainer.clear();
+            this.viewLossFunctionContainer.clear();
+            this.viewMetricContainer.clear();
+            this.viewTrainingAugmentationsContainer.clear();
+            this.viewValidationAugmentationsContainer.clear();
+            this.viewTestAugmentationsContainer.clear();
             this.dynamicPropertyList.forEach(item => {
-              const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+              if (item.propertyData.name == "Learning rate") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
 
-              const componentRef = this.viewPropertiesContainer.createComponent<PropertyItem>(componentFactory);
+                const componentRef = this.viewLearningRateContainer.createComponent<PropertyItem>(componentFactory);
 
-              componentRef.instance.propertyData = item.propertyData;
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Epochs") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewEpochsContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Batch size") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewBatchSizeContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Loss function") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewLossFunctionContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Metric") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewMetricContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Input width") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewInputWidthContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Input height") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewInputHeightContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Training augmentations") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewTrainingAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Validation augmentations") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewValidationAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              } else if (item.propertyData.name == "Test augmentations") {
+                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                const componentRef = this.viewTestAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                componentRef.instance.propertyData = item.propertyData;
+              }
             });
           }
           else {
@@ -1898,6 +1979,7 @@ export class ProjectComponent implements OnInit {
                 }
                 else if (entry.type == "STR") {
                   this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+                  //TODO: to be updated
                   // if (entry.name == "Training augmentations") {
                   //   if (contentData.default != null) {
                   //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
@@ -1909,13 +1991,80 @@ export class ProjectComponent implements OnInit {
                   //   }
                   // }
                 }
-                this.viewPropertiesContainer.clear();
+                //this.viewPropertiesContainer.clear();
+                this.viewLearningRateContainer.clear();
+                this.viewEpochsContainer.clear();
+                this.viewBatchSizeContainer.clear();
+                this.viewInputWidthContainer.clear();
+                this.viewInputHeightContainer.clear();
+                this.viewLossFunctionContainer.clear();
+                this.viewMetricContainer.clear();
+                this.viewTrainingAugmentationsContainer.clear();
+                this.viewValidationAugmentationsContainer.clear();
+                this.viewTestAugmentationsContainer.clear();
+
                 this.dynamicPropertyList.forEach(item => {
-                  const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+                  if (item.propertyData.name == "Learning rate") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
 
-                  const componentRef = this.viewPropertiesContainer.createComponent<PropertyItem>(componentFactory);
+                    const componentRef = this.viewLearningRateContainer.createComponent<PropertyItem>(componentFactory);
 
-                  componentRef.instance.propertyData = item.propertyData;
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Epochs") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewEpochsContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Batch size") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewBatchSizeContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Loss function") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewLossFunctionContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Metric") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewMetricContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Input width") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewInputWidthContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Input height") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewInputHeightContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Training augmentations") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewTrainingAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Validation augmentations") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewValidationAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  } else if (item.propertyData.name == "Test augmentations") {
+                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+                    const componentRef = this.viewTestAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+
+                    componentRef.instance.propertyData = item.propertyData;
+                  }
                 });
               }
             })
@@ -2044,7 +2193,17 @@ export class ProjectComponent implements OnInit {
         this._interactionService.resetProjectsList(data.body);
         this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username !== this._interactionService.projectOwner);
         console.log(data.body);
-        this.viewPropertiesContainer.clear();
+        //this.viewPropertiesContainer.clear();
+        this.viewLearningRateContainer.clear();
+        this.viewEpochsContainer.clear();
+        this.viewBatchSizeContainer.clear();
+        this.viewInputWidthContainer.clear();
+        this.viewInputHeightContainer.clear();
+        this.viewLossFunctionContainer.clear();
+        this.viewMetricContainer.clear();
+        this.viewTrainingAugmentationsContainer.clear();
+        this.viewValidationAugmentationsContainer.clear();
+        this.viewTestAugmentationsContainer.clear();
         this.showTrainButton = false;
       }, error => {
         this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
@@ -2466,12 +2625,12 @@ export class ProjectComponent implements OnInit {
     let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
     this._dataService.statusCompleteForEvolution(process.processId, this.fullStatusProcess).subscribe(data => {
       dialogRef.close();
-      this.showGraphicData(data);
       this.outputResultsDetailProcessId = process.processId;
-      if (this.metricChartObject == null) {
+      this.showGraphicData(data);
+      if (process.process_type == "training" && this.metricChartObject == null) {
         this.showOutputRunning = false;
         this.showOutputInferenceSingle = false;
-        this._interactionService.openSnackBarOkRequest(this.translate.instant('output-details-dialog.outputPendingStatus'));
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.outputPendingStatus'));
       } else {
         this.showOutputRunning = true;
         this.showOutputInferenceSingle = false;
