@@ -93,7 +93,8 @@ export enum ProcessStatus {
   STARTED,
   RETRY,
   FAILURE,
-  SUCCESS
+  SUCCESS,
+  REVOKED
 }
 
 export class ProcessingObject {
@@ -107,6 +108,8 @@ export class ProcessingObject {
   showDisabledButton: boolean;
   color;
   training_id;
+  process_created_date;
+  process_updated_date;
 }
 
 export class ProcessData {
@@ -424,6 +427,8 @@ export class PowerUserComponent implements OnInit {
       contentData = data;
       for (let process of contentData) {
         let trainingProcess = new ProcessingObject;
+        trainingProcess.process_created_date = process.created;
+        trainingProcess.process_updated_date = process.updated;
         trainingProcess.projectId = process.project_id;
         trainingProcess.processId = process.celery_id;
         trainingProcess.process_status = ProcessStatus[4];
@@ -439,6 +444,8 @@ export class PowerUserComponent implements OnInit {
       contentData = data;
       for (let process of contentData) {
         let inferenceProcess = new ProcessingObject;
+        inferenceProcess.process_created_date = process.created;
+        inferenceProcess.process_updated_date = process.updated;
         inferenceProcess.projectId = process.project_id;
         inferenceProcess.processId = process.celery_id;
         inferenceProcess.process_status = ProcessStatus[4];
@@ -454,6 +461,8 @@ export class PowerUserComponent implements OnInit {
       contentData = data;
       for (let process of contentData) {
         let inferenceSingleProcess = new ProcessingObject;
+        inferenceSingleProcess.process_created_date = process.created;
+        inferenceSingleProcess.process_updated_date = process.updated;
         inferenceSingleProcess.projectId = process.project_id;
         inferenceSingleProcess.processId = process.celery_id;
         inferenceSingleProcess.process_status = ProcessStatus[4];

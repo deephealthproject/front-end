@@ -1,0 +1,49 @@
+.mat-dialog-container {
+    width: 100%;
+    height: 100%;
+}
+
+mat-dialog-content {
+    overflow: auto;
+}
+
+.div-class-allowed-value {
+    padding-bottom: 20px; 
+    color:#336E9F;
+}
+
+.div-class-default-value {
+    padding-top: 20px; 
+    padding-bottom: 20px; 
+    color:#336E9F;
+} 
+
+input {
+    border-bottom: 0.5px solid;
+    border-color:#949494;
+}
+
+.div-icon-edit {
+    cursor: pointer;
+    padding-top: 10px; 
+    color: #3180ae;
+}
+
+.div-preview-list {
+    width: 100%;
+    height: 100%;
+    border: 0.5px solid; 
+    border-color:#949494;
+    overflow: auto;
+}
+
+.div-input-allowed-value {
+    display: inline-block; 
+    width: 80%;
+}
+
+.div-add-allowed-value-button {
+    display: inline-block; 
+    width: calc(20% - 20px); 
+    padding-left: 20px;
+}

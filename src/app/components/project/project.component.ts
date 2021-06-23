@@ -6,7 +6,7 @@ import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dia
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PropertyInstance, Project, Model, Dataset, Weight, User, PermissionStatus, ProcessingObject, ProcessStatus, ItemToDelete, TypeOfItemToDelete } from '../power-user/power-user.component';
+import { PropertyInstance, Project, Model, Weight, User, PermissionStatus, ProcessingObject, ProcessStatus, ItemToDelete, TypeOfItemToDelete } from '../power-user/power-user.component';
 import { UploadDatasetsDialogComponent } from '../upload-datasets-dialog/upload-datasets-dialog.component';
 import { UpdateWeightDialogComponent } from '../update-weight-dialog/update-weight-dialog.component';
 import { ShowOutputDetailsDialogComponent } from '../show-output-details-dialog/show-output-details-dialog.component';
@@ -32,7 +32,8 @@ export enum UploadModelStatus {
   STARTED,
   RETRY,
   FAILURE,
-  SUCCESS
+  SUCCESS,
+  REVOKED
 }
 
 export class DropdownResponse {
@@ -66,6 +67,7 @@ export class ProjectComponent implements OnInit {
   editWeightsIsClicked = false;
   outputResultsIsClicked = false;
   editProjectIsClicked = false;
+  createModelAllowedPropertiesIsClicked = false;
 
   //divs show status
   divMiddleShowStatus = true;
@@ -76,6 +78,7 @@ export class ProjectComponent implements OnInit {
   divEditWeightsShowStatus = false;
   divOutputResultsShowStatus = false;
   divEditProjectShowStatus = false;
+  divCreateModelAllowedPropertiesShowStatus = false;
 
   //Task radio buttons
   tasks: Task[];
@@ -175,7 +178,6 @@ export class ProjectComponent implements OnInit {
   //training/inference processes
   trainProcessStarted = false;
   inferenceProcessStarted = false;
-  disabledTrainButton = false;
   disabledInferenceButton = false;
   disabledInferenceSingleButton = false;
   showInference = false;
@@ -385,6 +387,17 @@ export class ProjectComponent implements OnInit {
   @ViewChild('viewValidationAugmentationsContainer', { read: ViewContainerRef }) viewValidationAugmentationsContainer: ViewContainerRef;
   @ViewChild('viewTestAugmentationsContainer', { read: ViewContainerRef }) viewTestAugmentationsContainer: ViewContainerRef;
 
+  @ViewChild('viewLearningRateContainer2', { read: ViewContainerRef }) viewLearningRateContainer2: ViewContainerRef;
+  @ViewChild('viewEpochsContainer2', { read: ViewContainerRef }) viewEpochsContainer2: ViewContainerRef;
+  @ViewChild('viewBatchSizeContainer2', { read: ViewContainerRef }) viewBatchSizeContainer2: ViewContainerRef;
+  @ViewChild('viewInputWidthContainer2', { read: ViewContainerRef }) viewInputWidthContainer2: ViewContainerRef;
+  @ViewChild('viewInputHeightContainer2', { read: ViewContainerRef }) viewInputHeightContainer2: ViewContainerRef;
+  @ViewChild('viewLossFunctionContainer2', { read: ViewContainerRef }) viewLossFunctionContainer2: ViewContainerRef;
+  @ViewChild('viewMetricContainer2', { read: ViewContainerRef }) viewMetricContainer2: ViewContainerRef;
+  @ViewChild('viewTrainingAugmentationsContainer2', { read: ViewContainerRef }) viewTrainingAugmentationsContainer2: ViewContainerRef;
+  @ViewChild('viewValidationAugmentationsContainer2', { read: ViewContainerRef }) viewValidationAugmentationsContainer2: ViewContainerRef;
+  @ViewChild('viewTestAugmentationsContainer2', { read: ViewContainerRef }) viewTestAugmentationsContainer2: ViewContainerRef;
+
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();
     this.initialiseDivRightClickedButtons();
@@ -443,7 +456,7 @@ export class ProjectComponent implements OnInit {
   initialiseTrainButton() {
     this._interactionService.trainButtonState$.subscribe(
       state => {
-        this.disabledTrainButton = state;
+        this._interactionService.disabledTrainButton = state;
       }
     )
   }
@@ -604,7 +617,13 @@ export class ProjectComponent implements OnInit {
       state => {
         this.divEditProjectShowStatus = state;
       }
-    )
+    );
+
+    this._interactionService.projectDivCreateModelAllowedPropertiesShowStatus$.subscribe(
+      state => {
+        this.divCreateModelAllowedPropertiesShowStatus = state;
+      }
+    );
   }
 
   initiliaseSelectedOptions() {
@@ -703,7 +722,13 @@ export class ProjectComponent implements OnInit {
       state => {
         this.editWeightsIsClicked = state;
       }
-    )
+    );
+
+    this._interactionService.projectCreateModelAllowedPropertiesIsClicked$.subscribe(
+      state => {
+        this.createModelAllowedPropertiesIsClicked = state;
+      }
+    );
 
     this._interactionService.projectOutputResultsIsClicked$.subscribe(
       state => {
@@ -1006,7 +1031,9 @@ export class ProjectComponent implements OnInit {
         process.unread = true;
         this._interactionService.increaseNotificationsNumber();
       }
-      else if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+      else if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
+        process.unread = true;
+        this._interactionService.increaseNotificationsNumber();
         this._interactionService.openSnackBarBadRequest(this.translate.instant('upload-dataset-dialog.errorUploadModelProcessMessage'));
       }
     })
@@ -1021,12 +1048,20 @@ export class ProjectComponent implements OnInit {
   }
 
   openConfiguration() {
+    this.initialisePropertiesContainers();
+    this._interactionService.resetSelectedOptions();
+    this.weightDropdown = [];
+    this.showTrainButton = false;
+    this._interactionService.editAllowedProperties = false;
+
+    this._interactionService.resetSelectedOptions();
     this._interactionService.changeShowStateProjectDivLeft(true);
     this._interactionService.changeShowStateProjectDivMiddle(true);
     this._interactionService.changeShowStateProjectDivEditProject(false);
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(true);
@@ -1034,6 +1069,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
@@ -1044,6 +1080,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(true);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
@@ -1051,6 +1088,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(true);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
@@ -1062,6 +1100,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivNotifications(true);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
@@ -1069,10 +1108,10 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(true);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
 
     this._interactionService.showProcesses();
-
   }
 
   openEditWeights() {
@@ -1084,6 +1123,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(true);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
@@ -1091,6 +1131,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(true);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
@@ -1104,6 +1145,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(false);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
@@ -1111,6 +1153,30 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
+    this._interactionService.changeStateProjectOutputResultsIsClicked(false);
+  }
+
+  openCreateModelAllowedProperties() {
+    this._interactionService.resetSelectedOptions();
+    this.initialisePropertiesContainers();
+    this._interactionService.editAllowedProperties = true;
+
+    this._interactionService.changeShowStateProjectDivLeft(false);
+    this._interactionService.changeShowStateProjectDivMiddle(false);
+    this._interactionService.changeShowStateProjectDivEditProject(false);
+    this._interactionService.changeShowStateProjectDivNetwork(false);
+    this._interactionService.changeShowStateProjectDivNotifications(false);
+    this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(true);
+    this._interactionService.changeShowStateProjectDivOutputResults(false);
+
+    this._interactionService.changeStateProjectConfigurationIsClicked(false);
+    this._interactionService.changeStateProjectEditProjectIsClicked(false);
+    this._interactionService.changeStateProjectNetworkIsClicked(false);
+    this._interactionService.changeStateProjectNotificationsIsClicked(false);
+    this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(true);
     this._interactionService.changeStateProjectOutputResultsIsClicked(false);
   }
 
@@ -1120,68 +1186,7 @@ export class ProjectComponent implements OnInit {
     this.trainProcessStarted = true;
 
     let selectedProperties: PropertyInstance[] = [];
-
-    let learning = new PropertyInstance;
-    learning.name = this._interactionService.learningRateName;
-    learning.value = this._interactionService.learningRateValue;
-    if (learning.value >= 0.00000 && learning.value <= 0.99999) {
-      selectedProperties.push(learning);
-    }
-    else {
-      this.trainProcessStarted = false;
-    }
-    let metric = new PropertyInstance;
-    metric.name = this._interactionService.metricName;
-    metric.value = this._interactionService.metricValue;
-    selectedProperties.push(metric);
-    let loss = new PropertyInstance;
-    loss.name = this._interactionService.lossFunctionName;
-    loss.value = this._interactionService.lossFunctionValue;
-    selectedProperties.push(loss);
-    let epochs = new PropertyInstance;
-    epochs.name = this._interactionService.epochName;
-    epochs.value = this._interactionService.epochValue;
-    selectedProperties.push(epochs);
-    let batchSize = new PropertyInstance;
-    batchSize.name = this._interactionService.batchSizeName;
-    batchSize.value = this._interactionService.batchSizeValue;
-    selectedProperties.push(batchSize);
-    let inputHeight = new PropertyInstance;
-    inputHeight.name = this._interactionService.inputHeightName;
-    inputHeight.value = this._interactionService.inputHeightValue;
-    if (this._interactionService.inputHeightValue != null) {
-      selectedProperties.push(inputHeight);
-    }
-    let inputWidth = new PropertyInstance;
-    inputWidth.name = this._interactionService.inputWidthName;
-    inputWidth.value = this._interactionService.inputWidthValue;
-    if (this._interactionService.inputWidthValue != null) {
-      selectedProperties.push(inputWidth);
-    }
-    let trainingAugmentations = new PropertyInstance;
-    trainingAugmentations.name = this._interactionService.trainingAugmentationsName;
-    trainingAugmentations.value = this._interactionService.trainingAugmentationsValue;
-    if (this._interactionService.trainingAugmentationsValue != null || this._interactionService.trainingAugmentationsValue != " ") {
-      selectedProperties.push(trainingAugmentations);
-    }
-    let validationAugmentations = new PropertyInstance;
-    validationAugmentations.name = this._interactionService.validationAugmentationsName;
-    validationAugmentations.value = this._interactionService.validationAugmentationsValue;
-    if (this._interactionService.validationAugmentationsValue != null || this._interactionService.validationAugmentationsValue != " ") {
-      selectedProperties.push(validationAugmentations);
-    }
-    let testAugmentations = new PropertyInstance;
-    testAugmentations.name = this._interactionService.testAugmentationsName;
-    testAugmentations.value = this._interactionService.testAugmentationsValue;
-    if (this._interactionService.testAugmentationsValue != null || this._interactionService.testAugmentationsValue != " ") {
-      selectedProperties.push(testAugmentations);
-    }
-    let booleanProperty = new PropertyInstance;
-    booleanProperty.name = this._interactionService.booleanPropertyName;
-    booleanProperty.value = this._interactionService.booleanPropertyValue;
-    if (this._interactionService.booleanPropertyValue != false) {
-      selectedProperties.push(booleanProperty);
-    }
+    this.populatePropertiesForTrainingProcess(selectedProperties);
 
     let selectedModelId;
     let modelList = this._interactionService.getModelsByTaskArray();
@@ -1252,13 +1257,14 @@ export class ProjectComponent implements OnInit {
               this.trainProcessStarted = true;
               this.showTrainButton = true;
               let process = new ProcessingObject;
+              //data creare
               process.projectId = this._interactionService.currentProject.id;
               process.processId = data.body.process_id;
               process.process_status = ProcessStatus[1];
               process.process_type = this.process_type;
               process.training_id = data.body.training_id;
               process.unread = true;
-              this.disabledTrainButton = false;
+              this._interactionService.disabledTrainButton = false;
               this._interactionService.runningProcesses.push(process);
               this._interactionService.changeStopButton(process);
               this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
@@ -1281,13 +1287,14 @@ export class ProjectComponent implements OnInit {
               this.trainProcessStarted = true;
               this.showTrainButton = true;
               let process = new ProcessingObject;
+              //data creare
               process.projectId = this._interactionService.currentProject.id;
               process.processId = data.body.process_id;
               process.process_status = ProcessStatus[1];
               process.process_type = this.process_type;
               process.training_id = data.body.training_id;
               process.unread = true;
-              this.disabledTrainButton = false;
+              this._interactionService.disabledTrainButton = false;
               this._interactionService.runningProcesses.push(process);
               this._interactionService.changeStopButton(process);
               this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
@@ -1305,10 +1312,79 @@ export class ProjectComponent implements OnInit {
       });
     }
     else {
-      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessMessage'));
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorMessageLearningrateLimits'));
       this.trainProcessStarted = false;
       this.showTrainButton = true;
       console.log('Canceled');
+    }
+  }
+
+  populatePropertiesForTrainingProcess(selectedProperties) {
+    let learning = new PropertyInstance;
+    learning.name = this._interactionService.learningRateName;
+    learning.value = this._interactionService.learningRateValue;
+    if (learning.value >= 0.00001 && learning.value <= 0.01) {
+      selectedProperties.push(learning);
+    }
+    else {
+      this.trainProcessStarted = false;
+    }
+    let metric = new PropertyInstance;
+    metric.name = this._interactionService.metricName;
+    metric.value = this._interactionService.metricValue;
+    selectedProperties.push(metric);
+    let loss = new PropertyInstance;
+    loss.name = this._interactionService.lossFunctionName;
+    loss.value = this._interactionService.lossFunctionValue;
+    selectedProperties.push(loss);
+    let epochs = new PropertyInstance;
+    epochs.name = this._interactionService.epochName;
+    epochs.value = this._interactionService.epochValue;
+    if (epochs.value >=1 && epochs.value <= 300) {
+      selectedProperties.push(epochs);
+    }
+    else {
+      this.trainProcessStarted = false;
+    }
+    let batchSize = new PropertyInstance;
+    batchSize.name = this._interactionService.batchSizeName;
+    batchSize.value = this._interactionService.batchSizeValue;
+    selectedProperties.push(batchSize);
+    let inputHeight = new PropertyInstance;
+    inputHeight.name = this._interactionService.inputHeightName;
+    inputHeight.value = this._interactionService.inputHeightValue;
+    if (this._interactionService.inputHeightValue != null) {
+      selectedProperties.push(inputHeight);
+    }
+    let inputWidth = new PropertyInstance;
+    inputWidth.name = this._interactionService.inputWidthName;
+    inputWidth.value = this._interactionService.inputWidthValue;
+    if (this._interactionService.inputWidthValue != null) {
+      selectedProperties.push(inputWidth);
+    }
+    let trainingAugmentations = new PropertyInstance;
+    trainingAugmentations.name = this._interactionService.trainingAugmentationsName;
+    trainingAugmentations.value = this._interactionService.trainingAugmentationsValue;
+    if (this._interactionService.trainingAugmentationsValue != null || this._interactionService.trainingAugmentationsValue != " ") {
+      selectedProperties.push(trainingAugmentations);
+    }
+    let validationAugmentations = new PropertyInstance;
+    validationAugmentations.name = this._interactionService.validationAugmentationsName;
+    validationAugmentations.value = this._interactionService.validationAugmentationsValue;
+    if (this._interactionService.validationAugmentationsValue != null || this._interactionService.validationAugmentationsValue != " ") {
+      selectedProperties.push(validationAugmentations);
+    }
+    let testAugmentations = new PropertyInstance;
+    testAugmentations.name = this._interactionService.testAugmentationsName;
+    testAugmentations.value = this._interactionService.testAugmentationsValue;
+    if (this._interactionService.testAugmentationsValue != null || this._interactionService.testAugmentationsValue != " ") {
+      selectedProperties.push(testAugmentations);
+    }
+    let booleanProperty = new PropertyInstance;
+    booleanProperty.name = this._interactionService.booleanPropertyName;
+    booleanProperty.value = this._interactionService.booleanPropertyValue;
+    if (this._interactionService.booleanPropertyValue != false) {
+      selectedProperties.push(booleanProperty);
     }
   }
 
@@ -1320,9 +1396,9 @@ export class ProjectComponent implements OnInit {
       }
     }
     if (nrOfRunningProcesses >= 1) {
-      this.disabledTrainButton = true;
+      this._interactionService.disabledTrainButton = true;
     } else {
-      this.disabledTrainButton = false;
+      this._interactionService.disabledTrainButton = false;
     }
   }
 
@@ -1387,6 +1463,7 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
             let process = new ProcessingObject;
             this.inferenceProcessStarted = true;
+            //???process.process_created_date = data.body.created;
             process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
             process.process_status = ProcessStatus[1];
@@ -1414,6 +1491,7 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
             let process = new ProcessingObject;
             this.inferenceProcessStarted = true;
+            //???process.process_created_date = data.body.created;
             process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
             process.process_status = ProcessStatus[1];
@@ -1488,6 +1566,7 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
             let process = new ProcessingObject;
             this.inferenceProcessStarted = true;
+            //data creare
             process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
             process.process_status = ProcessStatus[1];
@@ -1515,6 +1594,7 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.startedInferenceProcessMessage'));
             let process = new ProcessingObject;
             this.inferenceProcessStarted = true;
+            //data creare
             process.projectId = this._interactionService.currentProject.id;
             process.processId = data.body.process_id;
             process.process_status = ProcessStatus[1];
@@ -1545,6 +1625,8 @@ export class ProjectComponent implements OnInit {
     console.log(process);
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
+      process.process_created_date = process.process_created_date;
+      process.process_updated_date = process.process_updated_date;
       process.projectId = process.projectId;
       process.process_data = status.process_data;
       process.process_type = status.process_type;
@@ -1559,12 +1641,17 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "SUCCESS") {
         this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedTrainProcessMessage'));
         this.trainProcessStarted = false;
+        process.showStopButton = false;
+        process.showDisabledButton = true;
         process.unread = true;
         this._interactionService.increaseNotificationsNumber();
+        this._interactionService.changeStopButton(process);
       }
-      if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+      if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
         this.trainProcessStarted = false;
         let failProcess = new ProcessingObject;
+        failProcess.process_created_date = process.process_created_date;
+        failProcess.process_updated_date = process.process_updated_date;
         failProcess.projectId = process.projectId;
         failProcess.processId = process.processId;
         failProcess.process_data = status.process_data;
@@ -1596,6 +1683,8 @@ export class ProjectComponent implements OnInit {
     console.log(process);
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
+      process.process_created_date = process.process_created_date;
+      process.process_updated_date = process.process_updated_date;
       process.projectId = process.projectId;
       process.process_data = status.process_data;
       process.process_type = status.process_type;
@@ -1610,12 +1699,17 @@ export class ProjectComponent implements OnInit {
       if (process.process_status == "SUCCESS") {
         this._interactionService.openSnackBarOkRequest(this.translate.instant('project.finishedInferenceProcessMessage'));
         this.inferenceProcessStarted = false;
+        process.showStopButton = false;
+        process.showDisabledButton = true;
         process.unread = true;
         this._interactionService.increaseNotificationsNumber();
+        this._interactionService.changeStopButton(process);
       }
-      if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+      if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
         this.inferenceProcessStarted = false;
         let failProcess = new ProcessingObject;
+        failProcess.process_created_date = process.process_created_date;
+        failProcess.process_updated_date = process.process_updated_date;
         failProcess.projectId = process.projectId;
         failProcess.processId = process.processId;
         failProcess.process_data = status.process_data;
@@ -1683,6 +1777,7 @@ export class ProjectComponent implements OnInit {
 
   getWeights(modelName: string) {
     let modelId;
+    let contentData;
     let modelList = this._interactionService.getModelsByTaskArray();
     modelList.forEach(model => {
       if (model.name == modelName) {
@@ -1690,7 +1785,12 @@ export class ProjectComponent implements OnInit {
       }
     });
     this._dataService.getWeights(modelId).subscribe(data => {
-      this.updateWeightsList(data);
+      contentData = data;
+      if (contentData.length != 0) {
+        this.updateWeightsList(data);
+      } else {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorStartedTrainProcessWithoutModelweight'));
+      }
     })
   }
 
@@ -1768,14 +1868,14 @@ export class ProjectComponent implements OnInit {
             // this.processData = this.processData.filter(item => item.processId !== process.processId);
             this._interactionService.runningProcesses.forEach(runningProcess => {
               if (runningProcess.processId == process.processId) {
-                runningProcess.process_status = ProcessStatus[3];
+                runningProcess.process_status = ProcessStatus[5];
                 runningProcess.showStopButton = false;
                 runningProcess.showDisabledButton = true;
               }
             })
             this._interactionService.processData.forEach(existingProcess => {
               if (existingProcess.processId == process.processId) {
-                existingProcess.processStatus = ProcessStatus[3];
+                existingProcess.processStatus = ProcessStatus[5];
                 existingProcess.showStopButton = false;
                 existingProcess.showDisabledButton = true;
               }
@@ -1828,17 +1928,7 @@ export class ProjectComponent implements OnInit {
   //dropdown functions
   getAllowedProperties(modelName: string, datasetName: string) {
     this._interactionService.interpDropdown = [];
-    //this.viewPropertiesContainer.clear();
-    this.viewLearningRateContainer.clear();
-    this.viewEpochsContainer.clear();
-    this.viewBatchSizeContainer.clear();
-    this.viewInputWidthContainer.clear();
-    this.viewInputHeightContainer.clear();
-    this.viewLossFunctionContainer.clear();
-    this.viewMetricContainer.clear();
-    this.viewTrainingAugmentationsContainer.clear();
-    this.viewValidationAugmentationsContainer.clear();
-    this.viewTestAugmentationsContainer.clear();
+    this.initialisePropertiesContainers();
 
     let selectedModelId;
     let selectedDatasetId;
@@ -1861,211 +1951,16 @@ export class ProjectComponent implements OnInit {
       if (selectedModelId != undefined || selectedModelId != null) {
         this._dataService.allowedProperties(selectedModelId, entry.id, selectedDatasetId).subscribe(data => {
           if (data[0] != undefined) {
-            if (entry.type == "FLT") {
-              this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-            }
-            else if (entry.type == "LST") {
-              this.updateDropdownAllowedProperty(data);
-              this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, selectedOption: this.selectedOption, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-            }
-            else if (entry.type == "INT") {
-              this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-            }
-            else if (entry.type == "STR") {
-              this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-              //TODO: to be updated
-              //if (entry.name == "Training augmentations") {
-              //   if (data[0].allowed_value != null) {
-              //     var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
-              //     this._interactionService.angleXValue = result[0];
-              //     this._interactionService.angleYValue = result[1];
-              //     this._interactionService.centerXValue = result[2];
-              //     this._interactionService.centerYValue = result[3];
-              //     this._interactionService.scaleValue = result[4];
-              //     this._interactionService.interpDropdown.push("linear");
-              //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
-              //   }
-              // }
-            }
-            //this.viewPropertiesContainer.clear();
-            this.viewLearningRateContainer.clear();
-            this.viewEpochsContainer.clear();
-            this.viewBatchSizeContainer.clear();
-            this.viewInputWidthContainer.clear();
-            this.viewInputHeightContainer.clear();
-            this.viewLossFunctionContainer.clear();
-            this.viewMetricContainer.clear();
-            this.viewTrainingAugmentationsContainer.clear();
-            this.viewValidationAugmentationsContainer.clear();
-            this.viewTestAugmentationsContainer.clear();
-            this.dynamicPropertyList.forEach(item => {
-              if (item.propertyData.name == "Learning rate") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewLearningRateContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Epochs") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewEpochsContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Batch size") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewBatchSizeContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Loss function") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewLossFunctionContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Metric") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewMetricContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Input width") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewInputWidthContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Input height") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewInputHeightContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Training augmentations") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewTrainingAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Validation augmentations") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewValidationAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              } else if (item.propertyData.name == "Test augmentations") {
-                const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                const componentRef = this.viewTestAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                componentRef.instance.propertyData = item.propertyData;
-              }
-            });
+            this.populateDynamicAllowedPropertiesList(entry, data);
+            this.initialisePropertiesContainers();
+            this.populatePropertiesContainers();
           }
           else {
             this._dataService.propertiesById(entry.id).subscribe(data => {
-              let contentData;
-              contentData = data;
               if (data != undefined) {
-                if (entry.type == "FLT") {
-                  this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
-                }
-                else if (entry.type == "LST") {
-                  this.updateDropdownProperty(contentData);
-                  this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values, selectedOption: this.selectedOption }))
-                }
-                else if (entry.type == "INT") {
-                  this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
-                }
-                else if (entry.type == "STR") {
-                  this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
-                  //TODO: to be updated
-                  // if (entry.name == "Training augmentations") {
-                  //   if (contentData.default != null) {
-                  //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
-                  //     this._interactionService.angleXValue = result[0];
-                  //     this._interactionService.angleYValue = result[1];
-                  //     this._interactionService.centerXValue = result[2];
-                  //     this._interactionService.centerYValue = result[3];
-                  //     this._interactionService.scaleValue = result[4];
-                  //   }
-                  // }
-                }
-                //this.viewPropertiesContainer.clear();
-                this.viewLearningRateContainer.clear();
-                this.viewEpochsContainer.clear();
-                this.viewBatchSizeContainer.clear();
-                this.viewInputWidthContainer.clear();
-                this.viewInputHeightContainer.clear();
-                this.viewLossFunctionContainer.clear();
-                this.viewMetricContainer.clear();
-                this.viewTrainingAugmentationsContainer.clear();
-                this.viewValidationAugmentationsContainer.clear();
-                this.viewTestAugmentationsContainer.clear();
-
-                this.dynamicPropertyList.forEach(item => {
-                  if (item.propertyData.name == "Learning rate") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewLearningRateContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Epochs") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewEpochsContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Batch size") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewBatchSizeContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Loss function") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewLossFunctionContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Metric") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewMetricContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Input width") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewInputWidthContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Input height") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewInputHeightContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Training augmentations") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewTrainingAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Validation augmentations") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewValidationAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  } else if (item.propertyData.name == "Test augmentations") {
-                    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
-
-                    const componentRef = this.viewTestAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
-
-                    componentRef.instance.propertyData = item.propertyData;
-                  }
-                });
+                this.populateDynamicPropertyList(entry, data);
+                this.initialisePropertiesContainers();
+                this.populatePropertiesContainers();
               }
             })
           }
@@ -2075,6 +1970,173 @@ export class ProjectComponent implements OnInit {
         this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorAllowedPropertiesWithoutModel'));
       }
     }
+  }
+
+  initialisePropertiesContainers() {
+    //this.viewPropertiesContainer.clear();
+    this.viewLearningRateContainer.clear();
+    this.viewEpochsContainer.clear();
+    this.viewBatchSizeContainer.clear();
+    this.viewInputWidthContainer.clear();
+    this.viewInputHeightContainer.clear();
+    this.viewLossFunctionContainer.clear();
+    this.viewMetricContainer.clear();
+    this.viewTrainingAugmentationsContainer.clear();
+    this.viewValidationAugmentationsContainer.clear();
+    this.viewTestAugmentationsContainer.clear();
+
+    this.viewLearningRateContainer2.clear();
+    this.viewEpochsContainer2.clear();
+    this.viewBatchSizeContainer2.clear();
+    this.viewInputWidthContainer2.clear();
+    this.viewInputHeightContainer2.clear();
+    this.viewLossFunctionContainer2.clear();
+    this.viewMetricContainer2.clear();
+    this.viewTrainingAugmentationsContainer2.clear();
+    this.viewValidationAugmentationsContainer2.clear();
+    this.viewTestAugmentationsContainer2.clear();
+  }
+
+  populateDynamicAllowedPropertiesList(entry, data) {
+    if (entry.type == "FLT") {
+      this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+    }
+    else if (entry.type == "LST") {
+      this.updateDropdownAllowedProperty(data);
+      this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, selectedOption: this.selectedOption, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+    }
+    else if (entry.type == "INT") {
+      this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+    }
+    else if (entry.type == "STR") {
+      this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+      //TODO: to be updated
+      //if (entry.name == "Training augmentations") {
+      //   if (data[0].allowed_value != null) {
+      //     var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
+      //     this._interactionService.angleXValue = result[0];
+      //     this._interactionService.angleYValue = result[1];
+      //     this._interactionService.centerXValue = result[2];
+      //     this._interactionService.centerYValue = result[3];
+      //     this._interactionService.scaleValue = result[4];
+      //     this._interactionService.interpDropdown.push("linear");
+      //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
+      //   }
+      // }
+    }
+  }
+
+  populateDynamicPropertyList(entry, contentData) {
+    if (entry.type == "FLT") {
+      this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+    }
+    else if (entry.type == "LST") {
+      this.updateDropdownProperty(contentData);
+      this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values, selectedOption: this.selectedOption }))
+    }
+    else if (entry.type == "INT") {
+      this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+    }
+    else if (entry.type == "STR") {
+      this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+      //TODO: to be updated
+      // if (entry.name == "Training augmentations") {
+      //   if (contentData.default != null) {
+      //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
+      //     this._interactionService.angleXValue = result[0];
+      //     this._interactionService.angleYValue = result[1];
+      //     this._interactionService.centerXValue = result[2];
+      //     this._interactionService.centerYValue = result[3];
+      //     this._interactionService.scaleValue = result[4];
+      //   }
+      // }
+    }
+  }
+
+  populatePropertiesContainers() {
+    this.dynamicPropertyList.forEach(item => {
+      if (item.propertyData.name == "Learning rate") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewLearningRateContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewLearningRateContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Epochs") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewEpochsContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewEpochsContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Batch size") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewBatchSizeContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewBatchSizeContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Loss function") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewLossFunctionContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewLossFunctionContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Metric") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewMetricContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewMetricContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Input width") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewInputWidthContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewInputWidthContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Input height") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewInputHeightContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewInputHeightContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Training augmentations") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewTrainingAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewTrainingAugmentationsContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Validation augmentations") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewValidationAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewValidationAugmentationsContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      } else if (item.propertyData.name == "Test augmentations") {
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
+
+        const componentRef = this.viewTestAugmentationsContainer.createComponent<PropertyItem>(componentFactory);
+        const componentRef2 = this.viewTestAugmentationsContainer2.createComponent<PropertyItem>(componentFactory);
+
+        componentRef.instance.propertyData = item.propertyData;
+        componentRef2.instance.propertyData = item.propertyData;
+      }
+    });
   }
 
   updateDropdownAllowedProperty(contentData) {
@@ -2193,17 +2255,7 @@ export class ProjectComponent implements OnInit {
         this._interactionService.resetProjectsList(data.body);
         this._interactionService.usersAssociatedArray = this._interactionService.usersAssociatedArray.filter(item => item.username !== this._interactionService.projectOwner);
         console.log(data.body);
-        //this.viewPropertiesContainer.clear();
-        this.viewLearningRateContainer.clear();
-        this.viewEpochsContainer.clear();
-        this.viewBatchSizeContainer.clear();
-        this.viewInputWidthContainer.clear();
-        this.viewInputHeightContainer.clear();
-        this.viewLossFunctionContainer.clear();
-        this.viewMetricContainer.clear();
-        this.viewTrainingAugmentationsContainer.clear();
-        this.viewValidationAugmentationsContainer.clear();
-        this.viewTestAugmentationsContainer.clear();
+        this.initialisePropertiesContainers();
         this.showTrainButton = false;
       }, error => {
         this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
@@ -2498,6 +2550,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeShowStateProjectDivNetwork(false);
     this._interactionService.changeShowStateProjectDivNotifications(false);
     this._interactionService.changeShowStateProjectDivEditWeights(false);
+    this._interactionService.changeShowStateProjectDivModelAllowedProperties(false);
     this._interactionService.changeShowStateProjectDivOutputResults(true);
 
     this._interactionService.changeStateProjectConfigurationIsClicked(false);
@@ -2505,6 +2558,7 @@ export class ProjectComponent implements OnInit {
     this._interactionService.changeStateProjectNetworkIsClicked(false);
     this._interactionService.changeStateProjectNotificationsIsClicked(false);
     this._interactionService.changeStateProjectEditWeightsIsClicked(false);
+    this._interactionService.changeStateProjectCreateModelAllowedPropertiesIsClicked(false);
     this._interactionService.changeStateProjectOutputResultsIsClicked(true);
   }
 

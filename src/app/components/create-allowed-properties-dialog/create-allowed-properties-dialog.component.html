@@ -1,0 +1,43 @@
+<h1 mat-dialog-title>{{dialogTitle}}</h1>
+
+<mat-dialog-content>
+  <div>
+    <div class="div-class-allowed-value">
+      {{'create-allowed-properties-dialog.allowedValueTitle' | translate}}
+    </div>
+    <div *ngIf="this.propertyName == 'Learning rate'" class="div-class-allowed-value">
+      {{'create-allowed-properties-dialog.lowerAndUpperLimitsLearningRateLabel' | translate}}
+    </div>
+    <div *ngIf="this.propertyName == 'Epochs'" class="div-class-allowed-value">
+      {{'create-allowed-properties-dialog.lowerAndUpperLimitsEpochsLabel' | translate}}
+    </div>
+    <div class="div-preview-list" *ngIf="this.allowedValuesList.length != 0">
+      <div style="display: inline-flex;" *ngFor="let option of this.allowedValuesList">
+        <p style="padding-left: 6px;">{{option}}</p>
+        <mat-icon class="div-icon-edit" title="{{'create-allowed-properties-dialog.deleteAllowedValueTitle' | translate }}" svgIcon="delete"
+          (click)="deleteAllowedValue(option)"></mat-icon>
+      </div>
+    </div>
+    <div style="padding-top: 10px;">
+      <div class="div-input-allowed-value">
+        <input matInput *ngIf="showIntegerInput" type="number" step=1 [(ngModel)]="inputAllowedValue">
+        <input matInput *ngIf="showFloatInput" type="number" step=0.0001 [(ngModel)]="inputAllowedValue">
+        <input matInput *ngIf="showTextInput" type="text" [(ngModel)]="inputAllowedValue">
+      </div>
+      <div class="div-add-allowed-value-button">
+        <button mat-raised-button (click)="addAllowedValue(inputAllowedValue)">{{'create-allowed-properties-dialog.addButton' | translate}}</button>
+      </div>
+    </div>
+  </div>
+  <div style="padding-bottom: 18px;">
+    <div class="div-class-default-value">
+      {{'create-allowed-properties-dialog.defaultValueTitle' | translate}}
+    </div>
+    <input matInput [(ngModel)]="inputDefaultValue">
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-raised-button (click)="save()">{{'create-allowed-properties-dialog.OKButton' | translate}}</button>
+  <button mat-button mat-dialog-close>{{'create-allowed-properties-dialog.CancelButton' | translate}}</button>
+</mat-dialog-actions>

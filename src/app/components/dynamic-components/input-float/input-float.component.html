@@ -1,10 +1,11 @@
-<div style="padding-left: 15%; padding-right: 15%">
+<div style="padding-left: 15%; padding-right: 15%; display: flex;">
     <div class="div-property-name">{{propertyData.name}}
         <span *ngIf="propertyData.name == 'Learning rate'">*</span>
     </div>
     <div class="div-property-content-values" #floatProperty id="floatProperty">
-        <mat-form-field style="font-size: 15px; width: 90%; text-align: right;">
-            <input matInput required type="number" value={{propertyData.default_value}} step=0.0001 (change)="changeFloatPropertyValue($event)">
+        <mat-form-field style="font-size: 15px; width: 80%; text-align: right;">
+            <input matInput required type="number" value={{propertyData.default_value}} step=0.00001 (change)="changeFloatPropertyValue($event)">
         </mat-form-field>
+        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit" title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit" (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
     </div>
 </div>

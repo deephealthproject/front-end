@@ -3,8 +3,11 @@ import { Subject } from 'rxjs';
 import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-import { MatSnackBar, MatSnackBarConfig, MatTableDataSource, MatPaginator, MatSort } from '../../../node_modules/@angular/material';
+import { MatSnackBar, MatSnackBarConfig, MatTableDataSource, MatPaginator, MatSort, MatDialogConfig, MatDialog } from '../../../node_modules/@angular/material';
 import { FormGroup } from '../../../node_modules/@angular/forms';
+import { ProgressSpinnerDialogComponent } from '../components/progress-spinner-dialog/progress-spinner-dialog.component';
+import { CreateAllowedPropertiesDialogComponent } from '../components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
+import { TranslateService } from '../../../node_modules/@ngx-translate/core';
 
 export class TabObject {
   name: string;
@@ -23,6 +26,8 @@ export class ProcessingObject {
   showDisabledButton: boolean;
   color;
   training_id;
+  process_created_date;
+  process_updated_date;
 }
 
 export class ProcessData {
@@ -40,7 +45,8 @@ export class ProcessData {
 })
 export class InteractionService extends TabObject {
 
-  constructor(private _dataService: DataService, private _authService: AuthService, private snackBar: MatSnackBar) {
+  constructor(private _dataService: DataService, private _authService: AuthService, private snackBar: MatSnackBar,
+    public dialog: MatDialog, public translate: TranslateService) {
     super();
   }
 
@@ -85,6 +91,8 @@ export class InteractionService extends TabObject {
   projectDivOutputResultsShowStatus$ = this._projectDivOutputResultsShowStatusSource.asObservable();
   private _projectDivEditProjectShowStatusSource = new Subject<boolean>();
   projectDivEditProjectShowStatus$ = this._projectDivEditProjectShowStatusSource.asObservable();
+  private _projectDivCreateModelAllowedPropertiesShowStatusSource = new Subject<boolean>();
+  projectDivCreateModelAllowedPropertiesShowStatus$ = this._projectDivCreateModelAllowedPropertiesShowStatusSource.asObservable();
 
   //project component -> right div -> which tab is clicked
   private _projectConfigurationIsClickedSource = new Subject<boolean>();
@@ -99,6 +107,8 @@ export class InteractionService extends TabObject {
   projectOutputResultsIsClicked$ = this._projectOutputResultsIsClickedSource.asObservable();
   private _projectEditProjectIsClickedSource = new Subject<boolean>();
   projectEditProjectIsClicked$ = this._projectEditProjectIsClickedSource.asObservable();
+  private _projectCreateModelAllowedPropertiesIsClickedSource = new Subject<boolean>();
+  projectCreateModelAllowedPropertiesIsClicked$ = this._projectCreateModelAllowedPropertiesIsClickedSource.asObservable();
 
   //project component -> image input 
   private _projectDivDetailsLeftSideShowStatusSource = new Subject<boolean>();
@@ -280,7 +290,7 @@ export class InteractionService extends TabObject {
 
   //processes in Notifications
   processesList: MatTableDataSource<any>;
-  displayedProcessColumns: string[] = ['processRead', 'processDate', 'projectId', 'processId', 'processType', 'processStatus', 'processOptions'];
+  displayedProcessColumns: string[] = ['processRead', 'processCreatedDate', 'projectId', 'processId', 'processType', 'processStatus', 'processUpdatedDate', 'processOptions'];
   processData = [];
   @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
   @ViewChild('processTableSort') processTableSort: MatSort;
@@ -308,6 +318,13 @@ export class InteractionService extends TabObject {
   lossFunctionValue = null;
   booleanPropertyName = null;
   booleanPropertyValue: Boolean = false;
+  editAllowedProperties: Boolean = false;
+  propertyAllowedValue: string;
+  propertyDefaultValue: string;
+  allowedValuesList = [];
+  showIntegerInput: Boolean = false;
+  showFloatInput: Boolean = false;
+  showTextInput: Boolean = false;
 
   angleXValue;
   angleYValue;;
@@ -316,6 +333,8 @@ export class InteractionService extends TabObject {
   scaleValue;
   interpDropdown;
   selectedOptionInterp = null;
+
+  disabledTrainButton = false;
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
@@ -612,6 +631,9 @@ export class InteractionService extends TabObject {
   changeShowStateProjectDivEditProject(state: boolean) {
     this._projectDivEditProjectShowStatusSource.next(state);
   }
+  changeShowStateProjectDivModelAllowedProperties(state: boolean) {
+    this._projectDivCreateModelAllowedPropertiesShowStatusSource.next(state);
+  }
 
   //project component -> right div -> which tab is clicked
   changeStateProjectConfigurationIsClicked(state: boolean) {
@@ -631,6 +653,9 @@ export class InteractionService extends TabObject {
   }
   changeStateProjectEditProjectIsClicked(state: boolean) {
     this._projectEditProjectIsClickedSource.next(state);
+  }
+  changeStateProjectCreateModelAllowedPropertiesIsClicked(state: boolean) {
+    this._projectCreateModelAllowedPropertiesIsClickedSource.next(state);
   }
 
   //project component -> image input
@@ -799,7 +824,14 @@ export class InteractionService extends TabObject {
 
   showProcesses() {
     this.runningProcesses.forEach(process => {
-      this.processData.push({ /*processDate: process.processDate*/ projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
+      if(process.process_created_date.includes("T")) {
+        process.process_created_date = process.process_created_date.replace("T", " ");
+      }
+      if(process.process_updated_date.includes("T")) {
+        process.process_updated_date = process.process_updated_date.replace("T", " ");
+      }
+      this.processData.push({
+        processCreatedDate: process.process_created_date, processUpdatedDate: process.process_updated_date, projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
         showDisabledButton: process.showDisabledButton, processRead: process.unread
       });
     });
@@ -815,6 +847,14 @@ export class InteractionService extends TabObject {
   checkStatusPastProcesses(process) {
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
+      if(process.process_created_date.includes("T")) {
+        process.process_created_date = process.process_created_date.replace("T", " ");
+      }
+      if(process.process_updated_date.includes("T")) {
+        process.process_updated_date = process.process_updated_date.replace("T", " ");
+      }
+      process.process_created_date = process.process_created_date;
+      process.process_updated_date = process.process_updated_date;
       process.projectId = process.projectId;
       process.processId = process.processId;
       process.process_data = status.process_data;
@@ -824,6 +864,8 @@ export class InteractionService extends TabObject {
       if (process.process_status == "PENDING" || process.process_status == "STARTED") {
         let status: any = data.status;
         let runningProcess = new ProcessingObject;
+        runningProcess.process_created_date = process.process_created_date;
+        runningProcess.process_updated_date = process.process_updated_date;
         runningProcess.projectId = process.projectId;
         runningProcess.processId = process.processId;
         runningProcess.process_data = status.process_data;
@@ -846,9 +888,11 @@ export class InteractionService extends TabObject {
           }
         })
       }
-      if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+      if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
         let status: any = data.status;
         let failProcess = new ProcessingObject;
+        failProcess.process_created_date = process.process_created_date;
+        failProcess.process_updated_date = process.process_updated_date;
         failProcess.projectId = process.projectId;
         failProcess.processId = process.processId;
         failProcess.process_data = status.process_data;
@@ -873,10 +917,79 @@ export class InteractionService extends TabObject {
       }
     });
   }
-   
+
   cleanProcessesList() {
     this.processData = [];
     this.processesList = new MatTableDataSource(this.processData);
+  }
+
+  editAllowedPropertiesValues(property) {
+    if (property.type == "INT") {
+      this.showIntegerInput = true;
+      this.showFloatInput = false;
+      this.showTextInput = false;
+    } else if (property.type == "FLT") {
+      this.showIntegerInput = false;
+      this.showFloatInput = true;
+      this.showTextInput = false;
+    } else if (property.type == "STR" || property.type == "LST") {
+      this.showIntegerInput = false;
+      this.showFloatInput = false;
+      this.showTextInput = true;
+    }
+    let selectedModelId;
+    let selectedDatasetId;
+    let modelList = this.getModelsByTaskArray();
+    modelList.forEach(model => {
+      if (model.name == this.selectedModel) {
+        selectedModelId = model.id;
+      }
+    });
+    let datasetList = this.getDatasetResponseData();
+    datasetList.forEach(dataset => {
+      if (dataset.name == this.selectedDataset) {
+        selectedDatasetId = dataset.id;
+      }
+    })
+
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.data = {
+      dialogTitle: this.translate.instant('create-allowed-properties-dialog.dialogTitle'),
+      inputAllowedValue: null,
+      inputDefaultValue: null,
+      allowedValuesList: [],
+      showIntegerInput: this.showIntegerInput,
+      showFloatInput: this.showFloatInput,
+      showTextInput: this.showTextInput,
+      propertyName: property.name
+    }
+
+    const dialogConfigSpinner = new MatDialogConfig();
+    dialogConfigSpinner.disableClose = true;
+    dialogConfigSpinner.autoFocus = true;
+
+    let dialogRef = this.dialog.open(CreateAllowedPropertiesDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      console.log(result);
+      if (result) {
+        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
+        this.propertyDefaultValue = result.inputDefaultValue;
+        this.allowedValuesList = result.allowedValuesList;
+        this.propertyAllowedValue = this.allowedValuesList.join(",");
+        this._dataService.createAllowedProperties(this.propertyAllowedValue, this.propertyDefaultValue, property.id, selectedModelId, selectedDatasetId).subscribe(data => {
+          if (data.statusText == "OK") {
+            dialogRefSpinner.close();
+            this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
+          }
+        }, error => {
+          dialogRefSpinner.close();
+          this.openSnackBarBadRequest("Error: " + error.statusText);
+        })
+      }
+    });
   }
 
   openSnackBarOkRequest(message) {

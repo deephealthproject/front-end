@@ -38,6 +38,7 @@ import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { TranslateService } from "@ngx-translate/core";
 import { UpdateWeightDialogComponent } from "./components/update-weight-dialog/update-weight-dialog.component";
 import { UploadDatasetsDialogComponent } from "./components/upload-datasets-dialog/upload-datasets-dialog.component";
+import { CreateAllowedPropertiesDialogComponent } from './components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -86,6 +87,7 @@ const routes: Routes = [
     InputIntegerComponent,
     InputFloatComponent,
     BooleanComponent,
+    CreateAllowedPropertiesDialogComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -127,6 +129,7 @@ const routes: Routes = [
     InputFloatComponent,
     InputTextComponent,
     BooleanComponent,
+    CreateAllowedPropertiesDialogComponent
   ],
   providers: [
     AppConfigService,

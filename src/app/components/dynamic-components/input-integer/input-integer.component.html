@@ -1,10 +1,11 @@
-<div style="padding-left: 15%; padding-right: 15%">
+<div style="padding-left: 15%; padding-right: 15%; display: flex">
     <div class="div-property-name">{{propertyData.name}}
         <span *ngIf="propertyData.name == 'Batch size' || propertyData.name == 'Epochs'">*</span>
     </div>
     <div class="div-property-content-values" #integerProperty id="integerProperty">
-        <mat-form-field style="text-align: right; width: 90%; font-size: 15px;">
+        <mat-form-field style="text-align: right; width: 80%; font-size: 15px;">
             <input matInput type="number" value={{propertyData.default_value}} step=1 (change)="changeIntegerPropertyValue($event)">
         </mat-form-field>
+        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit" title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit" (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
     </div>
 </div>

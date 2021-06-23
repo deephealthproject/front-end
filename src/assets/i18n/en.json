@@ -79,7 +79,8 @@
         "estimatedTimePreTrain": "23 hours",
         "stopPreTraining": "Stop the process",
         "areYouSureStopPreTraining": "Are you sure you want to stop the process?",
-        "processDate": "Process Date",
+        "processCreatedDate": "Process Created Date",
+        "processUpdatedDate": "Process Status Date",
         "projectId": "Project Id",
         "processId": "Process Id",
         "processType": "Process Type",
@@ -89,7 +90,8 @@
         "finishedTrainProcessMessage": "The train process has finished!",
         "finishedInferenceProcessMessage": "The inference process has finished!",
         "finishedProcessMessage": "The process has finished!",
-        "errorStartedTrainProcessMessage": "Error: Please select a learning rate value between 0 and 0.99999!",
+        "errorMessageLearningrateLimits": "Error: Please select a learning rate value between 0.00001 and 0.01!",
+        "errorStartedTrainProcessWithoutModelweight": "The selected model doesn't have modelweights! You must add at least one modelweight of this model if you want to train!",
         "stoppedProcessMessage": "The process stopped!",
         "uploadDatasetAndModelTitle": "Upload dataset and model",
         "uploadDatasetButton": "Upload dataset",
@@ -185,7 +187,10 @@
         "angleSuperiorLimit": "90",
         "scaleInferiorLimit": "0",
         "scaleSuperiorLimit": "10",
-        "interpValueTrainingAugmentations": "Interp"
+        "interpValueTrainingAugmentations": "Interp",
+        "createModelAllowedProperties": "Create model and dataset allowed properties",
+        "createModelAllowedPropertiesTitle": "Create new allowed and default values for a model property (and optional a dataset)",
+        "errorUpperLimitEpochsMessage": "Error: Please select epochs value between 1 and 300!"
     },
     "header": {
         "headerText": "Training models",
@@ -353,5 +358,19 @@
         "succesMessageDeleteAssociatedUser": "Associated user has been successfully deleted!",
         "succesMessageDeleteAssociatedUsers": "Associated users have been successfully deleted!",
         "errorMessageDeleteItem": "Error: The selected element could not be deleted because the name you entered is incorrect!"
+    },
+    "create-allowed-properties-dialog": {
+        "dialogTitle": "Create allowed and default values for a property",
+        "editPropertyValues": "Edit property values",
+        "OKButton": "OK",
+        "CancelButton": "Cancel",
+        "allowedValueTitle": "Specify a new allowed value for the property selected",
+        "defaultValueTitle": "Specify a new default value for the property selected",
+        "successMessageCreateValues": "Values successfully created!",
+        "addButton": "Add",
+        "deleteAllowedValueTitle": "Delete allowed value",
+        "errorAddedNegativeAllowedValue": "Error: Please enter a positive value!",
+        "lowerAndUpperLimitsLearningRateLabel": "The lower limit is 0.00001 and the upper limit is 0.01.",
+        "lowerAndUpperLimitsEpochsLabel": "The lower limit is 1 and the upper limit is 300."
     }
 }

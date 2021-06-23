@@ -33,14 +33,14 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  //TODO
-  createAllowedProperties(allowedValue: string, defaultValue: string, propertyId: number, modelId: number): Observable<HttpResponse<any>> {
-    const url = this.apiUrl.concat('/models/');
+  createAllowedProperties(allowedValue: string, defaultValue: string, propertyId: number, modelId: number, datasetId: number): Observable<HttpResponse<any>> {
+    const url = this.apiUrl.concat('/allowedProperties/');
     const payload = {
       allowed_value: allowedValue,
       default_value: defaultValue,
       property_id: propertyId,
-      model_id: modelId
+      model_id: modelId,
+      dataset_id: datasetId
     };
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }

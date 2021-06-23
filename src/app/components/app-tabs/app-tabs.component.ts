@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
-import { MatIconRegistry, MatTableDataSource, MatPaginator, MatSort } from '@angular/material';
+import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
@@ -96,6 +96,8 @@ export class AppTabsComponent implements OnInit {
         contentData = data;
         for (let process of contentData) {
           let trainingProcess = new ProcessingObject;
+          trainingProcess.process_created_date = process.created;
+          trainingProcess.process_updated_date = process.updated;
           trainingProcess.projectId = process.project_id;
           trainingProcess.processId = process.celery_id;
           trainingProcess.process_status = ProcessStatus[4];
@@ -110,6 +112,8 @@ export class AppTabsComponent implements OnInit {
         contentData = data;
         for (let process of contentData) {
           let inferenceProcess = new ProcessingObject;
+          inferenceProcess.process_created_date = process.created;
+          inferenceProcess.process_updated_date = process.updated;
           inferenceProcess.projectId = process.project_id;
           inferenceProcess.processId = process.celery_id;
           inferenceProcess.process_status = ProcessStatus[4];
@@ -124,6 +128,8 @@ export class AppTabsComponent implements OnInit {
         contentData = data;
         for (let process of contentData) {
           let inferenceSingleProcess = new ProcessingObject;
+          inferenceSingleProcess.process_created_date = process.created;
+          inferenceSingleProcess.process_updated_date = process.updated;
           inferenceSingleProcess.projectId = process.project_id;
           inferenceSingleProcess.processId = process.celery_id;
           inferenceSingleProcess.process_status = ProcessStatus[4];

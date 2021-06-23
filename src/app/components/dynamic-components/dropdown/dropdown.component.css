@@ -2,10 +2,17 @@
     display: inline-block; 
     width: 30%; 
     font-size: 15px;
+    padding-top: 20px;
 }
 
 .div-property-content-values {
     display: inline-block; 
     width: calc(70% - 24px); 
     padding-left: 24px;
+}
+
+.div-icon-edit {
+    cursor: pointer;
+    padding-left: 20px; 
+    color: #3180ae;
 }

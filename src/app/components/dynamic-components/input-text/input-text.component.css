@@ -6,6 +6,7 @@ textarea {
     display: inline-block; 
     width: 30%; 
     font-size: 15px;
+    padding-top: 20px;
 }
 
 .div-property-content-values {
@@ -48,4 +49,10 @@ textarea {
 
 mat-slider {
     width: 90%;
+}
+
+.div-icon-edit {
+    cursor: pointer;
+    padding-left: 20px; 
+    color: #3180ae;
 }
