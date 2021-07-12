@@ -136,6 +136,10 @@ export class ProjectComponent implements OnInit {
 
   selectedOption = null;
 
+  populatedPropertyAllowedValuesList = [];
+  populatedPropertyDefaultValue = [];
+  populatedPropertyAllowedValue = [];
+
   //data augmentation
   flippingCheckedState;
   rotationCheckedState;
@@ -374,7 +378,7 @@ export class ProjectComponent implements OnInit {
   @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
   @ViewChild(MatSelectionList) associatedUsersSelection: MatSelectionList;
 
-  @Input() dynamicPropertyList: PropertyItem[] = [];
+  //@Input() dynamicPropertyList: PropertyItem[] = [];
   @ViewChild('viewPropertiesContainer', { read: ViewContainerRef }) viewPropertiesContainer: ViewContainerRef;
   @ViewChild('viewLearningRateContainer', { read: ViewContainerRef }) viewLearningRateContainer: ViewContainerRef;
   @ViewChild('viewEpochsContainer', { read: ViewContainerRef }) viewEpochsContainer: ViewContainerRef;
@@ -1340,7 +1344,7 @@ export class ProjectComponent implements OnInit {
     let epochs = new PropertyInstance;
     epochs.name = this._interactionService.epochName;
     epochs.value = this._interactionService.epochValue;
-    if (epochs.value >=1 && epochs.value <= 300) {
+    if (epochs.value >= 1 && epochs.value <= 300) {
       selectedProperties.push(epochs);
     }
     else {
@@ -1365,19 +1369,19 @@ export class ProjectComponent implements OnInit {
     let trainingAugmentations = new PropertyInstance;
     trainingAugmentations.name = this._interactionService.trainingAugmentationsName;
     trainingAugmentations.value = this._interactionService.trainingAugmentationsValue;
-    if (this._interactionService.trainingAugmentationsValue != null || this._interactionService.trainingAugmentationsValue != " ") {
+    if (this._interactionService.trainingAugmentationsValue != null || this._interactionService.trainingAugmentationsValue != undefined) {
       selectedProperties.push(trainingAugmentations);
     }
     let validationAugmentations = new PropertyInstance;
     validationAugmentations.name = this._interactionService.validationAugmentationsName;
     validationAugmentations.value = this._interactionService.validationAugmentationsValue;
-    if (this._interactionService.validationAugmentationsValue != null || this._interactionService.validationAugmentationsValue != " ") {
+    if (this._interactionService.validationAugmentationsValue != null || this._interactionService.validationAugmentationsValue != undefined) {
       selectedProperties.push(validationAugmentations);
     }
     let testAugmentations = new PropertyInstance;
     testAugmentations.name = this._interactionService.testAugmentationsName;
     testAugmentations.value = this._interactionService.testAugmentationsValue;
-    if (this._interactionService.testAugmentationsValue != null || this._interactionService.testAugmentationsValue != " ") {
+    if (this._interactionService.testAugmentationsValue != null || this._interactionService.testAugmentationsValue != undefined) {
       selectedProperties.push(testAugmentations);
     }
     let booleanProperty = new PropertyInstance;
@@ -1945,7 +1949,7 @@ export class ProjectComponent implements OnInit {
       }
     })
     let propertyList = this._interactionService.getProperties();
-    this.dynamicPropertyList = [];
+    this._interactionService.dynamicPropertyList = [];
 
     for (let entry of propertyList) {
       if (selectedModelId != undefined || selectedModelId != null) {
@@ -1999,17 +2003,65 @@ export class ProjectComponent implements OnInit {
 
   populateDynamicAllowedPropertiesList(entry, data) {
     if (entry.type == "FLT") {
-      this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+      this.populatedPropertyAllowedValuesList = [];
+      this.populatedPropertyDefaultValue = [];
+      this.populatedPropertyAllowedValue = [];
+      this.populatedPropertyDefaultValue.push(data[0].default_value);
+      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+        this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
+        this.populatedPropertyAllowedValuesList.forEach(value => {
+          if (value != data[0].default_value) {
+            this.populatedPropertyAllowedValue.push(value);
+          }
+        })
+      }
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: data[0].id, name: entry.name, type: entry.type, default_value: this.populatedPropertyDefaultValue, allowed_value: this.populatedPropertyAllowedValue, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
     }
     else if (entry.type == "LST") {
+      this.populatedPropertyAllowedValuesList = [];
+      this.populatedPropertyDefaultValue = [];
+      this.populatedPropertyAllowedValue = [];
+      this.populatedPropertyAllowedValue.push(data[0].default_value);
+      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+        this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
+        this.populatedPropertyAllowedValuesList.forEach(value => {
+          if (value != data[0].default_value) {
+            this.populatedPropertyAllowedValue.push(value);
+          }
+        })
+      }
       this.updateDropdownAllowedProperty(data);
-      this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, selectedOption: this.selectedOption, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: data[0].id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: this.populatedPropertyAllowedValue, selectedOption: this.selectedOption, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
     }
     else if (entry.type == "INT") {
-      this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+      this.populatedPropertyAllowedValuesList = [];
+      this.populatedPropertyDefaultValue = [];
+      this.populatedPropertyAllowedValue = [];
+      this.populatedPropertyDefaultValue.push(data[0].default_value);
+      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+        this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
+        this.populatedPropertyAllowedValuesList.forEach(value => {
+          if (value != data[0].default_value) {
+            this.populatedPropertyAllowedValue.push(value);
+          }
+        })
+      }
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: data[0].id, name: entry.name, type: entry.type, default_value: this.populatedPropertyDefaultValue, allowed_value: this.populatedPropertyAllowedValue, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
     }
     else if (entry.type == "STR") {
-      this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: data[0].default_value, allowed_value: data[0].allowed_value, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
+      this.populatedPropertyAllowedValuesList = [];
+      this.populatedPropertyDefaultValue = [];
+      this.populatedPropertyAllowedValue = [];
+      this.populatedPropertyDefaultValue.push(data[0].default_value);
+      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+        this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
+        this.populatedPropertyAllowedValuesList.forEach(value => {
+          if (value != data[0].default_value) {
+            this.populatedPropertyAllowedValue.push(value);
+          }
+        })
+      }
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: data[0].id, name: entry.name, type: entry.type, default_value: this.populatedPropertyDefaultValue, allowed_value: this.populatedPropertyAllowedValue, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
       //TODO: to be updated
       //if (entry.name == "Training augmentations") {
       //   if (data[0].allowed_value != null) {
@@ -2028,17 +2080,17 @@ export class ProjectComponent implements OnInit {
 
   populateDynamicPropertyList(entry, contentData) {
     if (entry.type == "FLT") {
-      this.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputFloatComponent, { id: contentData.id, name: contentData.name, type: contentData.type, default_value: contentData.default, allowed_value: contentData.values }))
     }
     else if (entry.type == "LST") {
       this.updateDropdownProperty(contentData);
-      this.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values, selectedOption: this.selectedOption }))
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(DropdownComponent, { id: contentData.id, name: contentData.name, type: contentData.type, default_value: contentData.default, allowed_value: contentData.values, selectedOption: this.selectedOption }))
     }
     else if (entry.type == "INT") {
-      this.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputIntegerComponent, { id: contentData.id, name: contentData.name, type: contentData.type, default_value: contentData.default, allowed_value: contentData.values }))
     }
     else if (entry.type == "STR") {
-      this.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: entry.id, name: entry.name, type: entry.type, default_value: contentData.default, allowed_value: contentData.values }))
+      this._interactionService.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: contentData.id, name: contentData.name, type: contentData.type, default_value: contentData.default, allowed_value: contentData.values }))
       //TODO: to be updated
       // if (entry.name == "Training augmentations") {
       //   if (contentData.default != null) {
@@ -2054,7 +2106,7 @@ export class ProjectComponent implements OnInit {
   }
 
   populatePropertiesContainers() {
-    this.dynamicPropertyList.forEach(item => {
+    this._interactionService.dynamicPropertyList.forEach(item => {
       if (item.propertyData.name == "Learning rate") {
         const componentFactory = this.componentFactoryResolver.resolveComponentFactory(item.component);
 

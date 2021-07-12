@@ -6,13 +6,14 @@
 }
 
 .div-property-content-values {
-    display: inline-block; 
-    width: calc(70% - 24px); 
-    padding-left: 24px;
+    display: inline-flex; 
+    width: calc(70% - 20px); 
+    padding-left: 20px;
 }
 
 .div-icon-edit {
     cursor: pointer;
     padding-left: 20px; 
+    padding-top: 15px;
     color: #3180ae;
 }

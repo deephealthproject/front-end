@@ -1,4 +1,4 @@
-import { Injectable, ViewChild } from '@angular/core';
+import { Injectable, ViewChild, ComponentFactoryResolver, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
@@ -8,6 +8,7 @@ import { FormGroup } from '../../../node_modules/@angular/forms';
 import { ProgressSpinnerDialogComponent } from '../components/progress-spinner-dialog/progress-spinner-dialog.component';
 import { CreateAllowedPropertiesDialogComponent } from '../components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
 import { TranslateService } from '../../../node_modules/@ngx-translate/core';
+import { PropertyItem } from '../components/property-item';
 
 export class TabObject {
   name: string;
@@ -46,7 +47,7 @@ export class ProcessData {
 export class InteractionService extends TabObject {
 
   constructor(private _dataService: DataService, private _authService: AuthService, private snackBar: MatSnackBar,
-    public dialog: MatDialog, public translate: TranslateService) {
+    public dialog: MatDialog, public translate: TranslateService, private componentFactoryResolver: ComponentFactoryResolver) {
     super();
   }
 
@@ -296,6 +297,7 @@ export class InteractionService extends TabObject {
   @ViewChild('processTableSort') processTableSort: MatSort;
 
   //dynamic properties
+  allowedValues = [];
   learningRateName = null;
   epochName = null;
   batchSizeName = null;
@@ -325,6 +327,18 @@ export class InteractionService extends TabObject {
   showIntegerInput: Boolean = false;
   showFloatInput: Boolean = false;
   showTextInput: Boolean = false;
+  epochAllowedValues = [];
+  batchSizeAllowedValues = [];
+  inputWidthAllowedValues = [];
+  inputHeightAllowedValues = [];
+  learningRateAllowedValues = [];
+  metricAllowedValues = [];
+  lossFunctionAllowedValues = [];
+  trainingAugmentationsAllowedValues = [];
+  validationAugmentationsAllowedValues = [];
+  testAugmentationsAllowedValues = [];
+  propertyAllowedValuesList = [];
+  dropdownValues = null;
 
   angleXValue;
   angleYValue;;
@@ -335,6 +349,9 @@ export class InteractionService extends TabObject {
   selectedOptionInterp = null;
 
   disabledTrainButton = false;
+
+  @Input() dynamicPropertyList: PropertyItem[] = [];
+  selectedOption = null;
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
@@ -824,11 +841,14 @@ export class InteractionService extends TabObject {
 
   showProcesses() {
     this.runningProcesses.forEach(process => {
-      if(process.process_created_date.includes("T")) {
-        process.process_created_date = process.process_created_date.replace("T", " ");
-      }
-      if(process.process_updated_date.includes("T")) {
-        process.process_updated_date = process.process_updated_date.replace("T", " ");
+      if (process.process_created_date != null || process.process_created_date != undefined
+        || process.process_updated_date != null || process.process_updated_date != undefined) {
+        if (process.process_created_date.includes("T")) {
+          process.process_created_date = process.process_created_date.replace("T", " ");
+        }
+        if (process.process_updated_date.includes("T")) {
+          process.process_updated_date = process.process_updated_date.replace("T", " ");
+        }
       }
       this.processData.push({
         processCreatedDate: process.process_created_date, processUpdatedDate: process.process_updated_date, projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
@@ -847,11 +867,14 @@ export class InteractionService extends TabObject {
   checkStatusPastProcesses(process) {
     this._dataService.status(process.processId).subscribe(data => {
       let status: any = data.status;
-      if(process.process_created_date.includes("T")) {
-        process.process_created_date = process.process_created_date.replace("T", " ");
-      }
-      if(process.process_updated_date.includes("T")) {
-        process.process_updated_date = process.process_updated_date.replace("T", " ");
+      if (process.process_created_date != null || process.process_created_date != undefined
+        || process.process_updated_date != null || process.process_updated_date != undefined) {
+        if (process.process_created_date.includes("T")) {
+          process.process_created_date = process.process_created_date.replace("T", " ");
+        }
+        if (process.process_updated_date.includes("T")) {
+          process.process_updated_date = process.process_updated_date.replace("T", " ");
+        }
       }
       process.process_created_date = process.process_created_date;
       process.process_updated_date = process.process_updated_date;
@@ -979,17 +1002,231 @@ export class InteractionService extends TabObject {
         this.propertyDefaultValue = result.inputDefaultValue;
         this.allowedValuesList = result.allowedValuesList;
         this.propertyAllowedValue = this.allowedValuesList.join(",");
-        this._dataService.createAllowedProperties(this.propertyAllowedValue, this.propertyDefaultValue, property.id, selectedModelId, selectedDatasetId).subscribe(data => {
-          if (data.statusText == "OK") {
+
+        if (property.propertyId == null || property.propertyId == undefined) {
+          this._dataService.createAllowedProperties(this.propertyAllowedValue, this.propertyDefaultValue, property.id, selectedModelId, selectedDatasetId).subscribe(data => {
+            if (data.statusText == "Created") {
+              dialogRefSpinner.close();
+              this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
+
+              this._dataService.allowedProperties(selectedModelId, property.id, selectedDatasetId).subscribe(data => {
+                if (data[0] != undefined) {
+                  this.updateAllowedPropertiesList(property, data);
+                } else {
+                  this._dataService.propertiesById(property.id).subscribe(data => {
+                    if (data != undefined) {
+                      this.updatePropertiesList(property, data);
+                    }
+                  })
+                }
+              }, error => {
+                dialogRefSpinner.close();
+                this.openSnackBarBadRequest("Error: " + error.statusText);
+              })
+            }
+          }, error => {
             dialogRefSpinner.close();
-            this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
-          }
-        }, error => {
-          dialogRefSpinner.close();
-          this.openSnackBarBadRequest("Error: " + error.statusText);
-        })
+            this.openSnackBarBadRequest("Error: " + error.error.Error);
+          })
+        } else {
+          this._dataService.updateAllowedProperties(property.id, this.propertyAllowedValue, this.propertyDefaultValue, property.propertyId, selectedModelId, selectedDatasetId).subscribe(data => {
+            if (data.statusText == "OK") {
+              dialogRefSpinner.close();
+              this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
+
+              this._dataService.allowedProperties(selectedModelId, property.propertyId, selectedDatasetId).subscribe(data => {
+                if (data[0] != undefined) {
+                  this.updateAllowedPropertiesList(property, data);
+                } else {
+                  this._dataService.propertiesById(property.propertyId).subscribe(data => {
+                    if (data != undefined) {
+                      this.updatePropertiesList(property, data);
+                    }
+                  })
+                }
+              }, error => {
+                dialogRefSpinner.close();
+                this.openSnackBarBadRequest("Error: " + error.statusText);
+              })
+            }
+          }, error => {
+            dialogRefSpinner.close();
+            this.openSnackBarBadRequest("Error: " + error.error.Error);
+          })
+        }
       }
     });
+  }
+
+  updateAllowedPropertiesList(property, data) {
+    this.dynamicPropertyList.forEach(propertyItem => {
+      if (propertyItem.propertyData.name == property.name) {
+        if (property.type == "LST") {
+          this.updateDropdownAllowedProperty(data);
+        }
+        propertyItem.propertyData.id = data[0].id;
+        propertyItem.propertyData.propertyId = data[0].property_id;
+        propertyItem.propertyData.name = property.name;
+        propertyItem.propertyData.type = property.type;
+        propertyItem.propertyData.modelId = data[0].model_id;
+        propertyItem.propertyData.datasetId = data[0].dataset_id;
+        propertyItem.propertyData.default_value = data[0].default_value;
+        propertyItem.propertyData.allowed_value = data[0].allowed_value;
+        if (property.name == "Epochs") {
+          this.epochAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.epochAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.epochAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Batch size") {
+          this.batchSizeAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.batchSizeAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.batchSizeAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Input width") {
+          this.inputWidthAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.inputWidthAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.inputWidthAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Input height") {
+          this.inputHeightAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.inputHeightAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.inputHeightAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Learning rate") {
+          this.learningRateAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.learningRateAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.learningRateAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Metric") {
+          this.metricAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.dropdownValues = null;
+          this.metricAllowedValues.push(data[0].default_value);
+          this.dropdownValues = data[0].allowed_value.join(",");
+          this.propertyAllowedValuesList = this.dropdownValues.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.metricAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Loss function") {
+          this.lossFunctionAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.dropdownValues = null;
+          this.lossFunctionAllowedValues.push(data[0].default_value);
+          this.dropdownValues = data[0].allowed_value.join(",");
+          this.propertyAllowedValuesList = this.dropdownValues.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.lossFunctionAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Training augmentations") {
+          this.trainingAugmentationsAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.trainingAugmentationsAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.trainingAugmentationsAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Validation augmentations") {
+          this.validationAugmentationsAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.validationAugmentationsAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.validationAugmentationsAllowedValues.push(value);
+            }
+          })
+        }
+        if (property.name == "Test augmentations") {
+          this.testAugmentationsAllowedValues = [];
+          this.propertyAllowedValuesList = [];
+          this.testAugmentationsAllowedValues.push(data[0].default_value);
+          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
+          this.propertyAllowedValuesList.forEach(value => {
+            if(value != data[0].default_value) {
+              this.testAugmentationsAllowedValues.push(value);
+            }
+          })
+        }
+      }
+    })
+  }
+
+  updatePropertiesList(property, data) {
+    this.dynamicPropertyList.forEach(propertyItem => {
+      if (propertyItem.propertyData.name == property.name) {
+        if (property.type == "LST") {
+          this.updateDropdownProperty(data);
+        }
+        propertyItem.propertyData.id = data.id;
+        propertyItem.propertyData.name = property.name;
+        propertyItem.propertyData.type = property.type;
+        propertyItem.propertyData.default_value = data.default;
+        propertyItem.propertyData.allowed_value = data.values;
+      }
+    })
+  }
+
+  updateDropdownAllowedProperty(contentData) {
+    var propertyValuesNameList = Array<string>();
+    if (contentData[0].allowed_value != null) {
+      propertyValuesNameList = contentData[0].allowed_value.split(",");
+    } else {
+      propertyValuesNameList = contentData[0].default_value;
+    }
+    contentData[0].allowed_value = [];
+    contentData[0].allowed_value = propertyValuesNameList;
+    this.selectedOption = propertyValuesNameList[0];
+  }
+
+  updateDropdownProperty(contentData) {
+    var propertyValuesNameList = Array<string>();
+    if (contentData.values != null) {
+      propertyValuesNameList = contentData.values.split(",");
+    } else {
+      propertyValuesNameList = contentData.default;
+    }
+    contentData.values = [];
+    contentData.values = propertyValuesNameList;
+    this.selectedOption = propertyValuesNameList[0];
   }
 
   openSnackBarOkRequest(message) {

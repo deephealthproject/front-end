@@ -1,11 +1,42 @@
-<div style="padding-left: 15%; padding-right: 15%; display: flex">
+<div style="padding-left: 10%; padding-right: 10%; display: flex">
     <div class="div-property-name">{{propertyData.name}}
         <span *ngIf="propertyData.name == 'Batch size' || propertyData.name == 'Epochs'">*</span>
     </div>
     <div class="div-property-content-values" #integerProperty id="integerProperty">
-        <mat-form-field style="text-align: right; width: 80%; font-size: 15px;">
-            <input matInput type="number" value={{propertyData.default_value}} step=1 (change)="changeIntegerPropertyValue($event)">
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;">
+            <input matInput type="number" value={{propertyData.default_value}} step=1
+                (change)="changeIntegerPropertyValue($event)">
         </mat-form-field>
-        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit" title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit" (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
+        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit"
+            title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit"
+            (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
     </div>
+    <div class="div-property-content-values">
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Epochs'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{this._interactionService.epochAllowedValues}}></textarea>
+        </mat-form-field>
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Batch size'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{this._interactionService.batchSizeAllowedValues}}></textarea>
+        </mat-form-field>
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Input width'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{this._interactionService.inputWidthAllowedValues}}></textarea>
+        </mat-form-field>
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Input height'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{this._interactionService.inputHeightAllowedValues}}></textarea>
+        </mat-form-field>
+    </div>
+    <!-- <div class="div-property-content-values">
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}}></textarea>
+        </mat-form-field>
+    </div> -->
 </div>

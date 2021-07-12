@@ -45,6 +45,19 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
+  updateAllowedProperties(allowedPropertyId: number, allowedValue: string, defaultValue: string, propertyId: number, modelId: number, datasetId: number): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/allowedProperties/');
+    url += allowedPropertyId;
+    const payload = {
+      allowed_value: allowedValue,
+      default_value: defaultValue,
+      property_id: propertyId,
+      model_id: modelId,
+      dataset_id: datasetId
+    };
+    return this.httpClient.put<any>(url, payload, { observe: 'response' });
+  }
+
   properties(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat("/properties");
     return this.httpClient.get<any>(url);

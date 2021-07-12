@@ -58,7 +58,7 @@
 /* the right side of the default window, that stays open all the time */
 
 .div-right {
-    width: 19%;
+    width: 20%;
     display: inline-block;
     height: 100%;
     overflow: auto;
@@ -88,7 +88,7 @@
 /* the middle part of the default window */
 
 .div-middle {
-    width: calc(100% - 18% - 19% - 4px);
+    width: calc(100% - 18% - 20% - 4px);
     display: inline-block;
     height: 100%;
     overflow: auto;
@@ -249,7 +249,7 @@
 }
 
 .div-network-statistics {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -259,7 +259,7 @@
 }
 
 .div-notifications {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -338,7 +338,7 @@
 }
 
 .div-edit-weights {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -390,7 +390,7 @@ table {
 }
 
 .div-output-results {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -415,7 +415,7 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
 }
 
 .div-edit-project {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -521,7 +521,7 @@ mat-selection-list {
 }
 
 .div-create-model-allowed-properties {
-    width: calc(100% - 19% - 2px);
+    width: calc(100% - 20% - 2px);
     float: left;
     height: 100%;
     overflow: auto;
@@ -556,7 +556,7 @@ mat-selection-list {
 }
 
 .div-create-allowed-properties-table {
-    width: 75%; 
+    width: 80%; 
     border: solid 0.5px; 
     border-color: rgb(101,164,196);
     display: inline-block;

@@ -139,9 +139,11 @@
                         <div class="div-middle-properties-table">
                             <div class="div-middle-properties-table-titles">
                                 <span
-                                    style="font-size: 15px; padding-left: 14%;">{{'project.propertiesTitle' | translate}}</span>
+                                    style="font-size: 15px; padding-left: 9%;">{{'project.propertiesTitle' | translate}}</span>
                                 <span
-                                    style="font-size: 15px; padding-left: 16.5%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
+                                    style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
+                                <span
+                                    style="font-size: 15px; padding-left: 29%;">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
                             </div>
                             <div>
                                 <div class="div-middle-properties">
@@ -581,13 +583,14 @@
                 {{'project.outputResultList' | translate}} {{outputResultsDetailProcessId}}
             </div>
         </div>
-        <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
+        <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort
+            *ngIf="showOutputInferenceSingle">
             <ng-container matColumnDef="outputImage">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
             </ng-container>
             <ng-container matColumnDef="outputDetails">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputDetails' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputDetails' | translate }}</th>
                 <td mat-cell *matCellDef="let row">
                     <div style="cursor: pointer;" title="View details" (click)="onShowInferenceOutputDetails(row)">
                         <mat-icon svgIcon="viewDetails" style="color: #65A4C5;"></mat-icon>
@@ -596,8 +599,8 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedOutputColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputColumns;"></tr>
-            <mat-paginator [pageSizeOptions]="[5, 10, 20]" #outputPaginator showFirstLastButtons></mat-paginator>
         </table>
+        <mat-paginator *ngIf="showOutputInferenceSingle" [pageSizeOptions]="[5, 10, 20]" #outputPaginator showFirstLastButtons></mat-paginator>
 
         <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;" *ngIf="showOutputRunning">
             {{'project.outputStatusParametersDetails' | translate}} {{outputResultsDetailProcessId}}
@@ -792,9 +795,11 @@
         <div class="div-create-allowed-properties-title">{{'project.modelPropertiesTitle' | translate}}</div>
         <div class="div-create-allowed-properties-table">
             <div class="div-middle-properties-table-titles">
-                <span style="font-size: 15px; padding-left: 14%;">{{'project.propertiesTitle' | translate}}</span>
+                <span style="font-size: 15px; padding-left: 9%;">{{'project.propertiesTitle' | translate}}</span>
                 <span
-                    style="font-size: 15px; padding-left: 16.5%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
+                    style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
+                <span
+                    style="font-size: 15px; padding-left: 29%;">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
             </div>
             <div>
                 <div class="div-middle-properties">

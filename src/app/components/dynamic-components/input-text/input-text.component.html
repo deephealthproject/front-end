@@ -1,13 +1,33 @@
 <!-- <div [ngClass]="{'div-training-property': propertyData.name == 'Training augmentations' && propertyData.default_value != null}"> -->
-<div>  
-  <div style="padding-left: 15%; padding-right: 15%; display: flex;">
+<div>
+  <div style="padding-left: 10%; padding-right: 10%; display: flex;">
     <div class="div-property-name">{{propertyData.name}}</div>
     <div class="div-property-content-values" #textProperty id="textProperty">
-      <mat-form-field appearance="none" style="width: 80%;">
-        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize"
-          cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7" value={{propertyData.default_value}} (change)="changeTextPropertyValue($event)"></textarea>
+      <mat-form-field appearance="none" style="width: 95%;">
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7" value={{propertyData.default_value}}
+          (change)="changeTextPropertyValue($event)"></textarea>
       </mat-form-field>
-      <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit" title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit" (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
+      <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit"
+        title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit"
+        (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
+    </div>
+    <div class="div-property-content-values">
+      <mat-form-field appearance="none" style="width: 95%;"
+        *ngIf="this.propertyData.name == 'Training augmentations'">
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7" value={{this._interactionService.trainingAugmentationsAllowedValues}}></textarea>
+      </mat-form-field>
+      <mat-form-field  appearance="none" style="width: 95%;"
+        *ngIf="this.propertyData.name == 'Validation augmentations'">
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7" value={{this._interactionService.validationAugmentationsAllowedValues}}></textarea>
+      </mat-form-field>
+      <mat-form-field  appearance="none" style="width: 95%;"
+        *ngIf="this.propertyData.name == 'Test augmentations'">
+        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+          cdkAutosizeMaxRows="7" value={{this._interactionService.testAugmentationsAllowedValues}}></textarea>
+      </mat-form-field>
     </div>
   </div>
   <!-- <div *ngIf="propertyData.name == 'Training augmentations' && propertyData.default_value != null">

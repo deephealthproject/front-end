@@ -90,7 +90,7 @@
         "finishedTrainProcessMessage": "The train process has finished!",
         "finishedInferenceProcessMessage": "The inference process has finished!",
         "finishedProcessMessage": "The process has finished!",
-        "errorMessageLearningrateLimits": "Error: Please select a learning rate value between 0.00001 and 0.01!",
+        "errorMessageLearningrateLimits": "Error: Please insert a learning rate value between 0.00001 and 0.01!",
         "errorStartedTrainProcessWithoutModelweight": "The selected model doesn't have modelweights! You must add at least one modelweight of this model if you want to train!",
         "stoppedProcessMessage": "The process stopped!",
         "uploadDatasetAndModelTitle": "Upload dataset and model",
@@ -170,7 +170,8 @@
         "outputResultsError": "Error: This process does not have any results yet! Please try later!",
         "modelPropertiesTitle": "Model properties",
         "propertiesTitle": "Properties",
-        "defaultPropertiesValuesTitle": "Default value",
+        "defaultPropertiesValuesTitle": "Value",
+        "allowedPropertiesValuesTitle": "Allowed values",
         "angleXAxisTrainingAugmentations": "Angle x Axis",
         "angleYAxisTrainingAugmentations": "Angle y Axis",
         "angleXAxisValueTrainingAugmentations": "Angle x axis: ",
@@ -190,7 +191,8 @@
         "interpValueTrainingAugmentations": "Interp",
         "createModelAllowedProperties": "Create model and dataset allowed properties",
         "createModelAllowedPropertiesTitle": "Create new allowed and default values for a model property (and optional a dataset)",
-        "errorUpperLimitEpochsMessage": "Error: Please select epochs value between 1 and 300!"
+        "errorUpperLimitEpochsMessage": "Error: Please insert epochs value between 1 and 300!",
+        "errorValueNotInAllowedValuesMessage": "Error: Please insert one of the allowed values!"
     },
     "header": {
         "headerText": "Training models",

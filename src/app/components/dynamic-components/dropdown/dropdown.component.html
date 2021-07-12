@@ -1,15 +1,29 @@
-<div style="padding-left: 15%; padding-right: 15%; padding-bottom: 12px; display: flex">
+<div style="padding-left: 10%; padding-right: 10%; padding-bottom: 12px; display: flex">
     <div class="div-property-name">{{propertyData.name}}
         <span *ngIf="propertyData.name == 'Metric'">*</span>
     </div>
     <div class="div-property-content-values">
-        <mat-form-field style="text-align: right; width: 80%; height: 30px; font-size: 15px;">
+        <mat-form-field style="text-align: right; width: 95%; height: 30px; font-size: 15px;">
             <mat-select [(value)]=propertyData.selectedOption (selectionChange)="changeSelectedPropertyValue($event)">
                 <mat-option *ngFor="let option of propertyData.allowed_value" value={{option}}>
                     {{option}}
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit" title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit" (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
+        <mat-icon *ngIf="this._interactionService.editAllowedProperties" class="div-icon-edit"
+            title="{{'create-allowed-properties-dialog.editPropertyValues' | translate }}" svgIcon="edit"
+            (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
+    </div>
+    <div class="div-property-content-values">
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Metric'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}}></textarea>
+        </mat-form-field>
+        <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
+            *ngIf="this.propertyData.name == 'Loss function'">
+            <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
+                cdkAutosizeMaxRows="7" value={{propertyData.allowed_value}}></textarea>
+        </mat-form-field>
     </div>
 </div>
