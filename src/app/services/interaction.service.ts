@@ -1,14 +1,19 @@
-import { Injectable, ViewChild, ComponentFactoryResolver, Input } from '@angular/core';
+import { Injectable, ViewChild, ComponentFactoryResolver, Input, Directive } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-import { MatSnackBar, MatSnackBarConfig, MatTableDataSource, MatPaginator, MatSort, MatDialogConfig, MatDialog } from '../../../node_modules/@angular/material';
+
 import { FormGroup } from '../../../node_modules/@angular/forms';
 import { ProgressSpinnerDialogComponent } from '../components/progress-spinner-dialog/progress-spinner-dialog.component';
 import { CreateAllowedPropertiesDialogComponent } from '../components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
 import { TranslateService } from '../../../node_modules/@ngx-translate/core';
 import { PropertyItem } from '../components/property-item';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 export class TabObject {
   name: string;
@@ -41,6 +46,7 @@ export class ProcessData {
   validation_accuracy;
 }
 
+@Directive()
 @Injectable({
   providedIn: 'root'
 })
@@ -293,8 +299,8 @@ export class InteractionService extends TabObject {
   processesList: MatTableDataSource<any>;
   displayedProcessColumns: string[] = ['processRead', 'processCreatedDate', 'projectId', 'processId', 'processType', 'processStatus', 'processUpdatedDate', 'processOptions'];
   processData = [];
-  @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
-  @ViewChild('processTableSort') processTableSort: MatSort;
+  @ViewChild('processPaginator', { static: true }) processPaginator: MatPaginator;
+  @ViewChild('processTableSort', { static: true }) processTableSort: MatSort;
 
   //dynamic properties
   allowedValues = [];
@@ -774,17 +780,17 @@ export class InteractionService extends TabObject {
     return this.userProfileDetails;
   }
 
-  getUsername() {
-    this._authService.getCurrentUser().subscribe(data => {
-      if (data != undefined || data != null) {
-        this.initUsername(data);
-      }
-    })
-  }
+  // getUsername() {
+  //   this._authService.getCurrentUser().subscribe(data => {
+  //     if (data != undefined || data != null) {
+  //       this.initUsername(data);
+  //     }
+  //   })
+  // }
 
-  initUsername(data) {
-    this.username = data.username;
-  }
+  // initUsername(data) {
+  //   this.username = data.username;
+  // }
 
   resetUsersList(contentData) {
     this._usersListSource.next(null);

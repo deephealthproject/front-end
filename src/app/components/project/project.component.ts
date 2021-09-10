@@ -1,7 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, Input, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
-import { MatDialogConfig, MatDialog, MatTableDataSource, MatSort, MatPaginator, MatSelectionList } from '@angular/material';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
+import { MatSelectionList } from '@angular/material/list';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { TranslateService } from '@ngx-translate/core';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -354,8 +358,8 @@ export class ProjectComponent implements OnInit {
   @ViewChild('loss') loss: ElementRef;
   @ViewChild('learningRate') learningRate: ElementRef;
   @ViewChild('useDropout') useDropout: ElementRef;
-  @ViewChild('inference') inference: ElementRef;
-  @ViewChild('inferenceSingle') inferenceSingleButton: ElementRef;
+  @ViewChild('inference', { static: true }) inference: ElementRef;
+  @ViewChild('inferenceSingle', { static: true }) inferenceSingleButton: ElementRef;
   @ViewChild('dataAugmentationSection') dataAugmentationSection: ElementRef;
   @ViewChild('trainButton') trainButton: ElementRef;
   @ViewChild('epochs') epochs: ElementRef;
@@ -367,40 +371,40 @@ export class ProjectComponent implements OnInit {
   @ViewChild('validationAugmentations') validationAugmentations: ElementRef;
   @ViewChild('testAugmentations') testAugmentations: ElementRef;
 
-  @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
-  @ViewChild('modelWeightPaginator', { read: MatPaginator }) modelWeightPaginator: MatPaginator;
+  @ViewChild('processPaginator', { read: MatPaginator, static: true }) processPaginator: MatPaginator;
+  @ViewChild('modelWeightPaginator', { read: MatPaginator, static: true }) modelWeightPaginator: MatPaginator;
   @ViewChild('outputPaginator', { read: MatPaginator }) outputPaginator: MatPaginator;
 
-  @ViewChild('processTableSort') processTableSort: MatSort;
-  @ViewChild('modelWeightTableSort') modelWeightTableSort: MatSort;
+  @ViewChild('processTableSort', { static: true }) processTableSort: MatSort;
+  @ViewChild('modelWeightTableSort', { static: true }) modelWeightTableSort: MatSort;
   @ViewChild('outputTableSort') outputTableSort: MatSort;
 
-  @ViewChild(MatSelectionList) usersSelection: MatSelectionList;
-  @ViewChild(MatSelectionList) associatedUsersSelection: MatSelectionList;
+  @ViewChild(MatSelectionList, { static: true }) usersSelection: MatSelectionList;
+  @ViewChild(MatSelectionList, { static: true }) associatedUsersSelection: MatSelectionList;
 
   //@Input() dynamicPropertyList: PropertyItem[] = [];
   @ViewChild('viewPropertiesContainer', { read: ViewContainerRef }) viewPropertiesContainer: ViewContainerRef;
-  @ViewChild('viewLearningRateContainer', { read: ViewContainerRef }) viewLearningRateContainer: ViewContainerRef;
-  @ViewChild('viewEpochsContainer', { read: ViewContainerRef }) viewEpochsContainer: ViewContainerRef;
-  @ViewChild('viewBatchSizeContainer', { read: ViewContainerRef }) viewBatchSizeContainer: ViewContainerRef;
-  @ViewChild('viewInputWidthContainer', { read: ViewContainerRef }) viewInputWidthContainer: ViewContainerRef;
-  @ViewChild('viewInputHeightContainer', { read: ViewContainerRef }) viewInputHeightContainer: ViewContainerRef;
-  @ViewChild('viewLossFunctionContainer', { read: ViewContainerRef }) viewLossFunctionContainer: ViewContainerRef;
-  @ViewChild('viewMetricContainer', { read: ViewContainerRef }) viewMetricContainer: ViewContainerRef;
-  @ViewChild('viewTrainingAugmentationsContainer', { read: ViewContainerRef }) viewTrainingAugmentationsContainer: ViewContainerRef;
-  @ViewChild('viewValidationAugmentationsContainer', { read: ViewContainerRef }) viewValidationAugmentationsContainer: ViewContainerRef;
-  @ViewChild('viewTestAugmentationsContainer', { read: ViewContainerRef }) viewTestAugmentationsContainer: ViewContainerRef;
+  @ViewChild('viewLearningRateContainer', { read: ViewContainerRef, static: true }) viewLearningRateContainer: ViewContainerRef;
+  @ViewChild('viewEpochsContainer', { read: ViewContainerRef, static: true }) viewEpochsContainer: ViewContainerRef;
+  @ViewChild('viewBatchSizeContainer', { read: ViewContainerRef, static: true }) viewBatchSizeContainer: ViewContainerRef;
+  @ViewChild('viewInputWidthContainer', { read: ViewContainerRef, static: true }) viewInputWidthContainer: ViewContainerRef;
+  @ViewChild('viewInputHeightContainer', { read: ViewContainerRef, static: true }) viewInputHeightContainer: ViewContainerRef;
+  @ViewChild('viewLossFunctionContainer', { read: ViewContainerRef, static: true }) viewLossFunctionContainer: ViewContainerRef;
+  @ViewChild('viewMetricContainer', { read: ViewContainerRef, static: true }) viewMetricContainer: ViewContainerRef;
+  @ViewChild('viewTrainingAugmentationsContainer', { read: ViewContainerRef, static: true }) viewTrainingAugmentationsContainer: ViewContainerRef;
+  @ViewChild('viewValidationAugmentationsContainer', { read: ViewContainerRef, static: true }) viewValidationAugmentationsContainer: ViewContainerRef;
+  @ViewChild('viewTestAugmentationsContainer', { read: ViewContainerRef, static: true }) viewTestAugmentationsContainer: ViewContainerRef;
 
-  @ViewChild('viewLearningRateContainer2', { read: ViewContainerRef }) viewLearningRateContainer2: ViewContainerRef;
-  @ViewChild('viewEpochsContainer2', { read: ViewContainerRef }) viewEpochsContainer2: ViewContainerRef;
-  @ViewChild('viewBatchSizeContainer2', { read: ViewContainerRef }) viewBatchSizeContainer2: ViewContainerRef;
-  @ViewChild('viewInputWidthContainer2', { read: ViewContainerRef }) viewInputWidthContainer2: ViewContainerRef;
-  @ViewChild('viewInputHeightContainer2', { read: ViewContainerRef }) viewInputHeightContainer2: ViewContainerRef;
-  @ViewChild('viewLossFunctionContainer2', { read: ViewContainerRef }) viewLossFunctionContainer2: ViewContainerRef;
-  @ViewChild('viewMetricContainer2', { read: ViewContainerRef }) viewMetricContainer2: ViewContainerRef;
-  @ViewChild('viewTrainingAugmentationsContainer2', { read: ViewContainerRef }) viewTrainingAugmentationsContainer2: ViewContainerRef;
-  @ViewChild('viewValidationAugmentationsContainer2', { read: ViewContainerRef }) viewValidationAugmentationsContainer2: ViewContainerRef;
-  @ViewChild('viewTestAugmentationsContainer2', { read: ViewContainerRef }) viewTestAugmentationsContainer2: ViewContainerRef;
+  @ViewChild('viewLearningRateContainer2', { read: ViewContainerRef, static: true }) viewLearningRateContainer2: ViewContainerRef;
+  @ViewChild('viewEpochsContainer2', { read: ViewContainerRef, static: true }) viewEpochsContainer2: ViewContainerRef;
+  @ViewChild('viewBatchSizeContainer2', { read: ViewContainerRef, static: true }) viewBatchSizeContainer2: ViewContainerRef;
+  @ViewChild('viewInputWidthContainer2', { read: ViewContainerRef, static: true }) viewInputWidthContainer2: ViewContainerRef;
+  @ViewChild('viewInputHeightContainer2', { read: ViewContainerRef, static: true }) viewInputHeightContainer2: ViewContainerRef;
+  @ViewChild('viewLossFunctionContainer2', { read: ViewContainerRef, static: true }) viewLossFunctionContainer2: ViewContainerRef;
+  @ViewChild('viewMetricContainer2', { read: ViewContainerRef, static: true }) viewMetricContainer2: ViewContainerRef;
+  @ViewChild('viewTrainingAugmentationsContainer2', { read: ViewContainerRef, static: true }) viewTrainingAugmentationsContainer2: ViewContainerRef;
+  @ViewChild('viewValidationAugmentationsContainer2', { read: ViewContainerRef, static: true }) viewValidationAugmentationsContainer2: ViewContainerRef;
+  @ViewChild('viewTestAugmentationsContainer2', { read: ViewContainerRef, static: true }) viewTestAugmentationsContainer2: ViewContainerRef;
 
   ngOnInit() {
     this.initialiseShowStatusProjectDivs();

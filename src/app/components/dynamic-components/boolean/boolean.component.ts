@@ -10,7 +10,7 @@ import { InteractionService } from '../../../services/interaction.service';
 export class BooleanComponent implements PropertyInterface, OnInit {
 
   @Input() propertyData: any;
-  @ViewChild('booleanProperty') booleanProperty: ElementRef;
+  @ViewChild('booleanProperty', { static: true }) booleanProperty: ElementRef;
 
   booleanPropertyCheckedState: boolean = false;
 

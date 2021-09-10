@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InteractionService } from '../../services/interaction.service';
 import { TranslateService } from '@ngx-translate/core';
-import { MatDialogConfig, MatDialog } from '@angular/material';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 @Component({
@@ -29,8 +29,8 @@ export class LoginUserComponent implements OnInit {
     this.initialiseLoginButton();
   }
 
-  @ViewChild('username') username: ElementRef;
-  @ViewChild('password') password: ElementRef;
+  @ViewChild('username', { static: true }) username: ElementRef;
+  @ViewChild('password', { static: true }) password: ElementRef;
 
   initialiseUserData() {
     this._interactionService.usernameValue$.subscribe(

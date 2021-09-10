@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../create-project-dialog/create-project-dialog.component';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
@@ -204,9 +204,9 @@ export class PowerUserComponent implements OnInit {
     );
   }
 
-  @ViewChild('modelsList') modelsList: ElementRef;
+  @ViewChild('modelsList', { static: true }) modelsList: ElementRef;
   @ViewChild('weightsListId') weightsListId: ElementRef;
-  @ViewChild('datasetsList') datasetsList: ElementRef;
+  @ViewChild('datasetsList', { static: true }) datasetsList: ElementRef;
   @ViewChild('messageCreateProject') messageCreateProject: ElementRef;
 
   ngOnInit() {

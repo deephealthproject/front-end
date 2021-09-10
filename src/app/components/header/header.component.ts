@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { InteractionService } from '../../services/interaction.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry, MatDialogConfig, MatDialog } from '@angular/material';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
+import { MatIconRegistry } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
 import { ShowProfileDetailsDialogComponent } from '../show-profile-details-dialog/show-profile-details-dialog.component';
 import { AuthService } from '../../services/auth.service';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +23,8 @@ export class HeaderComponent implements OnInit {
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     private translate: TranslateService,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    private keycloakService: KeycloakService) {
     this.matIconRegistry.addSvgIcon(
       'user',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/person-24px.svg')
@@ -30,9 +33,11 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.initialiseLogoutButton();
-    if(localStorage.getItem('accessToken') != null) {
-      this._interactionService.getUsername();
-    }
+    // if(localStorage.getItem('accessToken') != null) {
+    //   this._interactionService.getUsername();
+    // }
+
+    this._interactionService.username = this.keycloakService.getUsername(); 
   }
 
   initialiseLogoutButton() {
@@ -41,7 +46,7 @@ export class HeaderComponent implements OnInit {
         this._interactionService.userLoggedOut = state;
       }
     )
-    if (localStorage.getItem('accessToken') != null) {
+    if(this.keycloakService.getToken() != null)  {
       this._interactionService.userLoggedOut = true;
     }
   }
@@ -66,10 +71,12 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    this._interactionService.userLoggedOut = false;
-    this._interactionService.changeCheckedStateLogoutButton(false);
-    this.router.navigate(['/']);
+     localStorage.removeItem('accessToken');
+     localStorage.removeItem('refreshToken');
+     this._interactionService.userLoggedOut = false;
+    // this._interactionService.changeCheckedStateLogoutButton(false);
+    // this.router.navigate(['/']);
+
+    this.keycloakService.logout();
   }
 }

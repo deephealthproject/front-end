@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { PropertyInterface } from '../../property-interface';
 import { InteractionService } from '../../../services/interaction.service';
-import { MatDialog } from '../../../../../node_modules/@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { DataService } from '../../../services/data.service';
 import { TranslateService } from '../../../../../node_modules/@ngx-translate/core';
 
@@ -13,7 +13,7 @@ import { TranslateService } from '../../../../../node_modules/@ngx-translate/cor
 export class InputIntegerComponent implements PropertyInterface, OnInit {
 
   @Input() propertyData: any;
-  @ViewChild('integerProperty') integerProperty: ElementRef;
+  @ViewChild('integerProperty', { static: true }) integerProperty: ElementRef;
   propertyAllowedValues = null;
 
   constructor(public _dataService: DataService, public _interactionService: InteractionService,

@@ -2,7 +2,7 @@ import { Component, Input, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { PropertyInterface } from '../../property-interface';
 import { InteractionService } from '../../../services/interaction.service';
 import { TranslateService } from '@ngx-translate/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-input-text',
@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material';
 export class InputTextComponent implements PropertyInterface, OnInit {
 
   @Input() propertyData: any;
-  @ViewChild('textProperty') textProperty: ElementRef;
+  @ViewChild('textProperty', { static: true }) textProperty: ElementRef;
   propertyAllowedValues = null;
 
   constructor(public _interactionService: InteractionService, public dialog: MatDialog, public translate: TranslateService) { }

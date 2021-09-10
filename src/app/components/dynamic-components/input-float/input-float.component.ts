@@ -1,7 +1,7 @@
 import { Component, Input, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { PropertyInterface } from '../../property-interface';
 import { InteractionService } from '../../../services/interaction.service';
-import { MatDialog } from '../../../../../node_modules/@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '../../../../../node_modules/@ngx-translate/core';
 import { DataService } from '../../../services/data.service';
 
@@ -13,7 +13,7 @@ import { DataService } from '../../../services/data.service';
 export class InputFloatComponent implements PropertyInterface, OnInit {
 
   @Input() propertyData: any;
-  @ViewChild('floatProperty') floatProperty: ElementRef;
+  @ViewChild('floatProperty', { static: true }) floatProperty: ElementRef;
   propertyAllowedValues = null;
 
   constructor(private _dataService: DataService, public _interactionService: InteractionService,

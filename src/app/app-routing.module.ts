@@ -39,6 +39,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { UpdateWeightDialogComponent } from "./components/update-weight-dialog/update-weight-dialog.component";
 import { UploadDatasetsDialogComponent } from "./components/upload-datasets-dialog/upload-datasets-dialog.component";
 import { CreateAllowedPropertiesDialogComponent } from './components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
+import { KeycloakAuth } from './keycloak-auth.guard';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -51,15 +52,11 @@ export function initConfig(appConfig: AppConfigService) {
 }
 
 const routes: Routes = [
-  { path: "", component: LoginUserComponent },
-  {
-    path: "power-user",
-    component: PowerUserComponent,
-    canActivate: [AuthGuard],
-  },
-  { path: "project", component: ProjectComponent, canActivate: [AuthGuard] },
-  { path: "register", component: RegisterUserComponent },
-  { path: "reset-password", component: ResetPasswordComponent },
+  { path: "", component: PowerUserComponent, canActivate: [KeycloakAuth] }, 
+  { path: "power-user", component: PowerUserComponent, canActivate: [KeycloakAuth] },
+  { path: "project", component: ProjectComponent, canActivate: [KeycloakAuth] },
+  { path: "register", component: PowerUserComponent, canActivate: [KeycloakAuth] }, 
+  { path: "reset-password", component: ResetPasswordComponent }
 ];
 
 @NgModule({
@@ -135,6 +132,7 @@ const routes: Routes = [
     AppConfigService,
     AuthService,
     AuthGuard,
+    KeycloakAuth,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: InterceptorService,
