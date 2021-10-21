@@ -2,7 +2,7 @@ import { Component, Input, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { PropertyInterface } from '../../property-interface';
 import { InteractionService } from '../../../services/interaction.service';
 import { TranslateService } from '@ngx-translate/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-input-text',
@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material';
 export class InputTextComponent implements PropertyInterface, OnInit {
 
   @Input() propertyData: any;
-  @ViewChild('textProperty') textProperty: ElementRef;
+  @ViewChild('textProperty', { static: true }) textProperty: ElementRef;
   propertyAllowedValues = null;
 
   constructor(public _interactionService: InteractionService, public dialog: MatDialog, public translate: TranslateService) { }
@@ -20,10 +20,10 @@ export class InputTextComponent implements PropertyInterface, OnInit {
   ngOnInit() {
     if (this.propertyData.name == "Training augmentations") {
       this.initialiseTrainingAugmentationsAllowedValues(this.propertyData);
-    } 
+    }
     else if (this.propertyData.name == "Validation augmentations") {
       this.initialiseValidationAugmentationsAllowedValues(this.propertyData);
-    } 
+    }
     else if (this.propertyData.name == "Test augmentations") {
       this.initialiseTestAugmentationsAllowedValues(this.propertyData);
     }
@@ -33,6 +33,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
   initialiseTrainingAugmentationsAllowedValues(propertyData) {
     this._interactionService.trainingAugmentationsValue = propertyData.default_value;
     this._interactionService.trainingAugmentationsName = propertyData.name;
+
     this._interactionService.trainingAugmentationsAllowedValues = [];
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.trainingAugmentationsAllowedValues.some(defaultValueExist)) {
@@ -47,6 +48,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
   initialiseValidationAugmentationsAllowedValues(propertyData) {
     this._interactionService.validationAugmentationsValue = propertyData.default_value;
     this._interactionService.validationAugmentationsName = propertyData.name;
+
     this._interactionService.validationAugmentationsAllowedValues = [];
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.validationAugmentationsAllowedValues.some(defaultValueExist)) {
@@ -61,6 +63,7 @@ export class InputTextComponent implements PropertyInterface, OnInit {
   initialiseTestAugmentationsAllowedValues(propertyData) {
     this._interactionService.testAugmentationsValue = propertyData.default_value;
     this._interactionService.testAugmentationsName = propertyData.name;
+
     this._interactionService.testAugmentationsAllowedValues = [];
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.testAugmentationsAllowedValues.some(defaultValueExist)) {

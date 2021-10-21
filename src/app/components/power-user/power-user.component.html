@@ -89,7 +89,7 @@
       </tr>
       <tr>
         <td>
-          <div *ngFor="let project of projects" class="div-icon-owner">
+          <div *ngFor="let project of this._interactionService.projects" class="div-icon-owner">
             <div *ngFor="let currentProjectUser of project.users">
               <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
                 style="padding-bottom: 30px;" class="div-icon-checked-owner" svgIcon={{projectOwnerIcon}}></mat-icon>
@@ -97,7 +97,7 @@
           </div>
         </td>
         <td>
-          <div *ngFor="let project of projects">
+          <div *ngFor="let project of this._interactionService.projects">
             <div class="div-right-project" (click)="showProject(project); initialiseCurrentProject(project); getProjectsById(project.id)">
               <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
               <div class="div-right-text-project">
@@ -107,7 +107,7 @@
           </div>
         </td>
         <td>
-          <div *ngFor="let project of projects" class="div-right-icon-delete">
+          <div *ngFor="let project of this._interactionService.projects" class="div-right-icon-delete">
             <div *ngFor="let currentProjectUser of project.users">
               <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
                 class="div-icon-delete" title="{{'delete-dialog.deleteProject' | translate }}" svgIcon="delete" (click)="deleteProject(project)"></mat-icon>

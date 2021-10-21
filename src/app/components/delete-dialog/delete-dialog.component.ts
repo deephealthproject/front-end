@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatDialogConfig, MatDialog } from '../../../../node_modules/@angular/material';
+
 import { DataService } from '../../services/data.service';
 import { TranslateService } from '../../../../node_modules/@ngx-translate/core';
 import { ItemToDelete } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 export interface DeleteDialogData {
   dialogTitle: string;

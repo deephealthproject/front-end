@@ -14,7 +14,8 @@
     <div class="div-preview-list" *ngIf="this.allowedValuesList.length != 0">
       <div style="display: inline-flex;" *ngFor="let option of this.allowedValuesList">
         <p style="padding-left: 6px;">{{option}}</p>
-        <mat-icon class="div-icon-edit" title="{{'create-allowed-properties-dialog.deleteAllowedValueTitle' | translate }}" svgIcon="delete"
+        <mat-icon class="div-icon-edit"
+          title="{{'create-allowed-properties-dialog.deleteAllowedValueTitle' | translate }}" svgIcon="delete"
           (click)="deleteAllowedValue(option)"></mat-icon>
       </div>
     </div>
@@ -25,7 +26,8 @@
         <input matInput *ngIf="showTextInput" type="text" [(ngModel)]="inputAllowedValue">
       </div>
       <div class="div-add-allowed-value-button">
-        <button mat-raised-button (click)="addAllowedValue(inputAllowedValue)">{{'create-allowed-properties-dialog.addButton' | translate}}</button>
+        <button mat-raised-button
+          (click)="addAllowedValue(inputAllowedValue)">{{'create-allowed-properties-dialog.addButton' | translate}}</button>
       </div>
     </div>
   </div>
@@ -38,6 +40,9 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button (click)="save()">{{'create-allowed-properties-dialog.OKButton' | translate}}</button>
+  <div style="display: inline;">
+    <button mat-raised-button (click)="save()"
+      [disabled]="!inputDefaultValue || this.allowedValuesList.length == 0">{{'create-allowed-properties-dialog.OKButton' | translate}}</button>
+  </div>
   <button mat-button mat-dialog-close>{{'create-allowed-properties-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { MatSnackBar, MatDialogConfig, MatDialog } from '@angular/material';
+import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { Router } from '@angular/router';
@@ -32,12 +33,12 @@ export class RegisterUserComponent implements OnInit {
     this.initialiseRegisterButton();
   }
 
-  @ViewChild('username') username: ElementRef;
-  @ViewChild('email') email: ElementRef;
-  @ViewChild('firstName') firstName: ElementRef;
-  @ViewChild('lastName') lastName: ElementRef;
-  @ViewChild('password') password: ElementRef;
-  @ViewChild('confirmPassword') confirmPassword: ElementRef;
+  @ViewChild('username', { static: true }) username: ElementRef;
+  @ViewChild('email', { static: true }) email: ElementRef;
+  @ViewChild('firstName', { static: true }) firstName: ElementRef;
+  @ViewChild('lastName', { static: true }) lastName: ElementRef;
+  @ViewChild('password', { static: true }) password: ElementRef;
+  @ViewChild('confirmPassword', { static: true }) confirmPassword: ElementRef;
 
   initialiseUserData() {
     this._interactionService.usernameValue$.subscribe(

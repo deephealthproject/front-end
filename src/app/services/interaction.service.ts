@@ -1,14 +1,19 @@
-import { Injectable, ViewChild, ComponentFactoryResolver, Input } from '@angular/core';
+import { Injectable, ViewChild, ComponentFactoryResolver, Input, Directive } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-import { MatSnackBar, MatSnackBarConfig, MatTableDataSource, MatPaginator, MatSort, MatDialogConfig, MatDialog } from '../../../node_modules/@angular/material';
+
 import { FormGroup } from '../../../node_modules/@angular/forms';
 import { ProgressSpinnerDialogComponent } from '../components/progress-spinner-dialog/progress-spinner-dialog.component';
 import { CreateAllowedPropertiesDialogComponent } from '../components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
 import { TranslateService } from '../../../node_modules/@ngx-translate/core';
 import { PropertyItem } from '../components/property-item';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 export class TabObject {
   name: string;
@@ -41,6 +46,7 @@ export class ProcessData {
   validation_accuracy;
 }
 
+@Directive()
 @Injectable({
   providedIn: 'root'
 })
@@ -217,6 +223,7 @@ export class InteractionService extends TabObject {
   currentProject$ = this._currentProjectSource.asObservable();
   private _projectsListSource = new Subject<Array<Project>>();
   projectsList$ = this._projectsListSource.asObservable();
+  projects: Array<Project> = [];
 
   private modelsByTaskArray: Array<Model> = [];
   private weightsArray: Array<Weight> = [];
@@ -226,6 +233,7 @@ export class InteractionService extends TabObject {
 
   formDataWeight: Weight;
   weightUsersList;
+  showWeightDetailsTable: boolean = false;
 
   //register-user component
   private _userNameValueSource = new Subject<string>();
@@ -293,8 +301,8 @@ export class InteractionService extends TabObject {
   processesList: MatTableDataSource<any>;
   displayedProcessColumns: string[] = ['processRead', 'processCreatedDate', 'projectId', 'processId', 'processType', 'processStatus', 'processUpdatedDate', 'processOptions'];
   processData = [];
-  @ViewChild('processPaginator', { read: MatPaginator }) processPaginator: MatPaginator;
-  @ViewChild('processTableSort') processTableSort: MatSort;
+  @ViewChild('processPaginator', { static: true }) processPaginator: MatPaginator;
+  @ViewChild('processTableSort', { static: true }) processTableSort: MatSort;
 
   //dynamic properties
   allowedValues = [];
@@ -359,8 +367,8 @@ export class InteractionService extends TabObject {
     })
   }
 
-  initialiseWeightDropdown(modelId) {
-    this._dataService.getWeights(modelId).subscribe(data => {
+  initialiseWeightDropdown(modelId, datasetId) {
+    this._dataService.getWeights(modelId, datasetId).subscribe(data => {
       this.insertDataIntoWeightDropdown(data);
     })
   }
@@ -762,6 +770,21 @@ export class InteractionService extends TabObject {
     this.formDataWeight = null;
     this.formDataWeight = contentData;
     return this.formDataWeight;
+  }
+
+  getProjects() {
+    this._dataService.projects().subscribe(data => {
+      // this._interactionService.resetProjectsList(data);
+      this.updateProjectsList(data);
+    })
+  }
+
+  updateProjectsList(contentData) {
+    this.projects = [];
+    for (let entry of contentData) {
+      this.projects.push(entry);
+    }
+    console.log(this.projects);
   }
 
   getProjectList() {

@@ -1,11 +1,12 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig, MatDialog } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmDialogTrainComponent } from '../confirm-dialog-train/confirm-dialog-train.component';
 import { Router } from '@angular/router';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
+import { DataService } from 'src/app/services/data.service';
 
 export interface ProfileDetailsData {
   dialogTitle: string;
@@ -37,7 +38,8 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
   disabledDeleteAccountButton: Boolean = false;
 
   constructor(public dialogRef: MatDialogRef<ShowProfileDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ProfileDetailsData, public _authService: AuthService, public _interactionService: InteractionService,
+    @Inject(MAT_DIALOG_DATA) public data: ProfileDetailsData, public _dataService: DataService, public _authService: AuthService, 
+    public _interactionService: InteractionService,
     public translate: TranslateService,
     public dialog: MatDialog,
     private router: Router) {
@@ -148,6 +150,8 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
       if (data.statusText == "OK") {
         dialogRef.close();
         this._interactionService.resetUserProfileDetails(data.body);
+        this._interactionService.username = data.body.username;
+        this._interactionService.getProjects();
         this._interactionService.openSnackBarOkRequest(this.translate.instant('profile-details-dialog.succesMessageUpdateProfile'));
         this.isUpdateProfileClicked = false;
         this.disabledUpdateProfileButton = false;

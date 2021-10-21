@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
@@ -51,12 +51,14 @@ export class UpdateWeightDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+    this._interactionService.formDataWeight.weightName = this.data.inputValue;
   }
 
   save() {
     this.data.selectedUsername = this.selectedUsername;
-    this.data.inputValue = this._interactionService.formDataWeight.name;
+    this.data.inputValue = this._interactionService.formDataWeight.weightName;
     this.data.weightDisplayMode = this._interactionService.formDataWeight.weightPublic;
+    this._interactionService.showWeightDetailsTable = false;
     this.dialogRef.close(this.data);
   }
 

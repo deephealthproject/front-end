@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { CreateProjectDialogComponent } from '../create-project-dialog/create-project-dialog.component';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
@@ -110,6 +110,7 @@ export class ProcessingObject {
   training_id;
   process_created_date;
   process_updated_date;
+  modelweights_id;
 }
 
 export class ProcessData {
@@ -142,7 +143,6 @@ export enum TypeOfItemToDelete {
 })
 
 export class PowerUserComponent implements OnInit {
-  projects: Array<Project> = [];
   projectName: string;
   projectTaskId;
   projectId: number = 1;
@@ -175,7 +175,7 @@ export class PowerUserComponent implements OnInit {
   customExpandedHeight: string = "32px";
   isWeightListEmpty: boolean = false;
 
-  constructor(private _interactionService: InteractionService, public _authService: AuthService,
+  constructor(public _interactionService: InteractionService, public _authService: AuthService,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
     public dialog: MatDialog,
@@ -204,15 +204,15 @@ export class PowerUserComponent implements OnInit {
     );
   }
 
-  @ViewChild('modelsList') modelsList: ElementRef;
+  @ViewChild('modelsList', { static: true }) modelsList: ElementRef;
   @ViewChild('weightsListId') weightsListId: ElementRef;
-  @ViewChild('datasetsList') datasetsList: ElementRef;
+  @ViewChild('datasetsList', { static: true }) datasetsList: ElementRef;
   @ViewChild('messageCreateProject') messageCreateProject: ElementRef;
 
   ngOnInit() {
     this.initialiseProjectsList();
     this.initialiseUsersList();
-    this.getProjects();
+    this._interactionService.getProjects();
     this.getUsers();
     this.models = this.getModels(undefined);
     this.modelsList.nativeElement.style.display = "none";
@@ -229,7 +229,7 @@ export class PowerUserComponent implements OnInit {
   initialiseProjectsList() {
     this._interactionService.projectsList$.subscribe(
       projects => {
-        this.projects = projects;
+        this._interactionService.projects = projects;
       }
     );
   }
@@ -275,7 +275,7 @@ export class PowerUserComponent implements OnInit {
       if (result) {
         if (result.inputValue) {
           let thatProjectExist = false;
-          for (let currentProject of this.projects) {
+          for (let currentProject of this._interactionService.projects) {
             if (currentProject.name == result.inputValue)
               thatProjectExist = true;
           }
@@ -313,7 +313,7 @@ export class PowerUserComponent implements OnInit {
     this._dataService.addProject(projectName, task_id, users).subscribe(data => {
       // this._interactionService.resetProjectsList(data.body);
       if (data.statusText == "Created") {
-        this.getProjects();
+        this._interactionService.getProjects();
         this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewProject'));
       }
     }, error => {
@@ -423,7 +423,7 @@ export class PowerUserComponent implements OnInit {
         this._interactionService.usersList = this._interactionService.usersList.filter(item => item.username !== user.username);
       }
     });
-    this._dataService.pastTrainingProcesses(currentProject.id).subscribe(data => {
+    this._dataService.pastTrainingProcesses(currentProject.id, null).subscribe(data => {
       contentData = data;
       for (let process of contentData) {
         let trainingProcess = new ProcessingObject;
@@ -431,6 +431,7 @@ export class PowerUserComponent implements OnInit {
         trainingProcess.process_updated_date = process.updated;
         trainingProcess.projectId = process.project_id;
         trainingProcess.processId = process.celery_id;
+        trainingProcess.modelweights_id = process.modelweights_id;
         trainingProcess.process_status = ProcessStatus[4];
         trainingProcess.process_type = "training";
         trainingProcess.unread = false;
@@ -496,12 +497,12 @@ export class PowerUserComponent implements OnInit {
     this.router.navigate(['/project']);
   }
 
-  getProjects() {
-    this._dataService.projects().subscribe(data => {
-      // this._interactionService.resetProjectsList(data);
-      this.updateProjectsList(data);
-    })
-  }
+  // getProjects() {
+  //   this._dataService.projects().subscribe(data => {
+  //     // this._interactionService.resetProjectsList(data);
+  //     this.updateProjectsList(data);
+  //   })
+  // }
 
   getProjectsById(projectId) {
     this._dataService.projectsById(projectId).subscribe(data => {
@@ -510,13 +511,13 @@ export class PowerUserComponent implements OnInit {
     })
   }
 
-  updateProjectsList(contentData) {
-    this.projects = [];
-    for (let entry of contentData) {
-      this.projects.push(entry);
-    }
-    console.log(this.projects);
-  }
+  // updateProjectsList(contentData) {
+  //   this.projects = [];
+  //   for (let entry of contentData) {
+  //     this.projects.push(entry);
+  //   }
+  //   console.log(this.projects);
+  // }
 
   insertProject(contentData) {
     let p = new Project;
@@ -526,7 +527,7 @@ export class PowerUserComponent implements OnInit {
     p.modelweights_id = contentData.modelweights_id;
     p.inference_id = contentData.inference_id;
     p.users = contentData.users;
-    this.projects.push(p);
+    this._interactionService.projects.push(p);
     this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewProject'));
   };
 
@@ -551,7 +552,7 @@ export class PowerUserComponent implements OnInit {
       console.log(result);
       if (result) {
         this._interactionService.closeProjectTab();
-        this.getProjects();
+        this._interactionService.getProjects();
       }
     });
   }
@@ -585,7 +586,7 @@ export class PowerUserComponent implements OnInit {
     this.selectedModel = model;
     this.updateBackgroundColorModel();
     this._interactionService.changeSelectedModel(model);
-    this.getWeights(model);
+    this.getWeights(model, null);
   }
 
   updateBackgroundColorModel() {
@@ -601,9 +602,13 @@ export class PowerUserComponent implements OnInit {
     }
   }
 
-  getWeights(model: Model) {
+  getWeights(model: Model, dataset: Dataset) {
     let modelId = model.id;
-    this._dataService.getWeights(modelId).subscribe(data => {
+    let datasetId;
+    if(dataset != null || dataset != undefined) {
+      datasetId = dataset.id;
+    }
+    this._dataService.getWeights(modelId, datasetId).subscribe(data => {
       if (data[0] != undefined) {
         this.updateWeightsList(model, data);
         this.isWeightListEmpty = false;
