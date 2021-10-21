@@ -14,7 +14,7 @@ export class DataService {
   constructor(
     private httpClient: HttpClient,
     private config: AppConfigService
-  ) {}
+  ) { }
 
   get apiUrl() {
     return this.config.getConfig()["apiBaseUrl"];
@@ -127,10 +127,14 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  getWeights(modelId): Observable<HttpResponse<any>> {
+  getWeights(modelId, datasetId): Observable<HttpResponse<any>> {
     console.log(modelId);
     let url = this.apiUrl.concat("/weights?model_id=");
     url += modelId;
+    if (datasetId != undefined) {
+      url += '&dataset_id=';
+      url += datasetId;
+    }
     return this.httpClient.get<any>(url);
   }
 
@@ -236,16 +240,23 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  pastTrainingProcesses(project_id): Observable<HttpResponse<any>> {
+  pastTrainingProcesses(project_id, modelweights_id): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainings/?project_id=');
     url += project_id;
+    if(modelweights_id != null || modelweights_id != undefined) {
+      url += '&modelweights_id=';
+      url += modelweights_id;
+    }
     return this.httpClient.get<any>(url);
   }
 
+  //TODO: make propertyID optionally
   trainingSettings(trainingId, propertyId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainingSettings?training_id=');
-    url += trainingId;
-    if(propertyId != undefined) {
+    if (trainingId != undefined) {
+      url += trainingId;
+    }
+    if (propertyId != undefined) {
       url += '&property_id=';
       url += propertyId;
     }
@@ -296,7 +307,6 @@ export class DataService {
     return this.httpClient.post<any>(url, payload, { observe: 'response' });
   }
 
-  
   inferenceSingleStreamFlow(selectedWeightId, datasetImagePath, datasetImageData, selectedProjectId, taskManager, env): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat('/inferenceSingle');
     const payload = {

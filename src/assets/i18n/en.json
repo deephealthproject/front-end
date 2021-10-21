@@ -125,6 +125,9 @@
         "noLayersToRemove": "-",
         "classesColumn": "Classes",
         "noClasses": "-",
+        "activeWeightColumn": "Active Modelweight",
+        "isWeightActive": "Yes",
+        "innactiveWeight": "No",
         "errorEditDeleteWeightUserPermission": "To edit and delete weights, you must be the owner!",
         "outputResultList": "Output results detail list for process: ",
         "inferenceSingleImageUrlMessage": "Please enter the location of the image to process.",
@@ -264,9 +267,9 @@
         "image": "Output Image",
         "classes": "Output Details",
         "closeButton": "Close",
-        "outputStatusOk": "Outputs details get ok",
-        "outputStatusError": "Error: Cannot get output details",
-        "outputPendingStatus": "Please come back later to view the details!"
+        "outputStatusOk": "Outputs were successfully loaded!",
+        "outputStatusError": "Error: Cannot get output details.",
+        "outputPendingStatus": "This process does not have any results yet! Please come back later to view the details!"
     },
     "register": {
         "registerTitle": "Signup",
@@ -366,8 +369,8 @@
         "editPropertyValues": "Edit property values",
         "OKButton": "OK",
         "CancelButton": "Cancel",
-        "allowedValueTitle": "Specify a new allowed value for the property selected",
-        "defaultValueTitle": "Specify a new default value for the property selected",
+        "allowedValueTitle": "Specify a new allowed value for the property selected *",
+        "defaultValueTitle": "Specify a new default value for the property selected *",
         "successMessageCreateValues": "Values successfully created!",
         "addButton": "Add",
         "deleteAllowedValueTitle": "Delete allowed value",

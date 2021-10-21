@@ -92,7 +92,7 @@ export class AppTabsComponent implements OnInit {
           this._interactionService.usersList = this._interactionService.usersList.filter(item => item.username !== user.username);
         }
       });
-      this._dataService.pastTrainingProcesses(currentProject.id).subscribe(data => {
+      this._dataService.pastTrainingProcesses(currentProject.id, null).subscribe(data => {
         contentData = data;
         for (let process of contentData) {
           let trainingProcess = new ProcessingObject;
@@ -100,6 +100,7 @@ export class AppTabsComponent implements OnInit {
           trainingProcess.process_updated_date = process.updated;
           trainingProcess.projectId = process.project_id;
           trainingProcess.processId = process.celery_id;
+          trainingProcess.modelweights_id = process.modelweights_id;
           trainingProcess.process_status = ProcessStatus[4];
           trainingProcess.process_type = "training";
           trainingProcess.unread = false;

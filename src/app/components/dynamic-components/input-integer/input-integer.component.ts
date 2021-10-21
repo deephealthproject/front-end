@@ -164,7 +164,6 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
       if (this._interactionService.inputHeightAllowedValues.length != 0) {
         this.propertyAllowedValues = this._interactionService.inputHeightAllowedValues.join(",");
         this._interactionService.allowedValues = this.propertyAllowedValues.split(",");
-        
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
