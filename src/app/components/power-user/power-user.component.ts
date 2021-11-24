@@ -497,27 +497,12 @@ export class PowerUserComponent implements OnInit {
     this.router.navigate(['/project']);
   }
 
-  // getProjects() {
-  //   this._dataService.projects().subscribe(data => {
-  //     // this._interactionService.resetProjectsList(data);
-  //     this.updateProjectsList(data);
-  //   })
-  // }
-
   getProjectsById(projectId) {
     this._dataService.projectsById(projectId).subscribe(data => {
       //this._interactionService.showProjectTab(data.body.name);
       console.log(data);
     })
   }
-
-  // updateProjectsList(contentData) {
-  //   this.projects = [];
-  //   for (let entry of contentData) {
-  //     this.projects.push(entry);
-  //   }
-  //   console.log(this.projects);
-  // }
 
   insertProject(contentData) {
     let p = new Project;
@@ -541,6 +526,7 @@ export class PowerUserComponent implements OnInit {
     dialogConfig.data = {
       dialogTitle: this.translate.instant('delete-dialog.deleteProjectTitle'),
       dialogDeletedItem: itemToDelete.deletedItem.name,
+      dialogItemType: this.translate.instant('delete-dialog.deleteProjectItem'),
       deletedItemInputPlaceHolder: this.translate.instant('powerUser.projectName'),
       dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteProject'),
       deleteObject: itemToDelete
@@ -700,6 +686,7 @@ export class PowerUserComponent implements OnInit {
     dialogConfig.data = {
       dialogTitle: this.translate.instant('delete-dialog.deleteDatasetTitle'),
       dialogDeletedItem: itemToDelete.deletedItem.name,
+      dialogItemType: this.translate.instant('delete-dialog.deleteDatasetItem'),
       deletedItemInputPlaceHolder: this.translate.instant('project.datasetName'),
       dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteDataset'),
       deleteObject: itemToDelete

@@ -357,6 +357,16 @@ export class InteractionService extends TabObject {
   selectedOptionInterp = null;
 
   disabledTrainButton = false;
+  disabledTrainLearningRateAllowed = false;
+  disabledTrainEpochsAllowed = false;
+  disabledTrainBatchSizeAllowed = false;
+  disabledTrainMetricAllowed = false;
+  disabledTrainLossFunctionAllowed = false;
+  disabledTrainInputWidthAllowed = false;
+  disabledTrainInputHeightAllowed = false;
+  disabledTrainAugm = false;
+  disabledTrainValidationAugm = false;
+  disabledTrainTestAugm = false;
 
   @Input() dynamicPropertyList: PropertyItem[] = [];
   selectedOption = null;
@@ -1095,13 +1105,14 @@ export class InteractionService extends TabObject {
         propertyItem.propertyData.datasetId = data[0].dataset_id;
         propertyItem.propertyData.default_value = data[0].default_value;
         propertyItem.propertyData.allowed_value = data[0].allowed_value;
+        propertyItem.propertyData.selectedOption = data[0].default_value;
         if (property.name == "Epochs") {
           this.epochAllowedValues = [];
           this.propertyAllowedValuesList = [];
           this.epochAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.epochAllowedValues.push(value);
             }
           })
@@ -1112,7 +1123,7 @@ export class InteractionService extends TabObject {
           this.batchSizeAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.batchSizeAllowedValues.push(value);
             }
           })
@@ -1123,7 +1134,7 @@ export class InteractionService extends TabObject {
           this.inputWidthAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.inputWidthAllowedValues.push(value);
             }
           })
@@ -1134,7 +1145,7 @@ export class InteractionService extends TabObject {
           this.inputHeightAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.inputHeightAllowedValues.push(value);
             }
           })
@@ -1145,7 +1156,7 @@ export class InteractionService extends TabObject {
           this.learningRateAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.learningRateAllowedValues.push(value);
             }
           })
@@ -1182,7 +1193,7 @@ export class InteractionService extends TabObject {
           this.trainingAugmentationsAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.trainingAugmentationsAllowedValues.push(value);
             }
           })
@@ -1193,7 +1204,7 @@ export class InteractionService extends TabObject {
           this.validationAugmentationsAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.validationAugmentationsAllowedValues.push(value);
             }
           })
@@ -1204,7 +1215,7 @@ export class InteractionService extends TabObject {
           this.testAugmentationsAllowedValues.push(data[0].default_value);
           this.propertyAllowedValuesList = data[0].allowed_value.split(",");
           this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
+            if (value != data[0].default_value) {
               this.testAugmentationsAllowedValues.push(value);
             }
           })
@@ -1224,6 +1235,7 @@ export class InteractionService extends TabObject {
         propertyItem.propertyData.type = property.type;
         propertyItem.propertyData.default_value = data.default;
         propertyItem.propertyData.allowed_value = data.values;
+        propertyItem.propertyData.selectedOption = data.default_value;
       }
     })
   }
@@ -1231,25 +1243,29 @@ export class InteractionService extends TabObject {
   updateDropdownAllowedProperty(contentData) {
     var propertyValuesNameList = Array<string>();
     if (contentData[0].allowed_value != null) {
-      propertyValuesNameList = contentData[0].allowed_value.split(",");
+      propertyValuesNameList = contentData[0].allowed_value.split(",");;
     } else {
       propertyValuesNameList = contentData[0].default_value;
     }
     contentData[0].allowed_value = [];
     contentData[0].allowed_value = propertyValuesNameList;
-    this.selectedOption = propertyValuesNameList[0];
+    
+    propertyValuesNameList.push(contentData[0].default_value);
+    this.selectedOption = contentData[0].default_value;
   }
 
   updateDropdownProperty(contentData) {
     var propertyValuesNameList = Array<string>();
     if (contentData.values != null) {
-      propertyValuesNameList = contentData.values.split(",");
+      propertyValuesNameList = contentData[0].allowed_value.split(",");;
     } else {
       propertyValuesNameList = contentData.default;
     }
     contentData.values = [];
     contentData.values = propertyValuesNameList;
-    this.selectedOption = propertyValuesNameList[0];
+
+    propertyValuesNameList.push(contentData.default_value);
+    this.selectedOption = contentData.default;
   }
 
   openSnackBarOkRequest(message) {

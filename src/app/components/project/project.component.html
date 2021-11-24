@@ -160,7 +160,9 @@
                                     <div style="padding-left: 46%; padding-bottom: 10px;" *ngIf="this.showTrainButton">
                                         <div #trainButton id=trainButton class="div-middle-inference-button">
                                             <button mat-flat-button color="primary" (click)="trainModel()"
-                                                [disabled]="this._interactionService.disabledTrainButton">
+                                                [disabled]="this._interactionService.disabledTrainButton || this._interactionService.disabledTrainEpochsAllowed || this._interactionService.disabledTrainLearningRateAllowed || this._interactionService.disabledTrainBatchSizeAllowed ||
+                                                this._interactionService.disabledTrainMetricAllowed || this._interactionService.disabledTrainLossFunctionAllowed || this._interactionService.disabledTrainInputWidthAllowed || this._interactionService.disabledTrainInputHeightAllowed ||
+                                                this._interactionService.disabledTrainAugm || this._interactionService.disabledTrainValidationAugm || this._interactionService.disabledTrainTestAugm">
                                                 {{'project.train' | translate}}</button>
                                         </div>
                                     </div>
@@ -293,10 +295,10 @@
                 [class.div-right-button-clicked]="editProjectIsClicked">
                 {{'project.editProject' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()"
+            <!-- <button mat-flat-button class="div-right-button" (click)="openNetworkStatistics()"
                 [class.div-right-button-clicked]="networkStatisticsIsClicked">
                 {{'project.networkStatistics' | translate}}
-            </button>
+            </button> -->
             <button mat-flat-button class="div-right-button" (click)="openNotifications()"
                 [class.div-right-button-clicked]="notificationsIsClicked">
                 {{'project.notifications' | translate}}
@@ -367,19 +369,19 @@
                 <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
-                        <button mat-icon-button style="padding-right: 20px;"
+                        <button mat-icon-button style="padding-right: 20px; color: #3180ae;"
                             [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'"
                             (click)="showOutputProcess(row)">
                             <mat-icon
                                 [ngClass]="{'disabledIcon': row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'}"
-                                style="color: #3180ae;" title="Show Output" svgIcon="showOutput"></mat-icon>
+                                title="Show Output" svgIcon="showOutput"></mat-icon>
                         </button>
                         <div (click)="stopProcess(row)" title="stop process" *ngIf="row.showStopButton"
                             style="padding-top: 9px;">
                             <mat-icon svgIcon="stopProcess" style="color: red;"></mat-icon>
                         </div>
                         <div title="Disabled" *ngIf="row.showDisabledButton" style="padding-top: 9px;">
-                            <mat-icon svgIcon="inavailable" style="color: grey;"></mat-icon>
+                            <mat-icon svgIcon="inavailable" style="color: #a7a6a6;"></mat-icon>
                         </div>
                     </div>
                 </td>
@@ -388,60 +390,6 @@
             <tr mat-row *matRowDef="let row; columns: this._interactionService.displayedProcessColumns;"></tr>
         </table>
         <mat-paginator [pageSizeOptions]="[5, 10, 20]" #processPaginator showFirstLastButtons></mat-paginator>
-
-        <!-- <div class="div-notifications-title">
-            <div class="div-notifications-title-section">
-                {{'project.processDate' | translate}}
-            </div>
-            <div class="div-notifications-title-section">
-                {{'project.projectId' | translate}}
-            </div>
-            <div class="div-notifications-title-section">
-                {{'project.processId' | translate}}
-            </div>
-            <div class="div-notifications-title-section">
-                {{'project.processType' | translate}}
-            </div>
-            <div style="border-color: #65A4C4;" class="div-notifications-title-section">
-                {{'project.processStatus' | translate}}
-            </div>
-        </div> -->
-        <!-- <div class="div-notifications-process" *ngFor="let process of this._interactionService.runningProcesses | processFilter: searchText"
-            (click)="markNotificationAsRead(process)">
-            <div class="div-notifications-process-section">
-                <div class="div-notifications-icon" *ngIf="process.unread" title="mark as read">
-                    <mat-icon svgIcon="markUnread"></mat-icon>
-                </div>
-                <div class="div-notifications-text">
-                    {{process.processDate}}
-                </div>
-            </div>
-            <div class="div-notifications-process-section">
-                {{process.projectId}}
-            </div>
-            <div class="div-notifications-process-section">
-                {{process.processId}}
-            </div>
-            <div class="div-notifications-process-section">
-                {{process.process_type}}
-            </div>
-            <div class="div-notifications-process-section">
-                <div class="div-notifications-process-section-text">
-                    {{process.process_status}}
-                </div>
-                <div class="div-notifications-process-section-buttons">
-                    <div style="padding-right: 20px;" (click)="showOutputProcess(process)" title="Show Output">
-                        <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
-                    </div>
-                    <div (click)="stopProcess(process)" title="stop process" *ngIf="process.showStopButton">
-                        <mat-icon svgIcon="stopProcess" style="color: red;"></mat-icon>
-                    </div>
-                    <div title="Disabled" *ngIf="process.showDisabledButton">
-                        <mat-icon svgIcon="inavailable" style="color: grey;"></mat-icon>
-                    </div>
-                </div>
-            </div>
-        </div> -->
     </div>
 
     <div class="div-edit-weights" [hidden]="!divEditWeightsShowStatus">
@@ -501,26 +449,31 @@
                 <th mat-header-cell *matHeaderCellDef>{{'project.options' | translate }} </th>
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
-                        <div *ngFor="let weight of row.weightUsers">
+                        <button mat-icon-button [disabled]="row.weightOwner != this._interactionService.username"
+                            (click)="onEditWeight(row)">
                             <mat-icon
-                                *ngIf="weight.username == this._interactionService.username && weight.permission == 'OWN'"
-                                class="div-icon-edit" title="{{'project.edit' | translate }}" svgIcon="edit"
-                                (click)="onEditWeight(row)"></mat-icon>
-                        </div>
-                        <div style="padding-right: 10px; cursor: pointer;"
-                            title="{{'project.viewDetails' | translate }}" (click)="showWeightDetails(row)">
-                            <mat-icon svgIcon="viewDetails" style="color: #3180ae;"></mat-icon>
-                        </div>
-                        <span *ngFor="let weight of row.weightUsers">
+                                [ngClass]="{'disabledIcon': row.weightOwner != this._interactionService.username }"
+                                class="div-icon-edit" title="{{'project.edit' | translate }}" svgIcon="edit"></mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="showWeightDetails(row)">
+                            <mat-icon class="div-icon-edit" title="{{'project.viewDetails' | translate }}"
+                                svgIcon="viewDetails"></mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="downloadWeight(row)">
+                            <mat-icon class="div-icon-edit" title="{{'project.downloadWeight' | translate }}"
+                                svgIcon="download"></mat-icon>
+                        </button>
+                        <button mat-icon-button [disabled]="row.weightOwner != this._interactionService.username"
+                            (click)="deleteWeight(row)">
                             <mat-icon
-                                *ngIf="weight.username == this._interactionService.username && weight.permission == 'OWN'"
+                                [ngClass]="{'disabledIcon': row.weightOwner != this._interactionService.username }"
                                 class="div-icon-edit" title="{{'delete-dialog.deleteWeight' | translate }}"
-                                svgIcon="delete" (click)="deleteWeight(row)"></mat-icon>
-                        </span>
-                        <div style="cursor: pointer;" title="{{'project.results' | translate }}"
-                            (click)="onShowOutputsByWeight(row)">
-                            <mat-icon svgIcon="showOutput" style="color: #3180ae;"></mat-icon>
-                        </div>
+                                svgIcon="delete"></mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="onShowOutputsByWeight(row)">
+                            <mat-icon class="div-icon-edit" title="{{'project.results' | translate }}"
+                                svgIcon="showOutput"></mat-icon>
+                        </button>
                     </div>
                 </td>
             </ng-container>
@@ -583,12 +536,11 @@
     <div class="div-output-results" [hidden]="!divOutputResultsShowStatus">
         <div class="div-edit-weights-title">{{'project.outputResults' | translate}}</div>
         <div class="div-prefilter-by-models" *ngIf="showOutputInferenceSingle">
-            <div class="div-middle-box-title" style="color: #3180ae;">
+            <div class="div-middle-box-title" style="color: #3180ae; padding-left: 10px;">
                 {{'project.outputResultList' | translate}} {{outputResultsDetailProcessId}}
             </div>
         </div>
-        <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort
-            *ngIf="showOutputInferenceSingle">
+        <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
             <ng-container matColumnDef="outputImage">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
@@ -604,9 +556,10 @@
             <tr mat-header-row *matHeaderRowDef="displayedOutputColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputColumns;"></tr>
         </table>
-        <mat-paginator *ngIf="showOutputInferenceSingle" [pageSizeOptions]="[5, 10, 20]" #outputPaginator showFirstLastButtons></mat-paginator>
+        <mat-paginator *ngIf="showOutputInferenceSingle" [pageSizeOptions]="[5, 10, 20]" #outputPaginator
+            showFirstLastButtons></mat-paginator>
 
-        <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;" *ngIf="showOutputRunning">
+        <div class="div-middle-box-title" style="color: #3180ae; padding-left: 10px;" *ngIf="showOutputRunning">
             {{'project.outputStatusParametersDetails' | translate}} {{outputResultsDetailProcessId}}
         </div>
 
@@ -749,7 +702,8 @@
                         <mat-icon
                             [ngClass]="{'disabledIcon': this._interactionService.username != this._interactionService.projectOwner || associatedUsersSelection.selectedOptions.selected.length == 0}"
                             class="div-icon-delete" title="{{'delete-dialog.deleteUsers' | translate }}"
-                            svgIcon="delete"></mat-icon>
+                            svgIcon="delete">
+                        </mat-icon>
                     </button>
                 </div>
             </div>

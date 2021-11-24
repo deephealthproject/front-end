@@ -11,6 +11,7 @@ export interface DeleteDialogData {
   dialogTitle: string;
   dialogDeletedItem: string;
   dialogContent: string;
+  dialogItemType: string;
   dialogDeletedItemInputValue: string;
   deletedItemInputPlaceHolder: string;
   deleteObject: ItemToDelete;
@@ -30,6 +31,7 @@ export class DeleteDialogComponent implements OnInit {
   dialogTitle: string;
   dialogDeletedItem: any;
   dialogContent: string;
+  dialogItemType: string;
   dialogDeletedItemInputValue: string;
   deletedItemInputPlaceHolder: string;
   deleteObject: ItemToDelete;
@@ -41,6 +43,7 @@ export class DeleteDialogComponent implements OnInit {
     this.dialogTitle = data.dialogTitle;
     this.dialogDeletedItem = data.dialogDeletedItem;
     this.dialogContent = data.dialogContent;
+    this.dialogItemType = data.dialogItemType;
     this.deletedItemInputPlaceHolder = data.deletedItemInputPlaceHolder;
     this.dialogDeletedItemInputValue = data.dialogDeletedItemInputValue;
     this.deleteObject = data.deleteObject;

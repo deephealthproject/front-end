@@ -104,6 +104,7 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
       if (event.target.value < 1 || event.target.value > 300) {
         this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorUpperLimitEpochsMessage'));
         this._interactionService.disabledTrainButton = true;
+        this._interactionService.disabledTrainEpochsAllowed = true;
       } else {
         //match with allowed array
         if (this._interactionService.epochAllowedValues.length != 0) {
@@ -113,10 +114,12 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
           const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
           if (this._interactionService.allowedValues.some(allowedValueExist)) {
             this._interactionService.disabledTrainButton = false;
+            this._interactionService.disabledTrainEpochsAllowed = false;
             this._interactionService.epochValue = event.target.value;
           } else {
             this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
             this._interactionService.disabledTrainButton = true;
+            this._interactionService.disabledTrainEpochsAllowed = true;
           }
         } else {
           this._interactionService.epochValue = event.target.value;
@@ -132,9 +135,11 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainButton = false;
           this._interactionService.batchSizeValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
+          this._interactionService.disabledTrainButton = true;
           this._interactionService.disabledTrainButton = true;
         }
       } else {
@@ -150,10 +155,12 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainInputWidthAllowed = false;
           this._interactionService.inputWidthValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainInputWidthAllowed = true;
         }
       } else {
         this._interactionService.inputWidthValue = event.target.value;
@@ -167,10 +174,12 @@ export class InputIntegerComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainInputHeightAllowed = false;
           this._interactionService.inputHeightValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainInputHeightAllowed = true;
         }
       } else {
         this._interactionService.inputHeightValue = event.target.value;
