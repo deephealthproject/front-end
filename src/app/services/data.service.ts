@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 
 import { AppConfigService } from './config.service';
 import { Injectable } from '@angular/core';
@@ -165,6 +165,15 @@ export class DataService {
     };
     console.log(payload);
     return this.httpClient.put<any>(url, payload, { observe: 'response' });
+  }
+
+  downloadWeight(weightId): Observable<HttpResponse<any>> {
+    let url = this.apiUrl.concat('/weightsDownload?modelweights_id=');
+    if (weightId != undefined) {
+      url += weightId;
+    }
+    const reqHeader = new HttpHeaders({ 'Content-Type':'application/onnx'});
+    return this.httpClient.get<any>(url, { headers: reqHeader, responseType: 'blob' as 'json', observe: 'response' });
   }
 
   deleteWeight(weightId): Observable<HttpResponse<any>> {

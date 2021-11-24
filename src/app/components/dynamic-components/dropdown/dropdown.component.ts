@@ -62,10 +62,12 @@ export class DropdownComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainMetricAllowed = false;
           this._interactionService.metricValue = event.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainMetricAllowed = true;
         }
       } else {
         this._interactionService.metricValue = event.value;
@@ -80,10 +82,12 @@ export class DropdownComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainLossFunctionAllowed = false;
           this._interactionService.lossFunctionValue = event.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainLossFunctionAllowed = true;
         }
       } else {
         this._interactionService.lossFunctionValue = event.value;

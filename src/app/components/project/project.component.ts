@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, ComponentFactoryResolver, ViewContainerRef, ViewEncapsulation } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
@@ -57,7 +57,7 @@ export interface WeightData {
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.css']
+  styleUrls: ['./project.component.css'],
 })
 
 export class ProjectComponent implements OnInit {
@@ -236,6 +236,9 @@ export class ProjectComponent implements OnInit {
   weightOwner;
   weightProcessId;
 
+  //download weights
+  weightBlobFile;
+
   //project users
   users = [];
   usersArray: Array<User> = [];
@@ -351,6 +354,10 @@ export class ProjectComponent implements OnInit {
     this.matIconRegistry.addSvgIcon(
       'modelweight',
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/subdirectory_arrow_right-24px.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'download',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/img/icon/file_download_black_24dp.svg')
     );
   }
 
@@ -2210,7 +2217,7 @@ export class ProjectComponent implements OnInit {
     }
     contentData[0].allowed_value = [];
     contentData[0].allowed_value = propertyValuesNameList;
-    this.selectedOption = propertyValuesNameList[0];
+    this.selectedOption = contentData[0].default_value;
   }
 
   updateDropdownProperty(contentData) {
@@ -2222,7 +2229,7 @@ export class ProjectComponent implements OnInit {
     }
     contentData.values = [];
     contentData.values = propertyValuesNameList;
-    this.selectedOption = propertyValuesNameList[0];
+    this.selectedOption = contentData.default;
   }
 
   updatePropertiesList(propertyId: number, contentData) {
@@ -2552,6 +2559,30 @@ export class ProjectComponent implements OnInit {
     this.weightDetails = new MatTableDataSource(weightDetailsArray);
   }
 
+  downloadWeight(weight) {
+    let contentData;
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
+
+    this._dataService.downloadWeight(weight.weightId).subscribe(data => {
+      dialogRef.close();
+      contentData = data;
+      this.weightBlobFile = new Blob([contentData.body], { type: 'application/onnx' });
+
+      var downloadWeightURL = URL.createObjectURL(this.weightBlobFile);
+      var linkDownload = document.createElement('a');
+      linkDownload.href = downloadWeightURL;
+      linkDownload.download = weight.weightName + ".onnx";
+      linkDownload.click();
+      this._interactionService.openSnackBarOkRequest(this.translate.instant('project.downloadWeightStatusOK'));
+    }, error => {
+      dialogRef.close();
+      this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+    })
+  }
+
   deleteWeight(weight) {
     let itemToDelete = new ItemToDelete();
     itemToDelete.type = TypeOfItemToDelete[3];
@@ -2562,6 +2593,7 @@ export class ProjectComponent implements OnInit {
     dialogConfig.data = {
       dialogTitle: this.translate.instant('delete-dialog.deleteWeightTitle'),
       dialogDeletedItem: itemToDelete.deletedItem.weightName,
+      dialogItemType: this.translate.instant('delete-dialog.deleteWeightItem'),
       deletedItemInputPlaceHolder: this.translate.instant('project.weightName'),
       dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteWeight'),
       deleteObject: itemToDelete
@@ -2871,13 +2903,13 @@ export class ProjectComponent implements OnInit {
     let lossChartObject;
     let chartLossValuesList = [
       {
-        "name": "Evolution of the process",
+        "name": "Loss evolution during process",
         "series": []
       }
     ];
     let chartMetricValuesList = [
       {
-        "name": "Evolution of the process",
+        "name": "Metric evolution during process",
         "series": []
       }
     ];
@@ -3003,6 +3035,7 @@ export class ProjectComponent implements OnInit {
     dialogConfig.data = {
       dialogTitle: this.translate.instant('delete-dialog.deleteUsersTitle'),
       dialogDeletedItem: this.selectedAssociatedUsers,
+      dialogItemType: this.translate.instant('delete-dialog.deleteUserItem'),
       deletedItemInputPlaceHolder: this.translate.instant('delete-dialog.inputPlaceHolderUsersName'),
       dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteUsers'),
       deleteObject: itemToDelete
@@ -3037,6 +3070,7 @@ export class ProjectComponent implements OnInit {
     dialogConfig.data = {
       dialogTitle: this.translate.instant('delete-dialog.deleteProjectTitle'),
       dialogDeletedItem: itemToDelete.deletedItem.name,
+      dialogItemType: this.translate.instant('delete-dialog.deleteProjectItem'),
       deletedItemInputPlaceHolder: this.translate.instant('powerUser.projectName'),
       dialogContent: this.translate.instant('delete-dialog.areYouSureDeleteProject'),
       deleteObject: itemToDelete

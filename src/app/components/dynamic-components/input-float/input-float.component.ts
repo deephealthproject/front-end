@@ -49,6 +49,7 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
       if (event.target.value < 0.00001 || event.target.value > 0.01) {
         this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorMessageLearningrateLimits'));
         this._interactionService.disabledTrainButton = true;
+        this._interactionService.disabledTrainLearningRateAllowed = true;
       }
       else {
         //match with allowed array
@@ -59,10 +60,12 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
           const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
           if (this._interactionService.allowedValues.some(allowedValueExist)) {
             this._interactionService.disabledTrainButton = false;
+            this._interactionService.disabledTrainLearningRateAllowed = false;
             this._interactionService.learningRateValue = event.target.value;
           } else {
             this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
             this._interactionService.disabledTrainButton = true;
+            this._interactionService.disabledTrainLearningRateAllowed = true;
           }
         } else {
           this._interactionService.learningRateValue = event.target.value;

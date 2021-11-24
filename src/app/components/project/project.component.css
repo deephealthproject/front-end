@@ -105,8 +105,7 @@
     background-color: #65A4C4;
 }
 
-.div-middle-box-title {
-    width: 100%;
+.div-middle-box-title {  
     display: inline-block;
     font-size: 15px;
     color: rgb(4, 36, 53);
@@ -508,8 +507,9 @@ mat-selection-list {
     float: right;
 }
 
- .disabledIcon{
+ .disabledIcon {
     cursor: not-allowed;
+    color: #a7a6a6;
 }
 
 .div-create-model-allowed-properties {
@@ -578,3 +578,22 @@ mat-selection-list {
 ::ng-deep .bad-request-custom-class .mat-simple-snackbar-action {
     color: white;
 }
+
+/* .chart-legend {
+    color: black;
+}
+
+.ngx-charts-line-chart .ngx-charts-chart .ngx-charts-legend .legend-labels {
+    width: 80px !important;
+    color: red !important;
+}
+
+.ngx-charts-line-chart /deep/ .ngx-charts-chart /deep/ .ngx-charts-legend /deep/ 
+.legend-labels {
+    color: red !important;
+}
+
+.legend {
+    width: 80px !important;
+    color: red !important;
+} */

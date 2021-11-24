@@ -91,10 +91,12 @@ export class InputTextComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainAugm = false;
           this._interactionService.trainingAugmentationsValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainAugm = true;
         }
       } else {
         this._interactionService.trainingAugmentationsValue = event.target.value;
@@ -109,10 +111,12 @@ export class InputTextComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainValidationAugm = false;
           this._interactionService.validationAugmentationsValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainValidationAugm = true;
         }
       } else {
         this._interactionService.validationAugmentationsValue = event.target.value;
@@ -127,10 +131,12 @@ export class InputTextComponent implements PropertyInterface, OnInit {
         const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
         if (this._interactionService.allowedValues.some(allowedValueExist)) {
           this._interactionService.disabledTrainButton = false;
+          this._interactionService.disabledTrainTestAugm = false;
           this._interactionService.testAugmentationsValue = event.target.value;
         } else {
           this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
           this._interactionService.disabledTrainButton = true;
+          this._interactionService.disabledTrainTestAugm = true;
         }
       } else {
         this._interactionService.testAugmentationsValue = event.target.value;
