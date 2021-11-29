@@ -30,11 +30,8 @@
     "angular-oauth2-oidc-jwks": "^9.0.0",
     "chart.js": "^2.9.3",
     "core-js": "^2.5.4",
-<<<<<<< HEAD
     "keycloak-angular": "^8.3.0",
     "keycloak-js": "^14.0.0",
-=======
->>>>>>> master
     "rxjs": "^6.6.7",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
