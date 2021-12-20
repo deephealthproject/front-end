@@ -175,6 +175,7 @@
         "propertiesTitle": "Properties",
         "defaultPropertiesValuesTitle": "Value",
         "allowedPropertiesValuesTitle": "Allowed values",
+        "tooltipAllowedValuesColumn":"These are the allowed values to choose for each property!",
         "angleXAxisTrainingAugmentations": "Angle x Axis",
         "angleYAxisTrainingAugmentations": "Angle y Axis",
         "angleXAxisValueTrainingAugmentations": "Angle x axis: ",
@@ -196,8 +197,12 @@
         "createModelAllowedPropertiesTitle": "Create New Allowed and Default Values for a Model Property (and Optionally a Dataset)",
         "errorUpperLimitEpochsMessage": "Error: Please insert epochs value between 1 and 300!",
         "errorValueNotInAllowedValuesMessage": "Error: Please insert one of the allowed values!",
+        "errorPositiveAllowedValuesMessage": "Error: Please insert a positive value!",
         "downloadWeight": "Download modelweight",
-        "downloadWeightStatusOK": "Weight successfully downloaded"
+        "downloadWeightStatusOK": "Weight successfully downloaded",
+        "noAllowedValuesMessage": "No allowed values specified!",
+        "defaultProperty": "Default: ",
+        "allowedProperty": "   Allowed: "
     },
     "header": {
         "headerText": "Training models",
@@ -383,6 +388,7 @@
         "deleteAllowedValueTitle": "Delete allowed value",
         "errorAddedNegativeAllowedValue": "Error: Please enter a positive value!",
         "lowerAndUpperLimitsLearningRateLabel": "The lower limit is 0.00001 and the upper limit is 0.01.",
-        "lowerAndUpperLimitsEpochsLabel": "The lower limit is 1 and the upper limit is 300."
+        "lowerAndUpperLimitsEpochsLabel": "The lower limit is 1 and the upper limit is 300.",
+        "errorSingleAllowedValue": "Error: This property has only one allowed value. It can not be edited!"
     }
 }

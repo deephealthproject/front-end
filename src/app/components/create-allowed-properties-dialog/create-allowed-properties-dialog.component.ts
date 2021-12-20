@@ -85,7 +85,11 @@ export class CreateAllowedPropertiesDialogComponent implements OnInit {
   save() {
     this.data.inputAllowedValue = this.inputAllowedValue;
     this.data.inputDefaultValue = this.inputDefaultValue;
-    this.data.allowedValuesList = this.allowedValuesList;
+    this.allowedValuesList.forEach(value => {
+      if(value != this.inputDefaultValue) {
+        this.data.allowedValuesList.push(value);
+      }
+    }) 
     this.dialogRef.close(this.data);
   }
 

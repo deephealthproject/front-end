@@ -28,50 +28,64 @@ export class InputTextComponent implements PropertyInterface, OnInit {
       this.initialiseTestAugmentationsAllowedValues(this.propertyData);
     }
     this._interactionService.allowedValues = [];
+    this._interactionService.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this._interactionService.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
   }
 
   initialiseTrainingAugmentationsAllowedValues(propertyData) {
     this._interactionService.trainingAugmentationsValue = propertyData.default_value;
     this._interactionService.trainingAugmentationsName = propertyData.name;
-
     this._interactionService.trainingAugmentationsAllowedValues = [];
-    const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
-    if (!this._interactionService.trainingAugmentationsAllowedValues.some(defaultValueExist)) {
-      this._interactionService.trainingAugmentationsAllowedValues.push(propertyData.default_value);
-    }
-    const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
-    if (!this._interactionService.trainingAugmentationsAllowedValues.some(allowedValueExist)) {
-      this._interactionService.trainingAugmentationsAllowedValues.push(propertyData.allowed_value);
+
+    if (propertyData.allowed_value != null) {
+      if (propertyData.allowed_value.length != 0) {
+        const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
+        if (!this._interactionService.trainingAugmentationsAllowedValues.some(defaultValueExist)) {
+          this._interactionService.trainingAugmentationsAllowedValues.push(propertyData.default_value);
+        }
+        const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
+        if (!this._interactionService.trainingAugmentationsAllowedValues.some(allowedValueExist)) {
+          this._interactionService.trainingAugmentationsAllowedValues.push(propertyData.allowed_value);
+        }
+      }
     }
   }
 
   initialiseValidationAugmentationsAllowedValues(propertyData) {
     this._interactionService.validationAugmentationsValue = propertyData.default_value;
     this._interactionService.validationAugmentationsName = propertyData.name;
-
     this._interactionService.validationAugmentationsAllowedValues = [];
-    const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
-    if (!this._interactionService.validationAugmentationsAllowedValues.some(defaultValueExist)) {
-      this._interactionService.validationAugmentationsAllowedValues.push(propertyData.default_value);
-    }
-    const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
-    if (!this._interactionService.validationAugmentationsAllowedValues.some(allowedValueExist)) {
-      this._interactionService.validationAugmentationsAllowedValues.push(propertyData.allowed_value);
+
+    if (propertyData.allowed_value != null) {
+      if (propertyData.allowed_value.length != 0) {
+        const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
+        if (!this._interactionService.validationAugmentationsAllowedValues.some(defaultValueExist)) {
+          this._interactionService.validationAugmentationsAllowedValues.push(propertyData.default_value);
+        }
+        const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
+        if (!this._interactionService.validationAugmentationsAllowedValues.some(allowedValueExist)) {
+          this._interactionService.validationAugmentationsAllowedValues.push(propertyData.allowed_value);
+        }
+      }
     }
   }
 
   initialiseTestAugmentationsAllowedValues(propertyData) {
     this._interactionService.testAugmentationsValue = propertyData.default_value;
     this._interactionService.testAugmentationsName = propertyData.name;
-
     this._interactionService.testAugmentationsAllowedValues = [];
-    const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
-    if (!this._interactionService.testAugmentationsAllowedValues.some(defaultValueExist)) {
-      this._interactionService.testAugmentationsAllowedValues.push(propertyData.default_value);
-    }
-    const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
-    if (!this._interactionService.testAugmentationsAllowedValues.some(allowedValueExist)) {
-      this._interactionService.testAugmentationsAllowedValues.push(propertyData.allowed_value);
+
+    if (propertyData.allowed_value != null) {
+      if (propertyData.allowed_value.length != 0) {
+        const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
+        if (!this._interactionService.testAugmentationsAllowedValues.some(defaultValueExist)) {
+          this._interactionService.testAugmentationsAllowedValues.push(propertyData.default_value);
+        }
+        const allowedValueExist = (allowedValue) => allowedValue === propertyData.allowed_value;
+        if (!this._interactionService.testAugmentationsAllowedValues.some(allowedValueExist)) {
+          this._interactionService.testAugmentationsAllowedValues.push(propertyData.allowed_value);
+        }
+      }
     }
   }
 

@@ -46,6 +46,14 @@ export class ProcessData {
   validation_accuracy;
 }
 
+export class PropertyItemClass {
+  defaultType: string;
+  allowedType: string;
+  defaultValue: any;
+  allowedValuesMetric: any;
+  allowedValuesLoss: any;
+}
+
 @Directive()
 @Injectable({
   providedIn: 'root'
@@ -367,9 +375,16 @@ export class InteractionService extends TabObject {
   disabledTrainAugm = false;
   disabledTrainValidationAugm = false;
   disabledTrainTestAugm = false;
+  propertyItemData = new PropertyItemClass();
 
   @Input() dynamicPropertyList: PropertyItem[] = [];
   selectedOption = null;
+
+  batchSizeValues = null;
+  inputWidthValues = null;
+  inputHeightValues = null;
+  epochValues = null;
+  learningRateValues = null;
 
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
@@ -980,19 +995,9 @@ export class InteractionService extends TabObject {
   }
 
   editAllowedPropertiesValues(property) {
-    if (property.type == "INT") {
-      this.showIntegerInput = true;
-      this.showFloatInput = false;
-      this.showTextInput = false;
-    } else if (property.type == "FLT") {
-      this.showIntegerInput = false;
-      this.showFloatInput = true;
-      this.showTextInput = false;
-    } else if (property.type == "STR" || property.type == "LST") {
-      this.showIntegerInput = false;
-      this.showFloatInput = false;
-      this.showTextInput = true;
-    }
+    let enableCreateValues = false;
+    this.showPropertyInput(property);
+
     let selectedModelId;
     let selectedDatasetId;
     let modelList = this.getModelsByTaskArray();
@@ -1026,72 +1031,119 @@ export class InteractionService extends TabObject {
     dialogConfigSpinner.disableClose = true;
     dialogConfigSpinner.autoFocus = true;
 
-    let dialogRef = this.dialog.open(CreateAllowedPropertiesDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
-      if (result) {
-        let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
-        this.propertyDefaultValue = result.inputDefaultValue;
-        this.allowedValuesList = result.allowedValuesList;
-        this.propertyAllowedValue = this.allowedValuesList.join(",");
-
-        if (property.propertyId == null || property.propertyId == undefined) {
-          this._dataService.createAllowedProperties(this.propertyAllowedValue, this.propertyDefaultValue, property.id, selectedModelId, selectedDatasetId).subscribe(data => {
-            if (data.statusText == "Created") {
-              dialogRefSpinner.close();
-              this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
-
-              this._dataService.allowedProperties(selectedModelId, property.id, selectedDatasetId).subscribe(data => {
-                if (data[0] != undefined) {
-                  this.updateAllowedPropertiesList(property, data);
-                } else {
-                  this._dataService.propertiesById(property.id).subscribe(data => {
-                    if (data != undefined) {
-                      this.updatePropertiesList(property, data);
-                    }
-                  })
-                }
-              }, error => {
-                dialogRefSpinner.close();
-                this.openSnackBarBadRequest("Error: " + error.statusText);
-              })
-            }
-          }, error => {
-            dialogRefSpinner.close();
-            this.openSnackBarBadRequest("Error: " + error.error.Error);
-          })
+    if (property.type == "LST") {
+      if (property.allowed_value != null) {
+        if (property.allowed_value.length == 1) {
+          enableCreateValues = false;
         } else {
-          this._dataService.updateAllowedProperties(property.id, this.propertyAllowedValue, this.propertyDefaultValue, property.propertyId, selectedModelId, selectedDatasetId).subscribe(data => {
-            if (data.statusText == "OK") {
-              dialogRefSpinner.close();
-              this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
-
-              this._dataService.allowedProperties(selectedModelId, property.propertyId, selectedDatasetId).subscribe(data => {
-                if (data[0] != undefined) {
-                  this.updateAllowedPropertiesList(property, data);
-                } else {
-                  this._dataService.propertiesById(property.propertyId).subscribe(data => {
-                    if (data != undefined) {
-                      this.updatePropertiesList(property, data);
-                    }
-                  })
-                }
-              }, error => {
-                dialogRefSpinner.close();
-                this.openSnackBarBadRequest("Error: " + error.statusText);
-              })
-            }
-          }, error => {
-            dialogRefSpinner.close();
-            this.openSnackBarBadRequest("Error: " + error.error.Error);
-          })
+          enableCreateValues = true;
         }
       }
-    });
+    } else {
+      if (property.allowed_value != null) {
+        if (property.allowed_value.length == 1) {
+          enableCreateValues = true;
+        }
+        else if (property.allowed_value.length < 3 && property.allowed_value[0].includes(">") && property.allowed_value[0].includes(">=") && property.allowed_value[0].includes("<") && property.allowed_value[0].includes("<=")) {
+          enableCreateValues = true;
+        }
+        else if (property.allowed_value[1] != null && property.allowed_value.length > 2 && !property.allowed_value[1].includes(",")) {
+          enableCreateValues = true;
+        } else {
+          enableCreateValues = false;
+        }
+      } else {
+        enableCreateValues = true;
+      }
+    }
+    if (enableCreateValues == false) {
+      this.openSnackBarBadRequest(this.translate.instant('create-allowed-properties-dialog.errorSingleAllowedValue'));
+    } else {
+      let dialogRef = this.dialog.open(CreateAllowedPropertiesDialogComponent, dialogConfig);
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('The dialog was closed');
+        console.log(result);
+        if (result) {
+          let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
+          this.propertyDefaultValue = result.inputDefaultValue;
+          this.allowedValuesList = result.allowedValuesList;
+          this.propertyAllowedValue = this.allowedValuesList.join(",");
+
+          if (property.propertyId == null || property.propertyId == undefined) {
+            this._dataService.createAllowedProperties(this.propertyAllowedValue, this.propertyDefaultValue, property.id, selectedModelId, selectedDatasetId).subscribe(data => {
+              if (data.statusText == "Created") {
+                dialogRefSpinner.close();
+                this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
+
+                this._dataService.allowedProperties(selectedModelId, property.id, selectedDatasetId).subscribe(data => {
+                  if (data[0] != undefined) {
+                    this.updateAllowedPropertiesList(property, data);
+                  } else {
+                    this._dataService.propertiesById(property.id).subscribe(data => {
+                      if (data != undefined) {
+                        this.updatePropertiesList(property, data);
+                      }
+                    })
+                  }
+                }, error => {
+                  dialogRefSpinner.close();
+                  this.openSnackBarBadRequest("Error: " + error.statusText);
+                })
+              }
+            }, error => {
+              dialogRefSpinner.close();
+              this.openSnackBarBadRequest("Error: " + error.error.Error);
+            })
+          } else {
+            this._dataService.updateAllowedProperties(property.id, this.propertyAllowedValue, this.propertyDefaultValue, property.propertyId, selectedModelId, selectedDatasetId).subscribe(data => {
+              if (data.statusText == "OK") {
+                dialogRefSpinner.close();
+                this.openSnackBarOkRequest(this.translate.instant('create-allowed-properties-dialog.successMessageCreateValues'));
+
+                this._dataService.allowedProperties(selectedModelId, property.propertyId, selectedDatasetId).subscribe(data => {
+                  if (data[0] != undefined) {
+                    this.updateAllowedPropertiesList(property, data);
+                  } else {
+                    this._dataService.propertiesById(property.propertyId).subscribe(data => {
+                      if (data != undefined) {
+                        this.updatePropertiesList(property, data);
+                      }
+                    })
+                  }
+                }, error => {
+                  dialogRefSpinner.close();
+                  this.openSnackBarBadRequest("Error: " + error.statusText);
+                })
+              }
+            }, error => {
+              dialogRefSpinner.close();
+              this.openSnackBarBadRequest("Error: " + error.error.Error);
+            })
+          }
+        }
+      });
+    }
+  }
+
+  showPropertyInput(property) {
+    if (property.type == "INT") {
+      this.showIntegerInput = true;
+      this.showFloatInput = false;
+      this.showTextInput = false;
+    } else if (property.type == "FLT") {
+      this.showIntegerInput = false;
+      this.showFloatInput = true;
+      this.showTextInput = false;
+    } else if (property.type == "STR" || property.type == "LST") {
+      this.showIntegerInput = false;
+      this.showFloatInput = false;
+      this.showTextInput = true;
+    }
   }
 
   updateAllowedPropertiesList(property, data) {
+    let allowedArray = [];
+    let defaultAndAllowedArray = []
     this.dynamicPropertyList.forEach(propertyItem => {
       if (propertyItem.propertyData.name == property.name) {
         if (property.type == "LST") {
@@ -1104,121 +1156,51 @@ export class InteractionService extends TabObject {
         propertyItem.propertyData.modelId = data[0].model_id;
         propertyItem.propertyData.datasetId = data[0].dataset_id;
         propertyItem.propertyData.default_value = data[0].default_value;
-        propertyItem.propertyData.allowed_value = data[0].allowed_value;
         propertyItem.propertyData.selectedOption = data[0].default_value;
+        propertyItem.propertyData.allowed_value = data[0].allowed_value;
+        // if (property.name == "Metric") {
+        //   data[0].allowed_value.forEach(allowedValue => {
+        //     defaultAndAllowedArray.push(allowedValue);
+        //   })
+        //   this.propertyItemData.allowedValuesMetric = defaultAndAllowedArray;
+        // } else if (property.name == "Loss function") {
+        //   defaultAndAllowedArray = [];
+        //   data[0].allowed_value.forEach(allowedValue => {
+        //     defaultAndAllowedArray.push(allowedValue);
+        //   })
+        //   this.propertyItemData.allowedValuesLoss = allowedArray;
+        // } else {
+        //   propertyItem.propertyData.allowed_value = data[0].allowed_value;
+        // }
         if (property.name == "Epochs") {
-          this.epochAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.epochAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.epochAllowedValues.push(value);
-            }
-          })
+          this.populateEpochProperty(data);
         }
         if (property.name == "Batch size") {
-          this.batchSizeAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.batchSizeAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.batchSizeAllowedValues.push(value);
-            }
-          })
+          this.populateBatchSizeProperty(data);
         }
         if (property.name == "Input width") {
-          this.inputWidthAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.inputWidthAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.inputWidthAllowedValues.push(value);
-            }
-          })
+          this.populateInputWidthProperty(data);
         }
         if (property.name == "Input height") {
-          this.inputHeightAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.inputHeightAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.inputHeightAllowedValues.push(value);
-            }
-          })
+          this.populateInputHeightProperty(data);
         }
         if (property.name == "Learning rate") {
-          this.learningRateAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.learningRateAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.learningRateAllowedValues.push(value);
-            }
-          })
+          this.populateLearningRateProperty(data);
         }
         if (property.name == "Metric") {
-          this.metricAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.dropdownValues = null;
-          this.metricAllowedValues.push(data[0].default_value);
-          this.dropdownValues = data[0].allowed_value.join(",");
-          this.propertyAllowedValuesList = this.dropdownValues.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
-              this.metricAllowedValues.push(value);
-            }
-          })
+          this.populateMetricProperty(data);
         }
         if (property.name == "Loss function") {
-          this.lossFunctionAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.dropdownValues = null;
-          this.lossFunctionAllowedValues.push(data[0].default_value);
-          this.dropdownValues = data[0].allowed_value.join(",");
-          this.propertyAllowedValuesList = this.dropdownValues.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if(value != data[0].default_value) {
-              this.lossFunctionAllowedValues.push(value);
-            }
-          })
+          this.populateLossProperty(data);
         }
         if (property.name == "Training augmentations") {
-          this.trainingAugmentationsAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.trainingAugmentationsAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.trainingAugmentationsAllowedValues.push(value);
-            }
-          })
+          this.populateTrainingAugmentationsProperty(data);
         }
         if (property.name == "Validation augmentations") {
-          this.validationAugmentationsAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.validationAugmentationsAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.validationAugmentationsAllowedValues.push(value);
-            }
-          })
+          this.populateValidationAugmentationsProperty(data);
         }
         if (property.name == "Test augmentations") {
-          this.testAugmentationsAllowedValues = [];
-          this.propertyAllowedValuesList = [];
-          this.testAugmentationsAllowedValues.push(data[0].default_value);
-          this.propertyAllowedValuesList = data[0].allowed_value.split(",");
-          this.propertyAllowedValuesList.forEach(value => {
-            if (value != data[0].default_value) {
-              this.testAugmentationsAllowedValues.push(value);
-            }
-          })
+          this.populateTestAugmentationsProperty(data);
         }
       }
     })
@@ -1240,6 +1222,203 @@ export class InteractionService extends TabObject {
     })
   }
 
+  populateEpochProperty(contentData) {
+    this.epochAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    let epochArray = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.epochAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.epochAllowedValues.push(value);
+      }
+    })
+    //display with ; after creation
+    this.epochAllowedValues.forEach(val => {
+      if (val != contentData[0].default_value) {
+        epochArray.push(val);
+      }
+    })
+    this.epochValues = epochArray.join(',').replace(/,/g, '; ');
+  }
+
+  populateBatchSizeProperty(contentData) {
+    this.batchSizeAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    let batchSizeArray = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.batchSizeAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.batchSizeAllowedValues.push(value);
+      }
+    })
+    //display with ; after creation
+    this.batchSizeAllowedValues.forEach(val => {
+      if (val != contentData[0].default_value) {
+        batchSizeArray.push(val);
+      }
+    })
+    this.batchSizeValues = batchSizeArray.join(',').replace(/,/g, '; ');
+  }
+
+  populateInputWidthProperty(contentData) {
+    this.inputWidthAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    let inputWidthArray = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.inputWidthAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.inputWidthAllowedValues.push(value);
+      }
+    })
+    this.inputWidthAllowedValues.forEach(val => {
+      if (val != contentData[0].default_value) {
+        inputWidthArray.push(val);
+      }
+    })
+    this.inputWidthValues = inputWidthArray.join(',').replace(/,/g, '; ');
+  }
+
+  populateInputHeightProperty(contentData) {
+    this.inputHeightAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    let inputHeightArray = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.inputHeightAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.inputHeightAllowedValues.push(value);
+      }
+    })
+    this.inputHeightAllowedValues.forEach(val => {
+      if (val != contentData[0].default_value) {
+        inputHeightArray.push(val);
+      }
+    })
+    this.inputHeightValues = inputHeightArray.join(',').replace(/,/g, '; ');
+  }
+
+  populateLearningRateProperty(contentData) {
+    this.learningRateAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    let learningRateArray = []
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.learningRateAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.learningRateAllowedValues.push(value);
+      }
+    })
+    this.learningRateAllowedValues.forEach(val => {
+      if (val != contentData[0].default_value) {
+        learningRateArray.push(val);
+      }
+    })
+    this.learningRateValues = learningRateArray.join(',').replace(/,/g, '; ');
+  }
+
+  populateLossProperty(contentData) {
+    this.lossFunctionAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    this.dropdownValues = null;
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+    this.propertyItemData.allowedValuesLoss = [];
+
+    this.lossFunctionAllowedValues.push(contentData[0].default_value);
+    this.dropdownValues = contentData[0].allowed_value.join(",");
+    this.propertyAllowedValuesList = this.dropdownValues.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.lossFunctionAllowedValues.push(value);
+        this.propertyItemData.allowedValuesLoss.push(value);
+      }
+    })
+    this.propertyItemData.allowedValuesLoss = this.lossFunctionAllowedValues.join(',').replace(/,/g, '; ');
+  }
+
+  populateMetricProperty(contentData) {
+    this.metricAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    this.dropdownValues = null;
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+    this.propertyItemData.allowedValuesMetric = [];
+
+    this.metricAllowedValues.push(contentData[0].default_value);
+    this.dropdownValues = contentData[0].allowed_value.join(",");
+    this.propertyAllowedValuesList = this.dropdownValues.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.metricAllowedValues.push(value);
+        this.propertyItemData.allowedValuesMetric.push(value);
+      }
+    })
+    this.propertyItemData.allowedValuesMetric = this.metricAllowedValues.join(',').replace(/,/g, '; ');
+  }
+
+  populateTrainingAugmentationsProperty(contentData) {
+    this.trainingAugmentationsAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.trainingAugmentationsAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.trainingAugmentationsAllowedValues.push(value);
+      }
+    })
+  }
+
+  populateValidationAugmentationsProperty(contentData) {
+    this.validationAugmentationsAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.validationAugmentationsAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.validationAugmentationsAllowedValues.push(value);
+      }
+    })
+  }
+
+  populateTestAugmentationsProperty(contentData) {
+    this.testAugmentationsAllowedValues = [];
+    this.propertyAllowedValuesList = [];
+    this.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
+
+    this.testAugmentationsAllowedValues.push(contentData[0].default_value);
+    this.propertyAllowedValuesList = contentData[0].allowed_value.split(",");
+    this.propertyAllowedValuesList.forEach(value => {
+      if (value != contentData[0].default_value) {
+        this.testAugmentationsAllowedValues.push(value);
+      }
+    })
+  }
+
   updateDropdownAllowedProperty(contentData) {
     var propertyValuesNameList = Array<string>();
     if (contentData[0].allowed_value != null) {
@@ -1249,7 +1428,7 @@ export class InteractionService extends TabObject {
     }
     contentData[0].allowed_value = [];
     contentData[0].allowed_value = propertyValuesNameList;
-    
+
     propertyValuesNameList.push(contentData[0].default_value);
     this.selectedOption = contentData[0].default_value;
   }
