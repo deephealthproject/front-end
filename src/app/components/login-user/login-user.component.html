@@ -14,7 +14,7 @@
           <mat-error *ngIf="password.errors?.required">{{'login.errorPasswordRequired' | translate}}</mat-error>
           <mat-error *ngIf="password.errors?.minlength">{{'login.errorPasswordLength' | translate}}</mat-error>
         </mat-form-field>
-        <button mat-raised-button class="register-button" style="margin-left: 52px;" (click)="login(username.value, password.value);" [disabled]="userForm.invalid">
+        <button mat-raised-button class="register-button" style="margin-left: 52px;" (click)="login(userNameValue, passwordValue);" [disabled]="userForm.invalid">
           {{'login.loginButton' | translate}}
         </button>
         <button mat-raised-button class="register-button" style="margin-left: 90px;" (click)="goToRegister('register');">

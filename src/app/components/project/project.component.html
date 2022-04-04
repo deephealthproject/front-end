@@ -370,7 +370,7 @@
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
                         <button mat-icon-button style="padding-right: 20px; color: #3180ae;"
-                            [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'"
+                            [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY' || row.processType == 'Model Weight downloading'"
                             (click)="showOutputProcess(row)">
                             <mat-icon
                                 [ngClass]="{'disabledIcon': row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'}"
@@ -541,9 +541,13 @@
             </div>
         </div>
         <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
-            <ng-container matColumnDef="outputImage">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
+            <ng-container matColumnDef="outputImageName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImageName' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImageName}} </td>
+            </ng-container>
+            <ng-container matColumnDef="outputImagePreview">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImagePreview' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> <img src="{{element.outputImagePreview}}" style="width: 35px; height: auto;"> </td>
             </ng-container>
             <ng-container matColumnDef="outputDetails">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputDetails' | translate }}</th>

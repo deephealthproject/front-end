@@ -386,6 +386,10 @@ export class InteractionService extends TabObject {
   epochValues = null;
   learningRateValues = null;
 
+  //inference output
+  showClassificationOutput: boolean = false;
+  showSegmentationOutput: boolean = false;
+
   initialiseModelDropdown(taskId) {
     this._dataService.getModels(taskId).subscribe(data => {
       this.insertDataIntoModelDropdown(data);

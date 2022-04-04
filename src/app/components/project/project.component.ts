@@ -266,7 +266,7 @@ export class ProjectComponent implements OnInit {
   //output
   outputList: MatTableDataSource<any>;
   outputResultsData = [];
-  displayedOutputColumns: string[] = ['outputImage', 'outputDetails']
+  displayedOutputColumns: string[] = ['outputImageName', 'outputImagePreview', 'outputDetails']
   outputResultsDetailProcessId;
   outputResultsRunning: MatTableDataSource<any>;
   displayedOutputResultsRunningColumns: string[] = ['Model_Id', 'Dataset_Id', 'Weight_Id', 'Epoch', 'Loss_Function', 'Metric', 'Batch_Size', 'Input_Height', 'Input_Width', 'Training_Augmentations', 'Validation_Augmentations'];
@@ -2706,18 +2706,11 @@ export class ProjectComponent implements OnInit {
 
     // clean second outputs details list grid
     this.cleanOutputResultsOuputsTableList();
-
-    var testRealOutputs = {
-      "outputs": [
-        [
-          "['https://jenkins-master-deephealth-unix01.ing.unimore.it/backend/media/imgs/1.png']",
-          "[[4.5472843339666724e-05, 0.006470129359513521, 0.005621257703751326, 0.002127237617969513, 0.0007704696618020535, 0.9840483665466309, 3.123315400443971e-05, 0.00012626624084077775, 0.0007565256673842669, 3.0344513106683735e-06]]"
-        ]
-      ]
-    }
   }
 
   getOutput(processId) {
+    this._interactionService.showClassificationOutput = false;
+    this._interactionService.showSegmentationOutput = false;
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
@@ -2727,16 +2720,27 @@ export class ProjectComponent implements OnInit {
       var outputsResults = data.outputs;
       let outputDetail = [];
       if (outputsResults != undefined) {
-        outputsResults.forEach(output => {
-          JSON.parse(output[1]).forEach(element => {
-            outputDetail = element;
+        dialogRef.close();
+        if (this._interactionService.currentProject.task_id == 1) { //Classification
+          this._interactionService.showClassificationOutput = true;
+          this._interactionService.showSegmentationOutput = false;
+          outputsResults.forEach(output => {
+            JSON.parse(output[2]).forEach(element => {
+              outputDetail = element;
+            });
+            this.outputResultsData.push({ outputImageName: output[0], outputImagePreview: 'data:image/png;base64,' + output[1], outputDetails: outputDetail });
           });
-          this.outputResultsData.push({ outputImage: output[0].replace("['", "").replace("']", ""), outputDetails: outputDetail });
-        });
+        }
+        else { //Segmentation
+          this._interactionService.showClassificationOutput = false;
+          this._interactionService.showSegmentationOutput = true;
+          outputsResults.forEach(output => {
+            this.outputResultsData.push({ outputImageName: output, outputImagePreview: output, outputDetails: "" });
+          });
+        }
       } else {
         dialogRef.close();
       }
-
       this.outputList = new MatTableDataSource(this.outputResultsData);
       this.outputList.sort = this.outputTableSort;
       this.outputList.paginator = this.outputPaginator;
