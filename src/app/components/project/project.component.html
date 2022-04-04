@@ -143,7 +143,7 @@
                                 <span
                                     style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
                                 <span
-                                    style="font-size: 15px; padding-left: 29%;">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
+                                    style="font-size: 15px; padding-left: 29%;" title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
                             </div>
                             <div>
                                 <div class="div-middle-properties">
@@ -370,7 +370,7 @@
                 <td mat-cell *matCellDef="let row">
                     <div style="display: flex;">
                         <button mat-icon-button style="padding-right: 20px; color: #3180ae;"
-                            [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'"
+                            [disabled]="row.processStatus == 'FAILURE' || row.processStatus == 'RETRY' || row.processType == 'Model Weight downloading'"
                             (click)="showOutputProcess(row)">
                             <mat-icon
                                 [ngClass]="{'disabledIcon': row.processStatus == 'FAILURE' || row.processStatus == 'RETRY'}"
@@ -757,7 +757,7 @@
                 <span
                     style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
                 <span
-                    style="font-size: 15px; padding-left: 29%;">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
+                    style="font-size: 15px; padding-left: 29%;" title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
             </div>
             <div>
                 <div class="div-middle-properties">

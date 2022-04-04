@@ -140,7 +140,7 @@ export class ProjectComponent implements OnInit {
 
   selectedOption = null;
 
-  populatedPropertyAllowedValuesList = [];
+  populatedPropertyAllowedValuesList = Array<String>();
   populatedPropertyDefaultValue = [];
   populatedPropertyAllowedValue = [];
 
@@ -1994,7 +1994,6 @@ export class ProjectComponent implements OnInit {
   }
 
   initialisePropertiesContainers() {
-    //this.viewPropertiesContainer.clear();
     this.viewLearningRateContainer.clear();
     this.viewEpochsContainer.clear();
     this.viewBatchSizeContainer.clear();
@@ -2023,11 +2022,17 @@ export class ProjectComponent implements OnInit {
       this.populatedPropertyAllowedValuesList = [];
       this.populatedPropertyDefaultValue;
       this.populatedPropertyAllowedValue = [];
+
       this.populatedPropertyDefaultValue = data[0].default_value;
-      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+      if (data[0].allowed_value != null && data[0].allowed_value.length != 0) {
         this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
         this.populatedPropertyAllowedValuesList.forEach(value => {
           if (value != data[0].default_value) {
+            if (value.substring(0, 1) == ">" || value.substring(0, 1) == "<") {
+              value = value.replace(value.substring(0, 1), value.substring(0, 1) + " ")
+            } else if (value.substring(0, 2) == ">=" || value.substring(0, 2) == "<=") {
+              value = value.replace(value.substring(0, 2), value.substring(0, 2) + " ")
+            }
             this.populatedPropertyAllowedValue.push(value);
           }
         })
@@ -2038,12 +2043,25 @@ export class ProjectComponent implements OnInit {
       this.populatedPropertyAllowedValuesList = [];
       this.populatedPropertyDefaultValue = [];
       this.populatedPropertyAllowedValue = [];
-      this.populatedPropertyAllowedValue.push(data[0].default_value);
-      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+      this._interactionService.propertyItemData.allowedValuesMetric = [];
+      this._interactionService.propertyItemData.allowedValuesLoss = [];
+
+      if (data[0].allowed_value != null && data[0].allowed_value.length != 0) {
+        if (data[0].allowed_value.charAt(0) == "[") {
+          data[0].allowed_value = data[0].allowed_value.replace(data[0].allowed_value.charAt(0), "");
+          data[0].allowed_value = data[0].allowed_value.replace(data[0].allowed_value.charAt(data[0].allowed_value.length - 1), "");
+        }
+
         this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
+        if (data[0].allowed_value.length != 1 && data[0].allowed_value != data[0].default_value) {
+          this.populatedPropertyAllowedValuesList.push(data[0].default_value);
+        }
         this.populatedPropertyAllowedValuesList.forEach(value => {
-          if (value != data[0].default_value) {
-            this.populatedPropertyAllowedValue.push(value);
+          this.populatedPropertyAllowedValue.push(value);
+          if (entry.name == "Metric") {
+            this._interactionService.propertyItemData.allowedValuesMetric.push(value);
+          } else {
+            this._interactionService.propertyItemData.allowedValuesLoss.push(value);
           }
         })
       }
@@ -2054,11 +2072,17 @@ export class ProjectComponent implements OnInit {
       this.populatedPropertyAllowedValuesList = [];
       this.populatedPropertyDefaultValue;
       this.populatedPropertyAllowedValue = [];
+
       this.populatedPropertyDefaultValue = data[0].default_value;
-      if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
+      if (data[0].allowed_value != null && data[0].allowed_value.length != 0) {
         this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");
         this.populatedPropertyAllowedValuesList.forEach(value => {
           if (value != data[0].default_value) {
+            if (value.substring(0, 1) == ">" || value.substring(0, 1) == "<") {
+              value = value.replace(value.substring(0, 1), value.substring(0, 1) + " ")
+            } else if (value.substring(0, 2) == ">=" || value.substring(0, 2) == "<=") {
+              value = value.replace(value.substring(0, 2), value.substring(0, 2) + " ")
+            }
             this.populatedPropertyAllowedValue.push(value);
           }
         })
@@ -2069,6 +2093,7 @@ export class ProjectComponent implements OnInit {
       this.populatedPropertyAllowedValuesList = [];
       this.populatedPropertyDefaultValue;
       this.populatedPropertyAllowedValue = [];
+
       this.populatedPropertyDefaultValue = data[0].default_value;
       if (data[0].allowed_value != null || data[0].allowed_value != undefined) {
         this.populatedPropertyAllowedValuesList = data[0].allowed_value.split(",");

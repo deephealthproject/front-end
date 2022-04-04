@@ -13,20 +13,30 @@
         (click)="this._interactionService.editAllowedPropertiesValues(propertyData)"></mat-icon>
     </div>
     <div class="div-property-content-values">
+      <mat-form-field appearance="none" style="width: 95%;" *ngIf="this.propertyData.name == 'Training augmentations'">
+        <textarea matInput *ngIf="this._interactionService.trainingAugmentationsAllowedValues.length == 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value="{{'project.noAllowedValuesMessage' | translate}}"></textarea>
+        <textarea matInput *ngIf="this._interactionService.trainingAugmentationsAllowedValues.length != 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this.propertyData.allowed_value}}></textarea>
+      </mat-form-field>
       <mat-form-field appearance="none" style="width: 95%;"
-        *ngIf="this.propertyData.name == 'Training augmentations'">
-        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
-          cdkAutosizeMaxRows="7" value={{this._interactionService.trainingAugmentationsAllowedValues}}></textarea>
-      </mat-form-field>
-      <mat-form-field  appearance="none" style="width: 95%;"
         *ngIf="this.propertyData.name == 'Validation augmentations'">
-        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
-          cdkAutosizeMaxRows="7" value={{this._interactionService.validationAugmentationsAllowedValues}}></textarea>
+        <textarea matInput *ngIf="this._interactionService.validationAugmentationsAllowedValues.length == 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value="{{'project.noAllowedValuesMessage' | translate}}"></textarea>
+        <textarea matInput *ngIf="this._interactionService.validationAugmentationsAllowedValues.length != 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this.propertyData.allowed_value}}></textarea>
       </mat-form-field>
-      <mat-form-field  appearance="none" style="width: 95%;"
-        *ngIf="this.propertyData.name == 'Test augmentations'">
-        <textarea matInput cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
-          cdkAutosizeMaxRows="7" value={{this._interactionService.testAugmentationsAllowedValues}}></textarea>
+      <mat-form-field appearance="none" style="width: 95%;" *ngIf="this.propertyData.name == 'Test augmentations'">
+        <textarea matInput *ngIf="this._interactionService.testAugmentationsAllowedValues.length == 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value="{{'project.noAllowedValuesMessage' | translate}}"></textarea>
+        <textarea matInput *ngIf="this._interactionService.testAugmentationsAllowedValues.length != 0"
+          cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
+          value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this.propertyData.allowed_value}}></textarea>
       </mat-form-field>
     </div>
   </div>

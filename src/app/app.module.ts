@@ -11,7 +11,7 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
   return () =>
     keycloak.init({
       config: {
-        url: 'https://identity.opendeephealth.di.unito.it/auth',
+        url: 'https://identity.test-odh.di.unito.it/auth/',
         realm: 'opendeephealth',
         clientId: 'deephealth-toolkit',
       },

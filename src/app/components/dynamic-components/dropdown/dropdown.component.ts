@@ -23,12 +23,16 @@ export class DropdownComponent implements PropertyInterface, OnInit {
     else if (this.propertyData.name == "Loss function") {
       this.initialiseLossFunctionAllowedValues(this.propertyData);
     }
+    this._interactionService.propertyItemData.defaultType = this.translate.instant('project.defaultProperty');
+    this._interactionService.propertyItemData.allowedType = this.translate.instant('project.allowedProperty');
   }
 
   initialiseLossFunctionAllowedValues(propertyData) {
     this._interactionService.lossFunctionValue = propertyData.selectedOption;
     this._interactionService.lossFunctionName = propertyData.name;
     this._interactionService.lossFunctionAllowedValues = [];
+    let values = [];
+
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.lossFunctionAllowedValues.some(defaultValueExist)) {
       this._interactionService.lossFunctionAllowedValues.push(propertyData.default_value);
@@ -37,12 +41,18 @@ export class DropdownComponent implements PropertyInterface, OnInit {
     if (!this._interactionService.lossFunctionAllowedValues.some(allowedValueExist)) {
       this._interactionService.lossFunctionAllowedValues.push(propertyData.allowed_value);
     }
+    propertyData.allowed_value.forEach(value => {
+        values.push(value);
+    })
+    this._interactionService.propertyItemData.allowedValuesLoss = values.join(',').replace(/,/g, '; ');
   }
 
   initialiseMetricAllowedValues(propertyData) {
     this._interactionService.metricValue = propertyData.selectedOption;
     this._interactionService.metricName = propertyData.name;
     this._interactionService.metricAllowedValues = [];
+    let values = [];
+    
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.metricAllowedValues.some(defaultValueExist)) {
       this._interactionService.metricAllowedValues.push(propertyData.default_value);
@@ -51,6 +61,10 @@ export class DropdownComponent implements PropertyInterface, OnInit {
     if (!this._interactionService.metricAllowedValues.some(allowedValueExist)) {
       this._interactionService.metricAllowedValues.push(propertyData.allowed_value);
     }
+    propertyData.allowed_value.forEach(value => {
+        values.push(value);
+    })
+    this._interactionService.propertyItemData.allowedValuesMetric = values.join(',').replace(/,/g, '; ');
   }
 
   changeSelectedPropertyValue(event) {

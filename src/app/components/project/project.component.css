@@ -588,7 +588,7 @@ mat-selection-list {
     color: red !important;
 }
 
-.ngx-charts-line-chart /deep/ .ngx-charts-chart /deep/ .ngx-charts-legend /deep/ 
+.ngx-charts-line-chart ::ng-deep .ngx-charts-chart ::ng-deep .ngx-charts-legend ::ng-deep 
 .legend-labels {
     color: red !important;
 }
