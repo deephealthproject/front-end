@@ -140,9 +140,9 @@
         "inputImagePreview": "Input Image Preview",
         "details": "...",
         "options": "Options",
-        "outputModelId": "Model id",
-        "outputDatasetId": "Dataset id",
-        "outputWeightId": "Modelweight id",
+        "outputModelName": "Model name",
+        "outputDatasetName": "Dataset name",
+        "outputWeightName": "Modelweight name",
         "outputEpoch": "Epoch",
         "outputLoss": "Loss function",
         "outputMetric": "Metric",
@@ -151,6 +151,7 @@
         "outputInputWidth": "Input width",
         "outputTrainingAugmentations": "Training augmentations",
         "outputValidationAugmentations": "Validation augmentations",
+        "outputTestAugmentations": "Test augmentations",
         "viewDetails": "View Details",
         "results": "View Results",
         "outputStatusError": "Error: Cannot get output details",
@@ -279,7 +280,8 @@
         "closeButton": "Close",
         "outputStatusOk": "Outputs were successfully loaded!",
         "outputStatusError": "Error: Cannot get output details.",
-        "outputPendingStatus": "This process does not have any results yet! Please come back later to view the details!"
+        "outputPendingStatus": "This process does not have any results yet! Please come back later to view the details!",
+        "outputPropertiesTablePendingStatus": "The properties used to start this training will appear after the process is complete!"
     },
     "register": {
         "registerTitle": "Signup",

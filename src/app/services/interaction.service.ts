@@ -897,13 +897,15 @@ export class InteractionService extends TabObject {
         || process.process_updated_date != null || process.process_updated_date != undefined) {
         if (process.process_created_date.includes("T")) {
           process.process_created_date = process.process_created_date.replace("T", " ");
+          process.process_created_date = process.process_created_date.replace(/\..*/g, "$'");
         }
         if (process.process_updated_date.includes("T")) {
           process.process_updated_date = process.process_updated_date.replace("T", " ");
+          process.process_updated_date = process.process_updated_date.replace(/\..*/g, "$'");
         }
       }
       this.processData.push({
-        processCreatedDate: process.process_created_date, processUpdatedDate: process.process_updated_date, projectId: process.projectId, processId: process.processId, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
+        processCreatedDate: process.process_created_date, processUpdatedDate: process.process_updated_date, projectId: process.projectId, processId: process.processId, trainingId: process.training_id, processType: process.process_type, processStatus: process.process_status, showStopButton: process.showStopButton,
         showDisabledButton: process.showDisabledButton, processRead: process.unread
       });
     });
@@ -917,80 +919,66 @@ export class InteractionService extends TabObject {
   }
 
   checkStatusPastProcesses(process) {
-    this._dataService.status(process.processId).subscribe(data => {
-      let status: any = data.status;
-      if (process.process_created_date != null || process.process_created_date != undefined
-        || process.process_updated_date != null || process.process_updated_date != undefined) {
-        if (process.process_created_date.includes("T")) {
-          process.process_created_date = process.process_created_date.replace("T", " ");
-        }
-        if (process.process_updated_date.includes("T")) {
-          process.process_updated_date = process.process_updated_date.replace("T", " ");
-        }
-      }
-      process.process_created_date = process.process_created_date;
-      process.process_updated_date = process.process_updated_date;
-      process.projectId = process.projectId;
-      process.processId = process.processId;
-      process.process_data = status.process_data;
-      process.process_type = status.process_type;
-      process.process_status = status.process_status;
-      this.changeStopButton(process);
-      if (process.process_status == "PENDING" || process.process_status == "STARTED") {
-        let status: any = data.status;
-        let runningProcess = new ProcessingObject;
-        runningProcess.process_created_date = process.process_created_date;
-        runningProcess.process_updated_date = process.process_updated_date;
-        runningProcess.projectId = process.projectId;
-        runningProcess.processId = process.processId;
-        runningProcess.process_data = status.process_data;
-        runningProcess.process_type = status.process_type;
-        runningProcess.process_status = status.process_status;
-        runningProcess.unread = false;
-        runningProcess.showDisabledButton = false;
+    let status: any;
+    if (process.process_status != "REVOKED") {
+      this._dataService.status(process.processId).subscribe(data => {
+        status = data.status;
+        this.createProcess(status, process);
         this.changeStopButton(process);
-        if (process.processId !== runningProcess.processId) {
-          this.runningProcesses.push(runningProcess);
-        }
-        this.processData.forEach(process => {
-          if (process.processId == runningProcess.processId) {
-            process.processStatus = runningProcess.process_status;
-            process.showStopButton = true;
-            process.showDisabledButton = runningProcess.showDisabledButton;
-            this.processesList = new MatTableDataSource(this.processData);
-            this.processesList.paginator = this.processPaginator;
-            this.processesList.sort = this.processTableSort;
+        if (process.process_status == "PENDING" || process.process_status == "STARTED") {
+          let runningProcess = new ProcessingObject;
+          this.createProcess(status, process);
+          runningProcess = process;
+          runningProcess.unread = false;
+          runningProcess.showDisabledButton = false;
+          this.changeStopButton(process);
+          if (process.processId !== runningProcess.processId) {
+            this.runningProcesses.push(runningProcess);
           }
-        })
-      }
-      if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
-        let status: any = data.status;
-        let failProcess = new ProcessingObject;
-        failProcess.process_created_date = process.process_created_date;
-        failProcess.process_updated_date = process.process_updated_date;
-        failProcess.projectId = process.projectId;
-        failProcess.processId = process.processId;
-        failProcess.process_data = status.process_data;
-        failProcess.process_type = status.process_type;
-        failProcess.process_status = status.process_status;
-        failProcess.showStopButton = false;
-        failProcess.showDisabledButton = true;
-        this.changeStopButton(process);
-        if (process.processId !== failProcess.processId) {
-          this.runningProcesses.push(failProcess);
+          this.processData.forEach(process => {
+            if (process.processId == runningProcess.processId) {
+              process.processStatus = runningProcess.process_status;
+              process.showStopButton = true;
+              process.showDisabledButton = runningProcess.showDisabledButton;
+              this.processesList = new MatTableDataSource(this.processData);
+              this.processesList.paginator = this.processPaginator;
+              this.processesList.sort = this.processTableSort;
+            }
+          })
         }
-        this.processData.forEach(process => {
-          if (process.processId == failProcess.processId) {
-            process.processStatus = failProcess.process_status;
-            process.showStopButton = false;
-            process.showDisabledButton = failProcess.showDisabledButton;
-            this.processesList = new MatTableDataSource(this.processData);
-            this.processesList.paginator = this.processPaginator;
-            this.processesList.sort = this.processTableSort;
+        if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
+          let failProcess = new ProcessingObject;
+          this.createProcess(status, process);
+          failProcess = process;
+          failProcess.showStopButton = false;
+          failProcess.showDisabledButton = true;
+          this.changeStopButton(process);
+          if (process.processId !== failProcess.processId) {
+            this.runningProcesses.push(failProcess);
           }
-        })
-      }
-    });
+          this.processData.forEach(process => {
+            if (process.processId == failProcess.processId) {
+              process.processStatus = failProcess.process_status;
+              process.showStopButton = false;
+              process.showDisabledButton = failProcess.showDisabledButton;
+              this.processesList = new MatTableDataSource(this.processData);
+              this.processesList.paginator = this.processPaginator;
+              this.processesList.sort = this.processTableSort;
+            }
+          })
+        }
+      });
+    }
+  }
+
+  createProcess(status, process) {
+    process.process_created_date = process.process_created_date;
+    process.process_updated_date = process.process_updated_date;
+    process.projectId = process.projectId;
+    process.processId = process.processId;
+    process.process_data = status.process_data;
+    process.process_type = status.process_type;
+    process.process_status = status.process_status;
   }
 
   cleanProcessesList() {

@@ -431,6 +431,7 @@ export class PowerUserComponent implements OnInit {
         trainingProcess.process_updated_date = process.updated;
         trainingProcess.projectId = process.project_id;
         trainingProcess.processId = process.celery_id;
+        trainingProcess.training_id = process.id;
         trainingProcess.modelweights_id = process.modelweights_id;
         trainingProcess.process_status = ProcessStatus[4];
         trainingProcess.process_type = "training";
