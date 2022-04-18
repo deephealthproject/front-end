@@ -59,7 +59,7 @@
     <div style="color:#336E9F;">{{'upload-dataset-dialog.chooseModel'| translate}}</div>
     <div style="padding-top: 8px;">
       <form [formGroup]="this._interactionService.uploadForm">
-        <input [disabled]="inputValuePath" type="file" accept="*" (change)="onFileSelect($event)">
+        <input [disabled]="inputValuePath" type="file" accept=".onnx" (change)="onFileSelect($event)">
       </form>
     </div>
     <div>

@@ -28,7 +28,7 @@ export class ShowOutputDetailsDialogComponent implements OnInit {
     this.dialogTitle = data.dialogTitle;
     this.dialogContent = data.dialogContent;
     this.processId = data.processId;
-    this.imageSrc = this.dialogContent.outputImage;
+    this.imageSrc = this.dialogContent.outputImagePreview;
     this.classes = this.dialogContent.outputDetails;
   }
 

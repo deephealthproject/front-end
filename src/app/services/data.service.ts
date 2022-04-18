@@ -259,7 +259,6 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  //TODO: make propertyID optionally
   trainingSettings(trainingId, propertyId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainingSettings?training_id=');
     if (trainingId != undefined) {

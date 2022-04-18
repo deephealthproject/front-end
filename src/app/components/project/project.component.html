@@ -142,8 +142,8 @@
                                     style="font-size: 15px; padding-left: 9%;">{{'project.propertiesTitle' | translate}}</span>
                                 <span
                                     style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
-                                <span
-                                    style="font-size: 15px; padding-left: 29%;" title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
+                                <span style="font-size: 15px; padding-left: 29%;"
+                                    title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
                             </div>
                             <div>
                                 <div class="div-middle-properties">
@@ -311,7 +311,7 @@
                 [class.div-right-button-clicked]="createModelAllowedPropertiesIsClicked">
                 {{'project.createModelAllowedProperties' | translate}}
             </button>
-            <button mat-flat-button class="div-right-button" (click)="openOutputResultCustom();"
+            <button mat-flat-button class="div-right-button" (click)="openOutputResultPage();"
                 [class.div-right-button-clicked]="outputResultsIsClicked">
                 {{'project.outputResults' | translate}}
             </button>
@@ -541,9 +541,15 @@
             </div>
         </div>
         <table mat-table #outputTableSort="matSort" [dataSource]="outputList" matSort *ngIf="showOutputInferenceSingle">
-            <ng-container matColumnDef="outputImage">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImage' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImage}} </td>
+            <ng-container matColumnDef="outputImageName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImageName' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.outputImageName}}
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="outputImagePreview">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputImagePreview' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> <img
+                        src="{{element.outputImagePreview}}" style="width: 35px; height: auto;"> </td>
             </ng-container>
             <ng-container matColumnDef="outputDetails">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'project.outputDetails' | translate }}</th>
@@ -563,54 +569,65 @@
             {{'project.outputStatusParametersDetails' | translate}} {{outputResultsDetailProcessId}}
         </div>
 
-        <!-- <table mat-table [dataSource]="outputResultsRunning" *ngIf="showOutputRunning">
-            <ng-container matColumnDef="Model_Id">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputModelId' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Model_Id}} </td>
+        <table mat-table [dataSource]="outputResultsRunning" *ngIf="showOutputTrainingProperties" class="output-table">
+            <ng-container matColumnDef="Model_Name">
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputModelName' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Model_Name}} </td>
             </ng-container>
-            <ng-container matColumnDef="Dataset_Id">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputDatasetId' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Dataset_Id}} </td>
+            <ng-container matColumnDef="Dataset_Name">
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputDatasetName' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Dataset_Name}} </td>
             </ng-container>
-            <ng-container matColumnDef="Weight_Id">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputWeightId' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Weight_Id}} </td>
+            <ng-container matColumnDef="Weight_Name">
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputWeightName' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Weight_Name}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Learning_Rate">
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.learningRate' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Learning_Rate}} </td>
             </ng-container>
             <ng-container matColumnDef="Epoch">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputEpoch' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputEpoch' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Epoch}} </td>
             </ng-container>
             <ng-container matColumnDef="Loss_Function">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputLoss' | translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputLoss' | translate}}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Loss_Function}} </td>
             </ng-container>
             <ng-container matColumnDef="Metric">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputMetric' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputMetric' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Metric}} </td>
             </ng-container>
             <ng-container matColumnDef="Batch_Size">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputBatchSize' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputBatchSize' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Batch_Size}} </td>
             </ng-container>
             <ng-container matColumnDef="Input_Height">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputInputHeight' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputInputHeight' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Input_Height}} </td>
             </ng-container>
             <ng-container matColumnDef="Input_Width">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputInputWidth' | translate }}</th>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputInputWidth' | translate }}</th>
                 <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Input_Width}} </td>
             </ng-container>
             <ng-container matColumnDef="Training_Augmentations">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputTrainingAugmentations' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Training_Augmentations}} </td>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputTrainingAugmentations' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells">
+                    {{element.Training_Augmentations}} </td>
             </ng-container>
             <ng-container matColumnDef="Validation_Augmentations">
-                <th mat-header-cell *matHeaderCellDef>{{'project.outputValidationAugmentations' | translate }}</th>
-                <td mat-cell *matCellDef="let element" class="td-output-results-cells"> {{element.Validation_Augmentations}} </td>
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputValidationAugmentations' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells">
+                    {{element.Validation_Augmentations}} </td>
+            </ng-container>
+            <ng-container matColumnDef="Test_Augmentations">
+                <th mat-header-cell *matHeaderCellDef class="th-output-results-cells">{{'project.outputTestAugmentations' | translate }}</th>
+                <td mat-cell *matCellDef="let element" class="td-output-results-cells">
+                    {{element.Test_Augmentations}} </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedOutputResultsRunningColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedOutputResultsRunningColumns;"></tr>
-        </table> -->
+        </table>
 
         <div style="padding-top: 20px;" *ngIf="showOutputRunning">
             <div class="div-middle-box-title" style="color: #3180ae; padding: 10px;">
@@ -756,8 +773,8 @@
                 <span style="font-size: 15px; padding-left: 9%;">{{'project.propertiesTitle' | translate}}</span>
                 <span
                     style="font-size: 15px; padding-left: 9%;">{{'project.defaultPropertiesValuesTitle' | translate}}</span>
-                <span
-                    style="font-size: 15px; padding-left: 29%;" title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
+                <span style="font-size: 15px; padding-left: 29%;"
+                    title="{{'project.tooltipAllowedValuesColumn' | translate}}">{{'project.allowedPropertiesValuesTitle' | translate}}</span>
             </div>
             <div>
                 <div class="div-middle-properties">

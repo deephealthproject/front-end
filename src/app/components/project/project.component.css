@@ -390,11 +390,26 @@ table {
     border-right-style: solid;
 }
 
+.output-table {
+    width: calc(100% - 8px);
+}
+
 .td-output-results-cells {
     padding-top: 3px;
     padding-bottom: 3px;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-right: 8px;
+}
+
+.th-output-results-cells {
+    padding: 8px;
+}
+
+td.mat-cell:first-of-type{
+    padding-right: 8px !important;
+}
+
+td.mat-cell:last-of-type {
+    padding-right: 4px !important;
 }
 
 textarea {
