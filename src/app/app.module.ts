@@ -1,5 +1,4 @@
 import { APP_INITIALIZER, NgModule } from "@angular/core";
-
 import { AppComponent } from "./app.component";
 import { AppConfigService } from "./services/config.service";
 import { AppRoutingModule } from "./app-routing.module";

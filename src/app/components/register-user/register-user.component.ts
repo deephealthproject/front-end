@@ -1,11 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { InteractionService } from '../../services/interaction.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { User } from '../power-user/power-user.component';
 import { ProgressSpinnerDialogComponent } from '../progress-spinner-dialog/progress-spinner-dialog.component';
 
 @Component({
@@ -90,26 +88,26 @@ export class RegisterUserComponent implements OnInit {
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
 
-      let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
-      this._authService.createUser(username, email, password, firstName, lastName).subscribe(data => {
-        if (data.statusText == "Created") {
-          this.username = data.body.username;
-          this.email = data.body.email;
-          this.password = data.body.password;
-          this.firstName = data.body.first_name;
-          this.lastName = data.body.last_name;
-          console.log(data.body);
-          console.log("User " + this.username + " was created");
-          dialogRef.close();
-          this._interactionService.openSnackBarOkRequest(this.translate.instant('register.successMessageCreatedNewUser'));
-        }
-      }, error => {
+    let dialogRef = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfig);
+    this._authService.createUser(username, email, password, firstName, lastName).subscribe(data => {
+      if (data.statusText == "Created") {
+        this.username = data.body.username;
+        this.email = data.body.email;
+        this.password = data.body.password;
+        this.firstName = data.body.first_name;
+        this.lastName = data.body.last_name;
+        console.log(data.body);
+        console.log("User " + this.username + " was created");
         dialogRef.close();
-        if (error.error.username) {
-          this._interactionService.openSnackBarBadRequest(this.translate.instant('register.errorMessageCreatedNewUser'));
-        } else {
-          this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
-        }
-      });
+        this._interactionService.openSnackBarOkRequest(this.translate.instant('register.successMessageCreatedNewUser'));
+      }
+    }, error => {
+      dialogRef.close();
+      if (error.error.username) {
+        this._interactionService.openSnackBarBadRequest(this.translate.instant('register.errorMessageCreatedNewUser'));
+      } else {
+        this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
+      }
+    });
   }
 }

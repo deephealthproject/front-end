@@ -42,7 +42,7 @@ export class DropdownComponent implements PropertyInterface, OnInit {
       this._interactionService.lossFunctionAllowedValues.push(propertyData.allowed_value);
     }
     propertyData.allowed_value.forEach(value => {
-        values.push(value);
+      values.push(value);
     })
     this._interactionService.propertyItemData.allowedValuesLoss = values.join(',').replace(/,/g, '; ');
   }
@@ -52,7 +52,7 @@ export class DropdownComponent implements PropertyInterface, OnInit {
     this._interactionService.metricName = propertyData.name;
     this._interactionService.metricAllowedValues = [];
     let values = [];
-    
+
     const defaultValueExist = (defaultValue) => defaultValue === propertyData.default_value;
     if (!this._interactionService.metricAllowedValues.some(defaultValueExist)) {
       this._interactionService.metricAllowedValues.push(propertyData.default_value);
@@ -62,7 +62,7 @@ export class DropdownComponent implements PropertyInterface, OnInit {
       this._interactionService.metricAllowedValues.push(propertyData.allowed_value);
     }
     propertyData.allowed_value.forEach(value => {
-        values.push(value);
+      values.push(value);
     })
     this._interactionService.propertyItemData.allowedValuesMetric = values.join(',').replace(/,/g, '; ');
   }

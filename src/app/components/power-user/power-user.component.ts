@@ -311,7 +311,6 @@ export class PowerUserComponent implements OnInit {
 
   addProject(projectName, task_id, users) {
     this._dataService.addProject(projectName, task_id, users).subscribe(data => {
-      // this._interactionService.resetProjectsList(data.body);
       if (data.statusText == "Created") {
         this._interactionService.getProjects();
         this._interactionService.openSnackBarOkRequest(this.translate.instant('powerUser.successMessageCreatedNewProject'));

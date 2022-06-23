@@ -2,9 +2,11 @@
 
 <mat-dialog-content>
   <div>
-    {{'delete-dialog.deleteItemMessage1' | translate}} {{dialogItemType}} {{'delete-dialog.deleteItemMessage2' | translate}}
+    {{'delete-dialog.deleteItemMessage1' | translate}} {{dialogItemType}}
+    {{'delete-dialog.deleteItemMessage2' | translate}}
     <div style="padding-top: 8px;">
-      <input style="width: 70%; padding-top: 9px; padding-bottom: 9px;" [(ngModel)]="dialogDeletedItemInputValue" placeholder="{{deletedItemInputPlaceHolder}}">
+      <input style="width: 70%; padding-top: 9px; padding-bottom: 9px;" [(ngModel)]="dialogDeletedItemInputValue"
+        placeholder="{{deletedItemInputPlaceHolder}}">
     </div>
     <div style="padding-top: 8px;">
       {{dialogContent}}
@@ -13,6 +15,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button [disabled]="dialogDeletedItemInputValue == null" (click)="deleteItem()">{{'delete-dialog.OKButton' | translate}}</button>
+  <button mat-raised-button [disabled]="dialogDeletedItemInputValue == null"
+    (click)="deleteItem()">{{'delete-dialog.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'delete-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

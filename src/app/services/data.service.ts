@@ -74,7 +74,6 @@ export class DataService {
     return this.httpClient.get<any>(url);
   }
 
-  //TODO
   getTasksById(taskId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat("/tasks/");
     url += taskId;
@@ -172,7 +171,7 @@ export class DataService {
     if (weightId != undefined) {
       url += weightId;
     }
-    const reqHeader = new HttpHeaders({ 'Content-Type':'application/onnx'});
+    const reqHeader = new HttpHeaders({ 'Content-Type': 'application/onnx' });
     return this.httpClient.get<any>(url, { headers: reqHeader, responseType: 'blob' as 'json', observe: 'response' });
   }
 
@@ -252,7 +251,7 @@ export class DataService {
   pastTrainingProcesses(project_id, modelweights_id): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat('/trainings/?project_id=');
     url += project_id;
-    if(modelweights_id != null || modelweights_id != undefined) {
+    if (modelweights_id != null || modelweights_id != undefined) {
       url += '&modelweights_id=';
       url += modelweights_id;
     }

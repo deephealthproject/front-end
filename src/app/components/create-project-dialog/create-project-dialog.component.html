@@ -17,6 +17,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-    <button mat-raised-button [disabled]="inputValue == null || selectedOptionTask == null" (click)="save()">{{'confirm-dialog.OKButton' | translate}}</button>
+    <button mat-raised-button [disabled]="inputValue == null || selectedOptionTask == null"
+        (click)="save()">{{'confirm-dialog.OKButton' | translate}}</button>
     <button mat-button mat-dialog-close>{{'confirm-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>

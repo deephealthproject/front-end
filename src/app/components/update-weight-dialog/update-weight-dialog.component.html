@@ -16,19 +16,20 @@
     </div>
   </mat-form-field>
   <div>
-    <mat-checkbox color="primary" [checked]="weightDisplayModeValue" [(ngModel)]="weightDisplayModeValue" (change)="changeWeightDisplayModeCheckedState()">
+    <mat-checkbox color="primary" [checked]="weightDisplayModeValue" [(ngModel)]="weightDisplayModeValue"
+      (change)="changeWeightDisplayModeCheckedState()">
       {{'update-weight-dialog.weightDisplayMode' | translate}}
     </mat-checkbox>
   </div>
   <div *ngIf="!weightDisplayModeValue">
-      <mat-form-field>
-          {{'update-weight-dialog.selectUsers' | translate}}
-          <mat-select [(value)]=selectedUsername multiple>
-              <mat-option *ngFor="let option of userDropdown" [value]="option.username">
-                  {{option.username}}
-              </mat-option>
-          </mat-select>
-      </mat-form-field>
+    <mat-form-field>
+      {{'update-weight-dialog.selectUsers' | translate}}
+      <mat-select [(value)]=selectedUsername multiple>
+        <mat-option *ngFor="let option of userDropdown" [value]="option.username">
+          {{option.username}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
 </mat-dialog-content>
 

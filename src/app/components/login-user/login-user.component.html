@@ -5,19 +5,23 @@
     <mat-card-content>
       <form action="" #userForm="ngForm">
         <mat-form-field #username id="username">
-          <input matInput placeholder="{{'login.usernamePlaceholder' | translate}}" required name="username" ngModel #username="ngModel" value={{userNameValue}} [(ngModel)]="userNameValue">
+          <input matInput placeholder="{{'login.usernamePlaceholder' | translate}}" required name="username" ngModel
+            #username="ngModel" value={{userNameValue}} [(ngModel)]="userNameValue">
           <mat-error *ngIf="username.invalid">{{'login.errorUsernameRequired' | translate}}</mat-error>
         </mat-form-field>
         <mat-form-field #password id="password">
-          <input matInput placeholder="{{'login.passwordPlaceholder' | translate}}" required type="password" minlength="4" name="password" ngModel #password="ngModel"
-            value={{passwordValue}} [(ngModel)]="passwordValue">
+          <input matInput placeholder="{{'login.passwordPlaceholder' | translate}}" required type="password"
+            minlength="4" name="password" ngModel #password="ngModel" value={{passwordValue}}
+            [(ngModel)]="passwordValue">
           <mat-error *ngIf="password.errors?.required">{{'login.errorPasswordRequired' | translate}}</mat-error>
           <mat-error *ngIf="password.errors?.minlength">{{'login.errorPasswordLength' | translate}}</mat-error>
         </mat-form-field>
-        <button mat-raised-button class="register-button" style="margin-left: 52px;" (click)="login(userNameValue, passwordValue);" [disabled]="userForm.invalid">
+        <button mat-raised-button class="register-button" style="margin-left: 52px;"
+          (click)="login(userNameValue, passwordValue);" [disabled]="userForm.invalid">
           {{'login.loginButton' | translate}}
         </button>
-        <button mat-raised-button class="register-button" style="margin-left: 90px;" (click)="goToRegister('register');">
+        <button mat-raised-button class="register-button" style="margin-left: 90px;"
+          (click)="goToRegister('register');">
           {{'login.registerButton' | translate}}
         </button>
         <div class="div-forgot-password" (click)="goToResetPassword('reset-password');">

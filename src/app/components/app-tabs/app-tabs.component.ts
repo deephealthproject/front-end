@@ -96,14 +96,7 @@ export class AppTabsComponent implements OnInit {
         contentData = data;
         for (let process of contentData) {
           let trainingProcess = new ProcessingObject;
-          trainingProcess.process_created_date = process.created;
-          trainingProcess.process_updated_date = process.updated;
-          trainingProcess.projectId = process.project_id;
-          trainingProcess.processId = process.celery_id;
-          trainingProcess.modelweights_id = process.modelweights_id;
-          trainingProcess.process_status = ProcessStatus[4];
-          trainingProcess.process_type = "training";
-          trainingProcess.unread = false;
+          this.createPastTrainingProcess(process, trainingProcess);
           this._interactionService.changeStopButton(trainingProcess);
           this._interactionService.runningProcesses.push(trainingProcess);
         }
@@ -113,29 +106,19 @@ export class AppTabsComponent implements OnInit {
         contentData = data;
         for (let process of contentData) {
           let inferenceProcess = new ProcessingObject;
-          inferenceProcess.process_created_date = process.created;
-          inferenceProcess.process_updated_date = process.updated;
-          inferenceProcess.projectId = process.project_id;
-          inferenceProcess.processId = process.celery_id;
-          inferenceProcess.process_status = ProcessStatus[4];
+          this.createPastInferenceProcess(process, inferenceProcess);
           inferenceProcess.process_type = "inference";
-          inferenceProcess.unread = false;
           this._interactionService.changeStopButton(inferenceProcess);
           this._interactionService.runningProcesses.push(inferenceProcess);
         }
       });
-      
+
       this._dataService.pastInferenceSingleProcesses(currentProject.id).subscribe(data => {
         contentData = data;
         for (let process of contentData) {
           let inferenceSingleProcess = new ProcessingObject;
-          inferenceSingleProcess.process_created_date = process.created;
-          inferenceSingleProcess.process_updated_date = process.updated;
-          inferenceSingleProcess.projectId = process.project_id;
-          inferenceSingleProcess.processId = process.celery_id;
-          inferenceSingleProcess.process_status = ProcessStatus[4];
+          this.createPastInferenceProcess(process, inferenceSingleProcess);
           inferenceSingleProcess.process_type = "inferenceSingle";
-          inferenceSingleProcess.unread = false;
           this._interactionService.changeStopButton(inferenceSingleProcess);
           this._interactionService.runningProcesses.push(inferenceSingleProcess);
         }
@@ -170,4 +153,23 @@ export class AppTabsComponent implements OnInit {
     this._interactionService.showProcesses();
   }
 
+  createPastTrainingProcess(process, pastProcess) {
+    pastProcess.process_created_date = process.created;
+    pastProcess.process_updated_date = process.updated;
+    pastProcess.projectId = process.project_id;
+    pastProcess.processId = process.celery_id;
+    pastProcess.modelweights_id = process.modelweights_id;
+    pastProcess.process_status = ProcessStatus[4];
+    pastProcess.process_type = "training";
+    pastProcess.unread = false;
+  }
+
+  createPastInferenceProcess(process, pastProcess) {
+    pastProcess.process_created_date = process.created;
+    pastProcess.process_updated_date = process.updated;
+    pastProcess.projectId = process.project_id;
+    pastProcess.processId = process.celery_id;
+    pastProcess.process_status = ProcessStatus[4];
+    pastProcess.unread = false;
+  }
 }

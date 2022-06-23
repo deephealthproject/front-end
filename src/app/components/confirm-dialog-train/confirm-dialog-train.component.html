@@ -20,7 +20,8 @@
     <div>
       <div style="padding-top: 10px; color:#336E9F;">{{'project.chooseImage' | translate}}</div>
       <div style="padding-top: 8px;">
-        <input [disabled]="inputValue" #fileInput type="file" accept="image/*" (change)="this._interactionService.browseFile($event)">
+        <input [disabled]="inputValue" #fileInput type="file" accept="image/*"
+          (change)="this._interactionService.browseFile($event)">
       </div>
     </div>
   </div>
@@ -35,7 +36,8 @@
     </mat-form-field>
   </div>
   <div *ngIf="selectedTaskManager == 'STREAMFLOW'">
-    <div style="color: #FF0000; padding-top: 5px;">{{'confirm-dialog-train.infoMessageErrorProcessStreamFlow'| translate}}</div>
+    <div style="color: #FF0000; padding-top: 5px;">
+      {{'confirm-dialog-train.infoMessageErrorProcessStreamFlow'| translate}}</div>
     <mat-form-field style="color:#336E9F; width: 60%;">
       {{'confirm-dialog-train.selectEnvironmentType' | translate}}
       <mat-select [(value)]=selectedEnvironmentType disabled>
@@ -48,7 +50,10 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button *ngIf="showMessageModel || showMessageDataset || showMessageWeight" [disabled]="!showMessageModel || !showMessageWeight || !selectedTaskManager" (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
-  <button mat-raised-button *ngIf="!showMessageModel || !showMessageWeight" (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
+  <button mat-raised-button *ngIf="showMessageModel || showMessageDataset || showMessageWeight"
+    [disabled]="!showMessageModel || !showMessageWeight || !selectedTaskManager"
+    (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
+  <button mat-raised-button *ngIf="!showMessageModel || !showMessageWeight"
+    (click)="save()">{{'confirm-dialog-train.OKButton' | translate}}</button>
   <button mat-button mat-dialog-close>{{'confirm-dialog-train.CancelButton' | translate}}</button>
 </mat-dialog-actions>

@@ -8,7 +8,8 @@
           <span class="left-mat-text" (click)="expandModels()">{{'powerUser.myModels' | translate}}</span>
         </div>
         <div style="width: 50%; display: inline-block;">
-          <button mat-flat-button style="background-color: #65A4C4; height: 32px; width: 98%;" (click)="createNewModel()">
+          <button mat-flat-button style="background-color: #65A4C4; height: 32px; width: 98%;"
+            (click)="createNewModel()">
             <mat-icon class="div-left-icon-create-model" svgIcon="new-folder"></mat-icon>
             <div class="div-left-text-create-model">
               {{'powerUser.createNewModel' | translate}}
@@ -20,7 +21,8 @@
         <div style="padding-left: 6px;" #modelsList id="modelsList">
           <div *ngFor="let model of models">
             <mat-expansion-panel style="background-color: #425463;">
-              <mat-expansion-panel-header [ngStyle]="{'background-color': model.color}" [collapsedHeight]="customCollapsedHeight" [expandedHeight]="customExpandedHeight"
+              <mat-expansion-panel-header [ngStyle]="{'background-color': model.color}"
+                [collapsedHeight]="customCollapsedHeight" [expandedHeight]="customExpandedHeight"
                 (click)="selectModel(model);">
                 <mat-icon class="left-mat-icon" svgIcon={{weightsIcon}}></mat-icon>
                 <div class="div-left-text-model">
@@ -48,14 +50,18 @@
         <span class="left-mat-text">{{'powerUser.myDatasets' | translate}}</span>
       </div>
       <div style="padding-left: 10px;" #datasetsList id="datasetsList">
-        <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)" [ngStyle]="{'background-color': dataset.color}">
+        <div *ngFor="let dataset of datasets" (click)="selectDataset(dataset)"
+          [ngStyle]="{'background-color': dataset.color}">
           <mat-icon class="left-mat-icon" svgIcon="folder"></mat-icon>
           <div class="div-left-text-model">
             <span>{{dataset.name}}</span>
           </div>
           <span *ngFor="let datasetUser of dataset.users">
-            <mat-icon *ngIf="datasetUser.username == this._interactionService.username && datasetUser.permission == 'OWN'" style="float: right; cursor: pointer; color: rgb(137, 202, 235);"
-              title="{{'delete-dialog.deleteDataset' | translate }}" svgIcon="delete" (click)="deleteDataset(dataset)"></mat-icon>
+            <mat-icon
+              *ngIf="datasetUser.username == this._interactionService.username && datasetUser.permission == 'OWN'"
+              style="float: right; cursor: pointer; color: rgb(137, 202, 235);"
+              title="{{'delete-dialog.deleteDataset' | translate }}" svgIcon="delete" (click)="deleteDataset(dataset)">
+            </mat-icon>
           </span>
         </div>
       </div>
@@ -77,28 +83,28 @@
             <p>{{'powerUser.createNewProject' | translate}}</p>
           </div>
         </button>
-        <!-- <div #messageCreateProject id="messageCreateProject" class="div-right-text" style="color: red">
-        <p>{{'powerUser.messageCreateProject' | translate}}</p>
-      </div> -->
       </div>
     </div>
     <table>
       <tr>
-        <th style="border-color: #084A6C; border-right-style: solid; padding-right: 10px; padding-left: 10px;">{{'powerUser.ownerColumn' | translate}}</th>
+        <th style="border-color: #084A6C; border-right-style: solid; padding-right: 10px; padding-left: 10px;">
+          {{'powerUser.ownerColumn' | translate}}</th>
         <th style="padding-left: 10px;">{{'powerUser.projectColumn' | translate}}</th>
       </tr>
       <tr>
         <td>
           <div *ngFor="let project of this._interactionService.projects" class="div-icon-owner">
             <div *ngFor="let currentProjectUser of project.users">
-              <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
+              <mat-icon
+                *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
                 style="padding-bottom: 30px;" class="div-icon-checked-owner" svgIcon={{projectOwnerIcon}}></mat-icon>
             </div>
           </div>
         </td>
         <td>
           <div *ngFor="let project of this._interactionService.projects">
-            <div class="div-right-project" (click)="showProject(project); initialiseCurrentProject(project); getProjectsById(project.id)">
+            <div class="div-right-project"
+              (click)="showProject(project); initialiseCurrentProject(project); getProjectsById(project.id)">
               <mat-icon class="div-right-icon-project" svgIcon="folder"></mat-icon>
               <div class="div-right-text-project">
                 <p>{{project.name}}</p>
@@ -109,8 +115,10 @@
         <td>
           <div *ngFor="let project of this._interactionService.projects" class="div-right-icon-delete">
             <div *ngFor="let currentProjectUser of project.users">
-              <mat-icon *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
-                class="div-icon-delete" title="{{'delete-dialog.deleteProject' | translate }}" svgIcon="delete" (click)="deleteProject(project)"></mat-icon>
+              <mat-icon
+                *ngIf="currentProjectUser.username == this._interactionService.username && currentProjectUser.permission == 'OWN'"
+                class="div-icon-delete" title="{{'delete-dialog.deleteProject' | translate }}" svgIcon="delete"
+                (click)="deleteProject(project)"></mat-icon>
             </div>
           </div>
         </td>
