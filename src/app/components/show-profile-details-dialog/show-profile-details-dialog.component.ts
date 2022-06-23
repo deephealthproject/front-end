@@ -38,7 +38,7 @@ export class ShowProfileDetailsDialogComponent implements OnInit {
   disabledDeleteAccountButton: Boolean = false;
 
   constructor(public dialogRef: MatDialogRef<ShowProfileDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ProfileDetailsData, public _dataService: DataService, public _authService: AuthService, 
+    @Inject(MAT_DIALOG_DATA) public data: ProfileDetailsData, public _dataService: DataService, public _authService: AuthService,
     public _interactionService: InteractionService,
     public translate: TranslateService,
     public dialog: MatDialog,

@@ -3,7 +3,6 @@ import { Subject } from 'rxjs';
 import { Project, Model, Weight, User } from '../components/power-user/power-user.component';
 import { DataService } from './data.service';
 import { AuthService } from './auth.service';
-
 import { FormGroup } from '../../../node_modules/@angular/forms';
 import { ProgressSpinnerDialogComponent } from '../components/progress-spinner-dialog/progress-spinner-dialog.component';
 import { CreateAllowedPropertiesDialogComponent } from '../components/create-allowed-properties-dialog/create-allowed-properties-dialog.component';
@@ -574,50 +573,15 @@ export class InteractionService extends TabObject {
     this.changeStateProjectOutputResultsIsClicked(false);
     this.changeStateProjectEditProjectIsClicked(false);
 
-    //this.changeCheckedTask(1);
     this.resetInputType(false);
     this.resetSelectedOptions();
     this.resetDropdowns();
 
-    // this.changeCheckedStateReTrainButton(false);
     this.changeStateInferenceButton(false);
     this.changeStateInferenceSingleButton(false);
     this.changeCheckedStateTrainButton(false);
     this.changeCheckedStateStopButton(false);
   }
-
-  // changeCheckedStateReTrainButton(state: boolean) {
-  //   this._reTrainButtonCheckedStateSource.next(state);
-  //   if (state == false) {
-  //     let inference = document.getElementById("inference");
-  //     inference.style.display = "block";
-  //     let inferenceSingle = document.getElementById("inferenceSingle");
-  //     inferenceSingle.style.display = "none";
-  //     let learningRate = document.getElementById("learningRate");
-  //     learningRate.style.display = "none";
-  //     let loss = document.getElementById("loss");
-  //     loss.style.display = "none";
-  //     let useDropout = document.getElementById("useDropout");
-  //     useDropout.style.display = "none";
-  //     let dataAugmentationSection = document.getElementById("dataAugmentationSection");
-  //     dataAugmentationSection.style.display = "none";
-  //     let epochs = document.getElementById("epochs");
-  //     epochs.style.display = "none";
-  //     let batchSize = document.getElementById("batchSize");
-  //     batchSize.style.display = "none";
-  //     let inputHeight = document.getElementById("inputHeight");
-  //     inputHeight.style.display = "none";
-  //     let inputWidth = document.getElementById("inputWidth");
-  //     inputWidth.style.display = "none";
-
-  //     let trainingAugmentations = document.getElementById("trainingAugmentations");
-  //     trainingAugmentations.style.display = "none";
-  //     let validationAugmentations = document.getElementById("validationAugmentations");
-  //     validationAugmentations.style.display = "none";
-  //     let testAugmentations = document.getElementById("testAugmentations");
-  //     testAugmentations.style.display = "block";
-  //   }
-  // }
 
   changeStateInferenceButton(state: boolean) {
     this._inferenceButtonStateSource.next(state);
@@ -1150,20 +1114,6 @@ export class InteractionService extends TabObject {
         propertyItem.propertyData.default_value = data[0].default_value;
         propertyItem.propertyData.selectedOption = data[0].default_value;
         propertyItem.propertyData.allowed_value = data[0].allowed_value;
-        // if (property.name == "Metric") {
-        //   data[0].allowed_value.forEach(allowedValue => {
-        //     defaultAndAllowedArray.push(allowedValue);
-        //   })
-        //   this.propertyItemData.allowedValuesMetric = defaultAndAllowedArray;
-        // } else if (property.name == "Loss function") {
-        //   defaultAndAllowedArray = [];
-        //   data[0].allowed_value.forEach(allowedValue => {
-        //     defaultAndAllowedArray.push(allowedValue);
-        //   })
-        //   this.propertyItemData.allowedValuesLoss = allowedArray;
-        // } else {
-        //   propertyItem.propertyData.allowed_value = data[0].allowed_value;
-        // }
         if (property.name == "Epochs") {
           this.populateEpochProperty(data);
         }

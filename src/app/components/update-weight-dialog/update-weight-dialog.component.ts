@@ -25,8 +25,8 @@ export class UpdateWeightDialogComponent implements OnInit {
   dialogTitle: string;
   dialogContent: string;
   formDataWeight;
-  weightDisplayModeValue: boolean = true;
- 
+  weightDisplayModeValue: boolean = false;
+
   selectedUsername;
   userDropdown: User[];
 
@@ -39,7 +39,7 @@ export class UpdateWeightDialogComponent implements OnInit {
 
     let userProject: User;
     data.userDropdown.forEach(user => {
-      userProject = {id: user.id, username: user.username, first_name: user.first_name, last_name: user.last_name, email: user.email, permission: user.permission};
+      userProject = { id: user.id, username: user.username, first_name: user.first_name, last_name: user.last_name, email: user.email, permission: user.permission };
       this.userDropdown.push(userProject);
     });
     this.userDropdown = this.userDropdown.filter(item => item.username != this._interactionService.username);

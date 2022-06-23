@@ -18,7 +18,8 @@
                 cdkAutosizeMaxRows="7" value="{{'project.noAllowedValuesMessage' | translate}}"></textarea>
             <textarea matInput *ngIf="this._interactionService.learningRateAllowedValues.length != 0"
                 cdkTextareaAutosize #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1"
-                cdkAutosizeMaxRows="7" value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this._interactionService.learningRateValues}}></textarea>
+                cdkAutosizeMaxRows="7"
+                value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this._interactionService.learningRateValues}}></textarea>
         </mat-form-field>
     </div>
 </div>

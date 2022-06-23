@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, ComponentFactoryResolver, ViewContainerRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 import { DataService } from '../../services/data.service';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
@@ -120,9 +120,6 @@ export class ProjectComponent implements OnInit {
   selectedOptionProperty = null;
   selectedOptionTaskManager = null;
   selectedOptionEnvironment = null;
-
-  //slide toggle
-  // reTrainState = false;
 
   //properties
   useDropoutCheckedState: boolean = false;
@@ -389,7 +386,6 @@ export class ProjectComponent implements OnInit {
   @ViewChild(MatSelectionList, { static: true }) usersSelection: MatSelectionList;
   @ViewChild(MatSelectionList, { static: true }) associatedUsersSelection: MatSelectionList;
 
-  //@Input() dynamicPropertyList: PropertyItem[] = [];
   @ViewChild('viewPropertiesContainer', { read: ViewContainerRef }) viewPropertiesContainer: ViewContainerRef;
   @ViewChild('viewLearningRateContainer', { read: ViewContainerRef, static: true }) viewLearningRateContainer: ViewContainerRef;
   @ViewChild('viewEpochsContainer', { read: ViewContainerRef, static: true }) viewEpochsContainer: ViewContainerRef;
@@ -861,7 +857,6 @@ export class ProjectComponent implements OnInit {
             this.datasetPath = result.inputValuePath;
             this.datasetColorTypeImage = result.selectedColorTypeImage;
             this.datasetColorTypeGroundTruth = result.selectedColorTypeGroundTruth;
-
             for (let currentUser of this.usersArray) {
               if (currentUser.username == this._interactionService.username) {
                 this.users.push({
@@ -889,7 +884,7 @@ export class ProjectComponent implements OnInit {
               if (data.statusText == "Created") {
                 dialogRefSpinner.close();
                 this._interactionService.openSnackBarOkRequest(this.translate.instant('upload-dataset-dialog.uploadDatasetResult'));
-                this.datasetDropdown.push(data.body.name);
+                this._interactionService.initialiseDatasetDropdown(taskId);
                 console.log("dataset " + this.datasetName + " uploaded");
               }
             }, error => {
@@ -1005,35 +1000,6 @@ export class ProjectComponent implements OnInit {
     });
   }
 
-  // checkStatusUploadModelWeight(process) {
-  //   console.log(process);
-  //   let contentData;
-  //   this._dataService.uploadModelWeightStatus(process.processId).subscribe(data => {
-  //     contentData = data;
-  //     process.projectId = process.projectId;
-  //     process.process_type = contentData.process_type;
-  //     process.process_status = contentData.result;
-  //     this._interactionService.changeStopButton(process);
-  //     if (process.process_status == "PENDING" || process.process_status == "STARTED") {
-  //       console.log(process.process_status);
-  //       setTimeout(() => {
-  //         this.checkStatusUploadModelWeight(process)
-  //       }, 10 * 1000);
-  //     }
-  //     else if (process.process_status == "SUCCESS") {
-  //       this._interactionService.openSnackBarOkRequest(this.translate.instant('upload-dataset-dialog.finishedUploadModelProcessMessage'));
-  //       console.log("Model " + this.modelWeightName + " uploaded");
-  //       process.unread = true;
-  //       this._interactionService.increaseNotificationsNumber();
-  //     }
-  //     else if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
-  //       process.unread = true;
-  //       this._interactionService.increaseNotificationsNumber();
-  //       this._interactionService.openSnackBarBadRequest(this.translate.instant('upload-dataset-dialog.errorUploadModelProcessMessage'));
-  //     }
-  //   })
-  // }
-
   resetDropDownDetails() {
     this.modelDropdown = [];
     this.weightDropdown = [];
@@ -1087,6 +1053,8 @@ export class ProjectComponent implements OnInit {
   }
 
   openNotifications() {
+    this.trainMessage = "";
+    this.inferenceMessage = "";
     this._interactionService.cleanProcessesList();
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
@@ -1110,7 +1078,6 @@ export class ProjectComponent implements OnInit {
 
   openEditWeights() {
     this.cleanWeightsEditList();
-
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(false);
@@ -1132,7 +1099,6 @@ export class ProjectComponent implements OnInit {
   openEditProject() {
     this.cleanProjectEditName();
     this.cleanProjectUsersEditLists();
-
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(true);
@@ -1155,7 +1121,6 @@ export class ProjectComponent implements OnInit {
     this._interactionService.resetSelectedOptions();
     this.initialisePropertiesContainers();
     this._interactionService.editAllowedProperties = true;
-
     this._interactionService.changeShowStateProjectDivLeft(false);
     this._interactionService.changeShowStateProjectDivMiddle(false);
     this._interactionService.changeShowStateProjectDivEditProject(false);
@@ -1256,14 +1221,13 @@ export class ProjectComponent implements OnInit {
               this._interactionService.runningProcesses.push(process);
               this._interactionService.changeStopButton(process);
               this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
-              //this.checkStatusTrainButton();
               setTimeout(() => {
                 this.checkStatusTrain(process)
               }, 1000);
             }, error => {
               this.trainProcessStarted = false;
               dialogRefSpinner.close();
-              this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+              this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
             });
           } else {
             let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
@@ -1280,14 +1244,13 @@ export class ProjectComponent implements OnInit {
               this._interactionService.runningProcesses.push(process);
               this._interactionService.changeStopButton(process);
               this.trainMessage = "The process of the type " + process.process_type + ", with the id " + process.processId + ", has the status: " + process.process_status + ".";
-              //this.checkStatusTrainButton();
               setTimeout(() => {
                 this.checkStatusTrain(process)
               }, 1000);
             }, error => {
               this.trainProcessStarted = false;
               dialogRefSpinner.close();
-              this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+              this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
             });
           }
         }
@@ -1466,7 +1429,7 @@ export class ProjectComponent implements OnInit {
             this.getOutputResultsOfInference(process);
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
           })
         } else {
           let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
@@ -1489,7 +1452,7 @@ export class ProjectComponent implements OnInit {
             this.getOutputResultsOfInference(process);
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
           })
         }
       }
@@ -1524,7 +1487,7 @@ export class ProjectComponent implements OnInit {
       inputValue: this.datasetImagePath,
       dialogTitle: this.translate.instant('project.inferenceSingle'),
       dialogContent: this.translate.instant('project.areYouSureInference'),
-      trainingTime: this.translate.instant('project.estimatedTimePreTrain'),
+      trainingTime: this.translate.instant('project.estimatedTimeInference'),
       modelSelected: this.selectedOptionModel,
       weightSelected: this.selectedOptionWeight,
       process_type: this.process_type,
@@ -1559,7 +1522,7 @@ export class ProjectComponent implements OnInit {
             this.getOutputResultsOfInference(process);
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
           });
         } else {
           let dialogRefSpinner = this.dialog.open(ProgressSpinnerDialogComponent, dialogConfigSpinner);
@@ -1582,7 +1545,7 @@ export class ProjectComponent implements OnInit {
             this.getOutputResultsOfInference(process);
           }, error => {
             dialogRefSpinner.close();
-            this._interactionService.openSnackBarBadRequest("Error: " + error.statusText);
+            this._interactionService.openSnackBarBadRequest("Error: " + error.error.Error);
           });
         }
       }
@@ -1618,6 +1581,7 @@ export class ProjectComponent implements OnInit {
         }
         if (process.process_status == "FAILURE" || process.process_status == "RETRY") {
           this.trainProcessStarted = false;
+          this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.proccessId') + process.processId + " " + process.process_data);
           let failProcess = new ProcessingObject;
           this._interactionService.createProcess(status, process);
           failProcess = process;
@@ -1669,6 +1633,7 @@ export class ProjectComponent implements OnInit {
         }
         if (process.process_status == "FAILURE" || process.process_status == "RETRY" || process.process_status == "REVOKED") {
           this.inferenceProcessStarted = false;
+          this._interactionService.openSnackBarBadRequest(this.translate.instant('output-details-dialog.proccessId') + process.processId + " " + process.process_data);
           let failProcess = new ProcessingObject;
           this._interactionService.createProcess(status, process);
           failProcess = process;
@@ -1727,9 +1692,6 @@ export class ProjectComponent implements OnInit {
       this._interactionService.initialiseModelDropdown(this._interactionService.selectedTaskId);
       this._interactionService.initialiseDatasetDropdown(this._interactionService.selectedTaskId)
       this.weightDropdown = [];
-
-      console.log("task id: " + this._interactionService.selectedTaskId);
-      console.log("the checked task: " + checkedButton.name);
     }
   }
 
@@ -1825,12 +1787,6 @@ export class ProjectComponent implements OnInit {
             this._interactionService.openSnackBarOkRequest(this.translate.instant('project.stoppedProcessMessage'));
             this.trainProcessStarted = false;
             this.inferenceProcessStarted = false;
-            // process.showStopButton = false;
-            // process.showDisabledButton = true;
-            // process.process_status = "stopped";
-            //this.checkStatusTrainButton();
-            //this._interactionService.runningProcesses = this._interactionService.runningProcesses.filter(item => item.processId !== process.processId);
-            // this.processData = this.processData.filter(item => item.processId !== process.processId);
             this._interactionService.runningProcesses.forEach(runningProcess => {
               if (runningProcess.processId == process.processId) {
                 runningProcess.process_status = ProcessStatus[5];
@@ -2049,19 +2005,6 @@ export class ProjectComponent implements OnInit {
         })
       }
       this._interactionService.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: data[0].id, name: entry.name, type: entry.type, default_value: this.populatedPropertyDefaultValue, allowed_value: this.populatedPropertyAllowedValue, modelId: data[0].model_id, datasetId: data[0].dataset_id, propertyId: data[0].property_id }))
-      //TODO: to be updated
-      //if (entry.name == "Training augmentations") {
-      //   if (data[0].allowed_value != null) {
-      //     var result = data[0].allowed_value.match(/[+-]?\d+(\.\d+)?/g);
-      //     this._interactionService.angleXValue = result[0];
-      //     this._interactionService.angleYValue = result[1];
-      //     this._interactionService.centerXValue = result[2];
-      //     this._interactionService.centerYValue = result[3];
-      //     this._interactionService.scaleValue = result[4];
-      //     this._interactionService.interpDropdown.push("linear");
-      //     this._interactionService.selectedOptionInterp = this._interactionService.interpDropdown[0];
-      //   }
-      // }
     }
   }
 
@@ -2078,17 +2021,6 @@ export class ProjectComponent implements OnInit {
     }
     else if (entry.type == "STR") {
       this._interactionService.dynamicPropertyList.push(new PropertyItem(InputTextComponent, { id: contentData.id, name: contentData.name, type: contentData.type, default_value: contentData.default, allowed_value: contentData.values }))
-      //TODO: to be updated
-      // if (entry.name == "Training augmentations") {
-      //   if (contentData.default != null) {
-      //     var result = contentData.default.match(/[+-]?\d+(\.\d+)?/g);
-      //     this._interactionService.angleXValue = result[0];
-      //     this._interactionService.angleYValue = result[1];
-      //     this._interactionService.centerXValue = result[2];
-      //     this._interactionService.centerYValue = result[3];
-      //     this._interactionService.scaleValue = result[4];
-      //   }
-      // }
     }
   }
 
@@ -2337,7 +2269,7 @@ export class ProjectComponent implements OnInit {
         this.weightOwner = this.translate.instant('project.noWeightOwner');
       } else {
         weightData.users.forEach(user => {
-          if (user.permission == "OWN") {
+          if (user.permission == PermissionStatus[0]) {
             this.weightOwner = user.username;
           }
         })
@@ -2493,7 +2425,7 @@ export class ProjectComponent implements OnInit {
     }
 
     contentData.users.forEach(user => {
-      if (user.permission == "VIEW") {
+      if (user.permission == PermissionStatus[1]) {
         associated_users.push(user.username);
         nrAssociatedUsers++;
       }
@@ -2712,6 +2644,9 @@ export class ProjectComponent implements OnInit {
         this.showGraphicProcess = false;
         this.showProgressBarProcess = false;
       }
+    }
+    else if (process.processStatus == "PENDING") {
+      this._interactionService.openSnackBarBadRequest(this.translate.instant('project.outputResultsError'));
     }
     else if (process.processStatus == "STARTED") {
       if (process.processType == "training") {

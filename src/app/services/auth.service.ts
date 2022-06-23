@@ -65,7 +65,6 @@ export class AuthService {
     return this.httpClient.get<any>(url);
   }
 
-  //TODO
   getUserById(userId): Observable<HttpResponse<any>> {
     let url = this.apiUrl.concat("/auth/user/");
     url += userId;
@@ -115,7 +114,6 @@ export class AuthService {
     return this.httpClient.delete<any>(url, { observe: 'response' });
   }
 
-  //TODO
   convertToken(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat("/auth/convert-token/");
     const clientId = this.clientID;
@@ -123,8 +121,7 @@ export class AuthService {
     const reqHeader = new HttpHeaders({ 'Content-Type':'application/x-www-form-urlencoded'});
     return this.httpClient.post<any>(url, data, { headers: reqHeader, observe: 'response' });
   }
-
-  //TODO 
+ 
   revokeToken(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat("/auth/revoke-token/");
     const clientId = this.clientID;
@@ -133,7 +130,6 @@ export class AuthService {
     return this.httpClient.post<any>(url, data, { headers: reqHeader, observe: 'response' });
   }
 
-  //TODO
   invalidateSessions(): Observable<HttpResponse<any>> {
     const url = this.apiUrl.concat("/auth/invalidate-sessions/");
     const clientId = this.clientID;

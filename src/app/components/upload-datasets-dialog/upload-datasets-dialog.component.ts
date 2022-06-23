@@ -5,7 +5,6 @@ import { User, Dataset, Model } from '../power-user/power-user.component';
 import { InteractionService } from '../../services/interaction.service';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { DataService } from '../../services/data.service';
-import { empty } from 'rxjs';
 
 export interface UploadDatasetsData {
   dialogContent: string;
@@ -61,13 +60,14 @@ export class UploadDatasetsDialogComponent implements OnInit {
 
   requiredModelControl = new FormControl('', [Validators.required]);
   requiredColorTypeImageControl = new FormControl('', [Validators.required]);
+  requiredColorTypeGroundTruthControl = new FormControl('', [Validators.required]);
   colorTypeList = [];
   selectedColorTypeImage;
   selectedColorTypeGroundTruth;
 
   changeIsUrlLinkCheckedState() {
     this.isUrlLink = !this.isUrlLink;
-    if(this.isUrlLink == true) {
+    if (this.isUrlLink == true) {
       this.inputValuePath = null;
     }
   }
@@ -90,26 +90,26 @@ export class UploadDatasetsDialogComponent implements OnInit {
     this.selectedColorTypeImage = data.selectedColorTypeImage;
     this.selectedColorTypeGroundTruth = data.selectedColorTypeGroundTruth;
 
-    if(this._interactionService.uploadModelIsClicked == false) {
+    if (this._interactionService.uploadModelIsClicked == false) {
       let userProject: User;
       data.userDropdown.forEach(user => {
-        userProject = {id: user.id, username: user.username, first_name: user.first_name, last_name: user.last_name, email: user.email, permission: user.permission };
+        userProject = { id: user.id, username: user.username, first_name: user.first_name, last_name: user.last_name, email: user.email, permission: user.permission };
         this.userDropdown.push(userProject);
       });
       this.userDropdown = this.userDropdown.filter(item => item.username != this._interactionService.username);
     } else {
       let datasetProject: Dataset;
       let nullDataset: Dataset;
-      nullDataset = {id: null, name: "NONE", path: null, task_id: null, color: null, users:null, datasetPublic: null, ctype: null, ctype_gt: null, classes: null};
+      nullDataset = { id: null, name: "NONE", path: null, task_id: null, color: null, users: null, datasetPublic: null, ctype: null, ctype_gt: null, classes: null };
       this.datasetDropdownForUploadModelWeight.push(nullDataset);
       data.datasetDropdownForUploadModelWeight.forEach(dataset => {
-        datasetProject = {id: dataset.id, name: dataset.name, path: dataset.path, task_id: dataset.task_id, color:dataset.color, users:dataset.users, datasetPublic: dataset.datasetPublic, ctype: dataset.ctype, ctype_gt: dataset.ctype_gt, classes: dataset.classes }
+        datasetProject = { id: dataset.id, name: dataset.name, path: dataset.path, task_id: dataset.task_id, color: dataset.color, users: dataset.users, datasetPublic: dataset.datasetPublic, ctype: dataset.ctype, ctype_gt: dataset.ctype_gt, classes: dataset.classes }
         this.datasetDropdownForUploadModelWeight.push(datasetProject);
       })
- 
+
       let modelProject: Model;
       data.modelDropdownForUploadModelWeight.forEach(model => {
-        modelProject = {id: model.id, name: model.name, task_id: model.task_id, color: model.color, location: model.location, weightsList: model.weightsList, propertiesList: model.propertiesList }
+        modelProject = { id: model.id, name: model.name, task_id: model.task_id, color: model.color, location: model.location, weightsList: model.weightsList, propertiesList: model.propertiesList }
         this.modelDropdownForUploadModelWeight.push(modelProject);
       })
     }
@@ -141,7 +141,7 @@ export class UploadDatasetsDialogComponent implements OnInit {
     } else if (this.datasetDisplayModeValue == false) {
       this._interactionService.projectDatasetDisplayMode = false;
     }
-  } 
+  }
 
   onFileSelect(event) {
     const file = (event.target as HTMLInputElement).files[0];

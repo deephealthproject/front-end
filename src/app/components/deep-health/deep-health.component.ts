@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { InteractionService } from '../../services/interaction.service';
 
-
 @Component({
   selector: 'app-deep-health',
   templateUrl: './deep-health.component.html',

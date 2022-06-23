@@ -8,8 +8,7 @@ mat-dialog-content {
 }
 
 .mat-form-field {
-    width: 560px;
-    display: block;
+    width: 100%;
 }
 
 .customClassUploadModel {

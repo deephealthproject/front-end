@@ -53,7 +53,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
   selectedTaskManager: string;
   selectedEnvironmentType: string;
   selectedEnvironment = new Map<string, string>();
-  environmentId : number = 0;
+  environmentId: number = 0;
 
   constructor(public dialogRef: MatDialogRef<ConfirmDialogTrainComponent>,
     @Inject(MAT_DIALOG_DATA) public data: TrainDialogData, private _interactionService: InteractionService,
@@ -139,11 +139,11 @@ export class ConfirmDialogTrainComponent implements OnInit {
 
   initialiseStreamFlowEnvironment() {
     this.streamFlowEnvironment = [];
-    this.streamFlowEnvironment.push({"id": 0, "type":"DCK"});
-    this.streamFlowEnvironment.push({"id": 1, "type":"DCC"});
-    this.streamFlowEnvironment.push({"id": 2, "type":"SSH"});
-    this.streamFlowEnvironment.push({"id": 3, "type":"HLM"});
-    this.streamFlowEnvironment.push({"id": 4, "type":"SLM"});
+    this.streamFlowEnvironment.push({ "id": 0, "type": "DCK" });
+    this.streamFlowEnvironment.push({ "id": 1, "type": "DCC" });
+    this.streamFlowEnvironment.push({ "id": 2, "type": "SSH" });
+    this.streamFlowEnvironment.push({ "id": 3, "type": "HLM" });
+    this.streamFlowEnvironment.push({ "id": 4, "type": "SLM" });
   }
 
   save() {
@@ -153,7 +153,7 @@ export class ConfirmDialogTrainComponent implements OnInit {
     this.data.selectedTaskManager = this.selectedTaskManager;
     this.data.selectedEnvironmentType = this.selectedEnvironmentType;
     this.streamFlowEnvironment.forEach(env => {
-      if(this.selectedEnvironmentType == env.type) {
+      if (this.selectedEnvironmentType == env.type) {
         this.environmentId = env.id;
       }
     })

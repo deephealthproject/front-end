@@ -2,7 +2,6 @@ import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@a
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { catchError, tap } from 'rxjs/operators';
 import { empty, throwError } from 'rxjs';
-
 import { AuthService } from './auth.service';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { Injectable } from '@angular/core';

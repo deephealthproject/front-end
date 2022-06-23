@@ -66,8 +66,7 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
       //lower and upper limits
       if (event.target.value < 0.00001 || event.target.value > 0.01) {
         this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorMessageLearningrateLimits'));
-        this._interactionService.disabledTrainButton = true;
-        this._interactionService.disabledTrainLearningRateAllowed = true;
+        this.learningRateIncorrectValues();
       }
       else {
         //match with allowed array
@@ -78,46 +77,34 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
           if (this._interactionService.allowedValues[1].charAt(0) == ">") {
             if (event.target.value <= this._interactionService.allowedValues[1].charAt(2)) {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             } else {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             }
           } else if (this._interactionService.allowedValues[1].substring(0, 2) == ">=") {
             if (event.target.value <= this._interactionService.allowedValues[1].charAt(3)) {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             } else {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             }
           } else if (this._interactionService.allowedValues[1].charAt(0) == "<" && this._interactionService.allowedValues[1].charAt(this._interactionService.allowedValues[1].length - 2) == ">") {
             //"<10;>0".charAt("<10;>0".length-2)
             if (event.target.value < this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf("<") + 1, this._interactionService.allowedValues[1].indexOf(";"))
               && this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf(">") + 1, this._interactionService.allowedValues[1].length)) {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             } else {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             }
           } else if (this._interactionService.allowedValues[1].substring(0, 2) == "<=" && this._interactionService.allowedValues[1].charAt(this._interactionService.allowedValues[1].length - 2) == ">") {
             //"<10;>0".charAt("<10;>0".length-2)
             if (event.target.value <= this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf("<=") + 2, this._interactionService.allowedValues[1].indexOf(";"))
               && event.target.value > this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf(">") + 1, this._interactionService.allowedValues[1].length)) {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             } else {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             }
           } else if (this._interactionService.allowedValues[1].substring(0, 2) == "<=" &&
             this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf(";") + 1,
@@ -126,37 +113,41 @@ export class InputFloatComponent implements PropertyInterface, OnInit {
             if (event.target.value <= this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf("<=") + 2, this._interactionService.allowedValues[1].indexOf(";"))
               && this._interactionService.allowedValues[1].substring(this._interactionService.allowedValues[1].indexOf(">=") + 2, this._interactionService.allowedValues[1].length)) {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             } else {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             }
           } else {
             const allowedValueExist = (allowedValue) => allowedValue === event.target.value;
             if (this._interactionService.allowedValues.some(allowedValueExist)) {
-              this._interactionService.disabledTrainButton = false;
-              this._interactionService.disabledTrainLearningRateAllowed = false;
-              this._interactionService.learningRateValue = event.target.value;
+              this.learningRateOkValues(event);
             } else {
               this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorValueNotInAllowedValuesMessage'));
-              this._interactionService.disabledTrainButton = true;
-              this._interactionService.disabledTrainLearningRateAllowed = true;
+              this.learningRateIncorrectValues();
             }
           }
         } else {
           if (event.target.value <= 0) {
             this._interactionService.openSnackBarBadRequest(this.translate.instant('project.errorPositiveAllowedValuesMessage'));
-            this._interactionService.disabledTrainButton = true;
-            this._interactionService.disabledTrainLearningRateAllowed = true;
+            this.learningRateIncorrectValues();
           } else {
-            this._interactionService.disabledTrainButton = false;
-            this._interactionService.disabledTrainLearningRateAllowed = false;
-            this._interactionService.learningRateValue = event.target.value;
+            this.learningRateOkValues(event);
           }
         }
       }
     }
   }
+
+  learningRateOkValues(event) {
+    this._interactionService.disabledTrainButton = false;
+    this._interactionService.disabledTrainLearningRateAllowed = false;
+    this._interactionService.learningRateValue = event.target.value;
+  }
+
+  learningRateIncorrectValues() {
+    this._interactionService.disabledTrainButton = true;
+    this._interactionService.disabledTrainLearningRateAllowed = true;
+  }
 }
+
+

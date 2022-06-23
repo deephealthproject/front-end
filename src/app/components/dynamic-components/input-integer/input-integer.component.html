@@ -30,7 +30,7 @@
             <textarea matInput *ngIf="this._interactionService.batchSizeAllowedValues.length != 0" cdkTextareaAutosize
                 #autosize="cdkTextareaAutosize" disabled cdkAutosizeMinRows="1" cdkAutosizeMaxRows="7"
                 value={{this._interactionService.propertyItemData.defaultType}}{{this.propertyData.default_value}}{{this._interactionService.propertyItemData.allowedType}}{{this._interactionService.batchSizeValues}}></textarea>
-        </mat-form-field>       
+        </mat-form-field>
         <mat-form-field style="text-align: right; width: 95%; font-size: 15px;"
             *ngIf="this.propertyData.name == 'Input width'">
             <textarea matInput *ngIf="this._interactionService.inputWidthAllowedValues.length == 0" cdkTextareaAutosize

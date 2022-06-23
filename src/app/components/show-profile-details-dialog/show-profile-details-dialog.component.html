@@ -5,25 +5,32 @@
 <mat-dialog-content>
   <div class="div-profile-details">
     {{'profile-details-dialog.username' | translate}}
-    <input matInput style="margin-left: 29px; border: none" readonly="readonly" [(ngModel)]="_interactionService.userProfileDetails.username">
+    <input matInput style="margin-left: 29px; border: none" readonly="readonly"
+      [(ngModel)]="_interactionService.userProfileDetails.username">
   </div>
   <div class="div-profile-details">
     {{'profile-details-dialog.firstName' | translate}}
-    <input matInput style="border: none" readonly="readonly" [(ngModel)]="_interactionService.userProfileDetails.first_name">
+    <input matInput style="border: none" readonly="readonly"
+      [(ngModel)]="_interactionService.userProfileDetails.first_name">
   </div>
   <div class="div-profile-details">
     {{'profile-details-dialog.lastName' | translate}}
-    <input matInput style="margin-left: 28px; border: none" readonly="readonly" [(ngModel)]="_interactionService.userProfileDetails.last_name">
+    <input matInput style="margin-left: 28px; border: none" readonly="readonly"
+      [(ngModel)]="_interactionService.userProfileDetails.last_name">
   </div>
   <div class="div-profile-details">
     {{'profile-details-dialog.email' | translate}}
-    <input matInput style="margin-left: 58px; border: none" readonly="readonly" [(ngModel)]="_interactionService.userProfileDetails.email">
+    <input matInput style="margin-left: 58px; border: none" readonly="readonly"
+      [(ngModel)]="_interactionService.userProfileDetails.email">
   </div>
   <div class="div-profile-details">
-    <button mat-raised-button class="change-password-button" [disabled]="disabledChangePasswordButton" (click)="changePassword();">{{'profile-details-dialog.changePasswordButton' | translate}}</button>
-    <button style="margin-left: 48px;" mat-raised-button class="change-password-button" [disabled]="disabledUpdateProfileButton"
+    <button mat-raised-button class="change-password-button" [disabled]="disabledChangePasswordButton"
+      (click)="changePassword();">{{'profile-details-dialog.changePasswordButton' | translate}}</button>
+    <button style="margin-left: 48px;" mat-raised-button class="change-password-button"
+      [disabled]="disabledUpdateProfileButton"
       (click)="updateProfile();">{{'profile-details-dialog.updateProfileButton' | translate}}</button>
-    <button style="margin-left: 48px;" mat-raised-button class="change-password-button" [disabled]="disabledDeleteAccountButton"
+    <button style="margin-left: 48px;" mat-raised-button class="change-password-button"
+      [disabled]="disabledDeleteAccountButton"
       (click)="deleteAccount();">{{'profile-details-dialog.deleteAccountButton' | translate}}</button>
   </div>
 
@@ -31,29 +38,34 @@
     <form action="" #userForm="ngForm">
       <div class="div-profile-details">
         {{'profile-details-dialog.oldPassword' | translate}}
-        <input style="margin-left: 83px;" name="oldPassword" required ngModel #oldPassword="ngModel" [(ngModel)]="oldPasswordValue"
-          type="password">
+        <input style="margin-left: 83px;" name="oldPassword" required ngModel #oldPassword="ngModel"
+          [(ngModel)]="oldPasswordValue" type="password">
       </div>
       <div class="div-profile-details">
         {{'profile-details-dialog.newPassword' | translate}}
-        <input style="margin-left: 76px;" name="newPassword" required minlength="8" ngModel #newPassword="ngModel" [(ngModel)]="newPasswordValue"
-          type="password">
+        <input style="margin-left: 76px;" name="newPassword" required minlength="8" ngModel #newPassword="ngModel"
+          [(ngModel)]="newPasswordValue" type="password">
         <div style="padding: 6px; padding-left: 172px;">
-          <mat-error *ngIf="newPassword.errors?.minlength">{{'profile-details-dialog.errorPasswordLength' | translate}}</mat-error>
+          <mat-error *ngIf="newPassword.errors?.minlength">{{'profile-details-dialog.errorPasswordLength' | translate}}
+          </mat-error>
         </div>
       </div>
       <div class="div-profile-details">
         {{'profile-details-dialog.confirmNewPassword' | translate}}
-        <input style="margin-left: 26px;" name="confirmNewPassword" required minlength="8" ngModel #confirmNewPassword="ngModel" pattern="{{newPasswordValue}}"
-          [(ngModel)]="confirmNewPasswordValue" type="password">
+        <input style="margin-left: 26px;" name="confirmNewPassword" required minlength="8" ngModel
+          #confirmNewPassword="ngModel" pattern="{{newPasswordValue}}" [(ngModel)]="confirmNewPasswordValue"
+          type="password">
         <div style="padding: 6px; padding-left: 172px;">
-          <mat-error *ngIf="confirmNewPassword.errors?.pattern">{{'profile-details-dialog.errorMessageChangePassword' | translate}}</mat-error>
+          <mat-error *ngIf="confirmNewPassword.errors?.pattern">
+            {{'profile-details-dialog.errorMessageChangePassword' | translate}}</mat-error>
         </div>
       </div>
       <div class="div-profile-details">
-        <button mat-raised-button class="change-password-button" (click)="savePassword(oldPasswordValue, newPasswordValue, confirmNewPasswordValue)"
+        <button mat-raised-button class="change-password-button"
+          (click)="savePassword(oldPasswordValue, newPasswordValue, confirmNewPasswordValue)"
           [disabled]="userForm.invalid">{{'profile-details-dialog.savePasswordButton' | translate}}</button>
-        <button style="margin-left: 48px;" mat-raised-button class="change-password-button" (click)="cancelChangePassword();">{{'profile-details-dialog.cancelChangePassword' | translate}}</button>
+        <button style="margin-left: 48px;" mat-raised-button class="change-password-button"
+          (click)="cancelChangePassword();">{{'profile-details-dialog.cancelChangePassword' | translate}}</button>
       </div>
     </form>
   </div>
@@ -62,33 +74,41 @@
     <form action="" #userForm="ngForm">
       <div class="div-profile-details">
         {{'profile-details-dialog.username' | translate}}
-        <input style="margin-left: 33px;" name="username" ngModel #username="ngModel" [(ngModel)]="_interactionService.userProfileDetails.username">
+        <input style="margin-left: 33px;" name="username" ngModel #username="ngModel"
+          [(ngModel)]="_interactionService.userProfileDetails.username">
       </div>
       <div class="div-profile-details">
         {{'profile-details-dialog.firstName' | translate}}
-        <input style="margin-left: 30px;" name="firstName" ngModel #firstName="ngModel" [(ngModel)]="_interactionService.userProfileDetails.first_name">
+        <input style="margin-left: 30px;" name="firstName" ngModel #firstName="ngModel"
+          [(ngModel)]="_interactionService.userProfileDetails.first_name">
       </div>
       <div class="div-profile-details">
         {{'profile-details-dialog.lastName' | translate}}
-        <input style="margin-left: 32px;" name="lastName" ngModel #lastName="ngModel" [(ngModel)]="_interactionService.userProfileDetails.last_name">
+        <input style="margin-left: 32px;" name="lastName" ngModel #lastName="ngModel"
+          [(ngModel)]="_interactionService.userProfileDetails.last_name">
       </div>
       <div class="div-profile-details">
         {{'profile-details-dialog.email' | translate}}
-        <input style="margin-left: 62px;" email name="email" ngModel #email="ngModel" [(ngModel)]="_interactionService.userProfileDetails.email">
+        <input style="margin-left: 62px;" email name="email" ngModel #email="ngModel"
+          [(ngModel)]="_interactionService.userProfileDetails.email">
         <div style="padding: 6px; padding-left: 102px;">
           <mat-error *ngIf="email.errors?.email">{{'register.errorEmailInvalid' | translate}}</mat-error>
         </div>
       </div>
       <div class="div-profile-details">
-        <button mat-raised-button class="change-password-button" (click)="saveUpdateProfile(_interactionService.userProfileDetails.username, _interactionService.userProfileDetails.email, _interactionService.userProfileDetails.first_name, _interactionService.userProfileDetails.last_name)"
+        <button mat-raised-button class="change-password-button"
+          (click)="saveUpdateProfile(_interactionService.userProfileDetails.username, _interactionService.userProfileDetails.email, _interactionService.userProfileDetails.first_name, _interactionService.userProfileDetails.last_name)"
           [disabled]="userForm.invalid">{{'profile-details-dialog.saveUpdateProfileButton' | translate}}</button>
-        <button style="margin-left: 48px;" mat-raised-button class="change-password-button" (click)="cancelUpdateProfile();">{{'profile-details-dialog.cancelChangePassword' | translate}}</button>
+        <button style="margin-left: 48px;" mat-raised-button class="change-password-button"
+          (click)="cancelUpdateProfile();">{{'profile-details-dialog.cancelChangePassword' | translate}}</button>
       </div>
     </form>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-raised-button [disabled]="disabledActionButton" (click)="save()">{{'update-weight-dialog.OKButton' | translate}}</button>
-  <button mat-button mat-dialog-close [disabled]="disabledActionButton">{{'upload-dataset-dialog.CancelButton' | translate}}</button>
+  <button mat-raised-button [disabled]="disabledActionButton"
+    (click)="save()">{{'update-weight-dialog.OKButton' | translate}}</button>
+  <button mat-button mat-dialog-close
+    [disabled]="disabledActionButton">{{'upload-dataset-dialog.CancelButton' | translate}}</button>
 </mat-dialog-actions>
